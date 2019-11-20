@@ -5,6 +5,7 @@
 
 #include "shaders.hpp"
 #include "errors.hpp"
+#include "mesh.hpp"
 
 GLFWwindow* initGL();
 
@@ -15,37 +16,37 @@ int main() {
 
 	glViewport(0, 0, 500, 500);
 
-	// vertices
 	float vertices[] = {
-		// first triangle
 		-1.0f, -0.5f, 0.0f,
 		 0.0f, -0.5f, 0.0f,
 		-0.5f,  0.5f, 0.0f,
 	};
 
-	GLuint VAO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	float vertices2[] = {
+		 0.0f,  0.0f, 0.0f,
+		 0.5f,  0.5f, 0.0f,
+		 1.0f,  0.0f, 0.0f,
+	};
 
-	GLuint VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	mesh triangle(vertices, sizeof(vertices));
+	triangle.vertexAttrib(0, 3);
+
+	mesh triangle2(vertices2, sizeof(vertices2));
+	triangle2.vertexAttrib(0, 3);
 
 	shader triangle1("shaders/vertex.glsl", "shaders/fragment.glsl");
-
 	if (triangle1.fail())
 		return -1;
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glEnableVertexAttribArray(0);
 
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		triangle1.use();
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 9);
+		triangle.bind();
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		triangle2.bind();
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -69,7 +70,6 @@ GLFWwindow* initGL() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	// @TODO: Implement resizability
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
