@@ -1,7 +1,5 @@
 #include <GL/gl3w.h>
 
-#define PRINT_ERROR(x) std::cerr << x << std::endl
-
 class shader {
 private:
 	GLuint glProgram;

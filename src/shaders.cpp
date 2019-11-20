@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "shaders.hpp"
+#include "errors.hpp"
 
 std::string readfile(const char* filename);
 

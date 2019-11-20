@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include "shaders.hpp"
+#include "errors.hpp"
 
 GLFWwindow* initGL();
 
@@ -22,7 +23,6 @@ int main() {
 		-0.5f,  0.5f, 0.0f,
 	};
 
-	// For multiples different objects, this could be moved into its own class
 	GLuint VAO;
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -34,9 +34,8 @@ int main() {
 
 	shader triangle1("shaders/vertex.glsl", "shaders/fragment.glsl");
 
-	if (triangle1.fail()) {
+	if (triangle1.fail())
 		return -1;
-	}
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(0);
