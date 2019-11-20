@@ -81,6 +81,7 @@ GLFWwindow* initGL() {
 		return nullptr;
 	}
 	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1);
 
 	if (gl3wInit()) {
 		PRINT_ERROR("Error initialising GL3W");
