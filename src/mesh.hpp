@@ -1,3 +1,6 @@
+#ifndef MESH_HPP
+#define MESH_HPP
+
 #include <GL/gl3w.h>
 
 class mesh {
@@ -20,3 +23,5 @@ public:
 
 	void bind();
 };
+
+#endif // MESH_HPP

@@ -63,15 +63,15 @@ shader::shader(const char* vtxFilename, const char* fragFilename) {
 	glDeleteShader(fragShader);
 }
 
-void shader::use() {
+void shader::use() const {
 	glUseProgram(glProgram);
 }
 
-bool shader::fail() {
+bool shader::fail() const {
 	return has_failed;
 }
 
-GLint shader::getUniformLocation(const char* name) {
+GLint shader::getUniformLocation(const char* name) const {
 	return glGetUniformLocation(glProgram, name);
 }
 
@@ -95,10 +95,10 @@ std::string readfile(const char* filename) {
 }
 
 // If you wonder what "location" is, see uniformFunc macro in shaders.hpp
-void shader::uniformFunc(float f) {
+void shader::uniformFunc(float f) const {
 	glUniform1f(location, f);
 }
 
-void shader::uniformFunc(float x, float y, float z, float w) {
+void shader::uniformFunc(float x, float y, float z, float w) const {
 	glUniform4f(location, x, y, z, w);
 }
