@@ -1,5 +1,4 @@
 #include <fstream>
-#include <iostream>
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -40,8 +39,8 @@ shader::shader(const char* vtxFilename, const char* fragFilename) {
 		PRINT_ERROR("Error compiling fragment shader: " << std::endl << info);
 	}
 
-	has_failed = (!fragSuccess || !vtxSuccess);
-	if (has_failed)
+	hasFailed = (!fragSuccess || !vtxSuccess);
+	if (hasFailed)
 		return;
 
 	glProgram = glCreateProgram();
@@ -57,7 +56,7 @@ shader::shader(const char* vtxFilename, const char* fragFilename) {
 		PRINT_ERROR("Error linking shaders: " << std::endl << info);
 	}
 
-	has_failed = !progSuccess;
+	hasFailed = !progSuccess;
 
 	glDeleteShader(vtxShader);
 	glDeleteShader(fragShader);
@@ -65,10 +64,6 @@ shader::shader(const char* vtxFilename, const char* fragFilename) {
 
 void shader::use() const {
 	glUseProgram(glProgram);
-}
-
-bool shader::fail() const {
-	return has_failed;
 }
 
 GLint shader::getUniformLocation(const char* name) const {
@@ -101,4 +96,8 @@ void shader::uniformFunc(float f) const {
 
 void shader::uniformFunc(float x, float y, float z, float w) const {
 	glUniform4f(location, x, y, z, w);
+}
+
+void shader::uniformFunc(int i) const {
+	glUniform1i(location, i);
 }

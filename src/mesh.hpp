@@ -12,6 +12,8 @@ public:
 	mesh(float* vertices, GLsizeiptr size);
 
 	void vertexAttrib(GLuint index, GLint size);
+	void vertexAttrib(GLuint index, GLint size, GLsizei stride);
+	void vertexAttrib(GLuint index, GLint size, GLsizei stride, const void* pointer);
 	void vertexAttrib(
 		GLuint index,
 		GLint size,

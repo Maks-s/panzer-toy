@@ -8,17 +8,18 @@
 class shader {
 private:
 	GLuint glProgram;
-	bool has_failed;
+	bool hasFailed;
 
 public:
 	shader(const char* vtxFilename, const char* fragFilename);
 	void use() const;
-	bool fail() const;
+	bool fail() const { return hasFailed; }
 	GLint getUniformLocation(const char* name) const;
 
 	// Uniforms overload
 	void uniformFunc(float) const;
 	void uniformFunc(float, float, float, float) const;
+	void uniformFunc(int) const;
 };
 
 #endif // SHADER_HPP
