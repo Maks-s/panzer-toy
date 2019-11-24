@@ -34,16 +34,24 @@ int main() {
 	mesh triangle2(vertices2, sizeof(vertices2));
 	triangle2.vertexAttrib(0, 3);
 
-	shader triangle1("shaders/vertex.glsl", "shaders/fragment.glsl");
-	if (triangle1.fail())
+	shader baseShader("shaders/vertex.glsl", "shaders/fragment.glsl");
+	if (baseShader.fail())
 		return -1;
+
+	GLint uniformTime = baseShader.getUniformLocation("time");
 
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		triangle1.use();
+		float time = glfwGetTime();
+
+		baseShader.setUniform(uniformTime, time);
+		baseShader.use();
+
 		triangle.bind();
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		baseShader.setUniform(uniformTime, time - 0.2f);
 
 		triangle2.bind();
 		glDrawArrays(GL_TRIANGLES, 0, 3);
