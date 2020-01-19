@@ -2,6 +2,8 @@
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "shaders.hpp"
 #include "errors.hpp"
@@ -100,4 +102,8 @@ void shader::uniformFunc(float x, float y, float z, float w) const {
 
 void shader::uniformFunc(int i) const {
 	glUniform1i(location, i);
+}
+
+void shader::uniformFunc(glm::mat4 mat) const {
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 }

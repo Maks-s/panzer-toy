@@ -2,6 +2,7 @@
 #define SHADER_HPP
 
 #include <GL/gl3w.h>
+#include <glm/mat4x4.hpp>
 
 #define uniformFunc(...) setUniform(GLint location, __VA_ARGS__)
 
@@ -20,6 +21,7 @@ public:
 	void uniformFunc(float) const;
 	void uniformFunc(float, float, float, float) const;
 	void uniformFunc(int) const;
+	void uniformFunc(glm::mat4) const;
 };
 
 #endif // SHADER_HPP

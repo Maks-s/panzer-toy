@@ -1,5 +1,9 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/ext.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "texture.hpp"
 #include "shaders.hpp"
@@ -60,12 +64,17 @@ int main() {
 	baseShader.setUniform(baseShader.getUniformLocation("tex2"), 1);
 
 	GLint uniformTime = baseShader.getUniformLocation("time");
+	GLint uniformTrans = baseShader.getUniformLocation("trans");
 
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		float time = glfwGetTime();
 
+		glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(0.25f, -0.75f, 0.0f));
+		trans = glm::rotate(trans, time, glm::vec3(0.0f, 0.0f, 1.0f));
+
+		baseShader.setUniform(uniformTrans, trans);
 		baseShader.setUniform(uniformTime, time);
 		baseShader.use();
 
