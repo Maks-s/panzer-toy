@@ -5,10 +5,11 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "texture.hpp"
-#include "shaders.hpp"
 #include "errors.hpp"
-#include "mesh.hpp"
+#include "model.hpp"
+#include "shaders.hpp"
+
+// @TODO: Make everything compliant with C++ Core Guidelines
 
 GLFWwindow* initGL();
 
@@ -17,74 +18,37 @@ int main() {
 	if (window == nullptr)
 		return -1;
 
-	float triangleData[] = {
-		// vertices          // texture coordinates
-		-1.0f, -0.5f, 0.0f,  0.0f, 0.0f,
-		 0.0f, -0.5f, 0.0f,  1.0f, 0.0f,
-		-0.5f,  0.5f, 0.0f,  0.5f, 1.0f,
-	};
-
-	float triangleData2[] = {
-		// vertices          // texture coordinates
-		 0.0f,  0.0f, 0.0f,  0.0f, 0.0f,
-		 0.5f,  0.5f, 0.0f,  0.5f, 0.5f,
-		 1.0f,  0.0f, 0.0f,  1.0f, 0.0f,
-	};
-
-	// COPYRIGHTED IMAGES, DO NOT USE
-	// (funny how they're mixing so smoothly)
-	texture triTexture("assets/small_img.jpg");
-	texture bigTexture("assets/img.jpg");
-	if (triTexture.fail() || bigTexture.fail())
-		return -1;
-
-	glActiveTexture(GL_TEXTURE0);
-	triTexture.bind();
-
-	glActiveTexture(GL_TEXTURE1);
-	bigTexture.bind();
-
-	GLsizei stride = 5 * sizeof(float);
-
-	mesh triangle(triangleData, sizeof(triangleData));
-	triangle.vertexAttrib(0, 3, stride);
-	triangle.vertexAttrib(1, 2, stride, (const void*)(3 * sizeof(float)));
-
-	mesh triangle2(triangleData2, sizeof(triangleData2));
-	triangle2.vertexAttrib(0, 3, stride);
-	triangle.vertexAttrib(1, 2, stride, (const void*)(3 * sizeof(float)));
-
-	shader baseShader("shaders/vertex.glsl", "shaders/fragment.glsl");
+	Shader baseShader("shaders/vertex.glsl", "shaders/fragment.glsl");
 	if (baseShader.fail())
 		return -1;
 
 	baseShader.use();
 
-	baseShader.setUniform(baseShader.getUniformLocation("tex"), 0);
-	baseShader.setUniform(baseShader.getUniformLocation("tex2"), 1);
+	Model mdl("models/nanosuit.obj");
 
-	GLint uniformTime = baseShader.getUniformLocation("time");
-	GLint uniformTrans = baseShader.getUniformLocation("trans");
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.f);
+	baseShader.setUniform(baseShader.getUniformLocation("proj"), projection);
+
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+	baseShader.setUniform(baseShader.getUniformLocation("view"), view);
+
+	GLint uniTime = baseShader.getUniformLocation("time");
+	GLint uniModel = baseShader.getUniformLocation("model");
 
 	while (!glfwWindowShouldClose(window)) {
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		float time = glfwGetTime();
 
-		glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(0.25f, -0.75f, 0.0f));
-		trans = glm::rotate(trans, time, glm::vec3(0.0f, 0.0f, 1.0f));
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.75f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+		model = glm::rotate(model, time, glm::vec3(0.0f, 1.0f, 0.0f));
 
-		baseShader.setUniform(uniformTrans, trans);
-		baseShader.setUniform(uniformTime, time);
 		baseShader.use();
+		baseShader.setUniform(uniModel, model);
+		baseShader.setUniform(uniTime, time);
 
-		triangle.bind();
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		baseShader.setUniform(uniformTime, time - 0.2f);
-
-		triangle2.bind();
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		mdl.draw(baseShader);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -127,6 +91,7 @@ GLFWwindow* initGL() {
 	}
 
 	glViewport(0, 0, 500, 500);
+	glEnable(GL_DEPTH_TEST);
 
 	// Texture settings
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);

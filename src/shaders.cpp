@@ -10,7 +10,7 @@
 
 std::string readfile(const char* filename);
 
-shader::shader(const char* vtxFilename, const char* fragFilename) {
+Shader::Shader(const char* vtxFilename, const char* fragFilename) {
 	GLuint vtxShader = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -41,11 +41,11 @@ shader::shader(const char* vtxFilename, const char* fragFilename) {
 		PRINT_ERROR("Error compiling fragment shader: " << std::endl << info);
 	}
 
-	hasFailed = (!fragSuccess || !vtxSuccess);
-	if (hasFailed)
+	mFailed = (!fragSuccess || !vtxSuccess);
+	if (mFailed)
 		return;
 
-	glProgram = glCreateProgram();
+	mGlProgram = glCreateProgram();
 	glAttachShader(glProgram, vtxShader);
 	glAttachShader(glProgram, fragShader);
 	glLinkProgram(glProgram);
@@ -58,17 +58,17 @@ shader::shader(const char* vtxFilename, const char* fragFilename) {
 		PRINT_ERROR("Error linking shaders: " << std::endl << info);
 	}
 
-	hasFailed = !progSuccess;
+	mFailed = !progSuccess;
 
 	glDeleteShader(vtxShader);
 	glDeleteShader(fragShader);
 }
 
-void shader::use() const {
+void Shader::use() const {
 	glUseProgram(glProgram);
 }
 
-GLint shader::getUniformLocation(const char* name) const {
+GLint Shader::getUniformLocation(const char* name) const {
 	return glGetUniformLocation(glProgram, name);
 }
 
@@ -76,7 +76,7 @@ std::string readfile(const char* filename) {
 	std::ifstream shaderfile(filename, std::ios::ate);
 
 	if (!shaderfile.is_open()) {
-		PRINT_ERROR("Error opening file");
+		PRINT_ERROR("Error opening file: " << filename);
 		return "";
 	}
 
@@ -91,19 +91,18 @@ std::string readfile(const char* filename) {
 	return content;
 }
 
-// If you wonder what "location" is, see uniformFunc macro in shaders.hpp
-void shader::uniformFunc(float f) const {
+void Shader::setUniform(GLint location, float f) const {
 	glUniform1f(location, f);
 }
 
-void shader::uniformFunc(float x, float y, float z, float w) const {
+void Shader::setUniform(GLint location, float x, float y, float z, float w) const {
 	glUniform4f(location, x, y, z, w);
 }
 
-void shader::uniformFunc(int i) const {
+void Shader::setUniform(GLint location, int i) const {
 	glUniform1i(location, i);
 }
 
-void shader::uniformFunc(glm::mat4 mat) const {
+void Shader::setUniform(GLint location, glm::mat4 mat) const {
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 }
