@@ -5,15 +5,15 @@
 #include <GL/gl3w.h>
 #include <assimp/material.h>
 
-#include "errors.hpp"
+#include "error.hpp"
 #include "texture.hpp"
 
-std::vector<Texture> gTextures;
+std::vector<Texture> loaded_textures;
 
-Texture TextureManager::loadTexture(std::string filename, bool flip, aiTextureType type) {
-	for (int i=gTextures.size() - 1; i >= 0; --i) {
-		if (gTextures[i].path == filename) {
-			return gTextures[i];
+Texture TextureManager::load_texture(std::string filename, bool flip, aiTextureType type) {
+	for (int i=loaded_textures.size() - 1; i >= 0; --i) {
+		if (loaded_textures[i].path == filename) {
+			return loaded_textures[i];
 		}
 	}
 
@@ -62,13 +62,13 @@ Texture TextureManager::loadTexture(std::string filename, bool flip, aiTextureTy
 	texture.id = id;
 	texture.width = width;
 	texture.height = height;
-	gTextures.push_back(texture);
+	loaded_textures.push_back(texture);
 
 	return texture;
 }
 
-Texture TextureManager::getTexture(std::string filename) {
-	for (auto& texture : gTextures) {
+Texture TextureManager::get_texture(std::string filename) {
+	for (auto& texture : loaded_textures) {
 		if (texture.path == filename) {
 			return texture;
 		}
@@ -77,8 +77,8 @@ Texture TextureManager::getTexture(std::string filename) {
 	return Texture(); // Return invalid texture
 }
 
-Texture TextureManager::getTexture(GLuint id) {
-	for (auto& texture : gTextures) {
+Texture TextureManager::get_texture(GLuint id) {
+	for (auto& texture : loaded_textures) {
 		if (texture.id == id) {
 			return texture;
 		}

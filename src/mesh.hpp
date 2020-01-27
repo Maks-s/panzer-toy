@@ -6,7 +6,7 @@
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
 
-#include "shaders.hpp"
+#include "shader.hpp"
 #include "texture.hpp"
 
 struct Vertex {
@@ -22,10 +22,10 @@ public:
 	void draw(Shader shader);
 
 private:
-	GLuint mVAO, mVBO, mEBO;
-	std::vector<Vertex> mVertices;
-	std::vector<GLuint> mIndices;
-	std::vector<Texture> mTextures;
+	GLuint VAO, VBO, EBO;
+	std::vector<Vertex> vertices;
+	std::vector<GLuint> indices;
+	std::vector<Texture> textures;
 };
 
 #endif // MESH_HPP

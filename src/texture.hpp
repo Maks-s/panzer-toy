@@ -14,10 +14,10 @@ struct Texture {
 };
 
 namespace TextureManager {
-	Texture loadTexture(std::string filename, bool flip = false, aiTextureType type = aiTextureType_NONE);
+	Texture load_texture(std::string filename, bool flip = false, aiTextureType type = aiTextureType_NONE);
 
-	Texture getTexture(std::string filename);
-	Texture getTexture(GLuint id);
+	Texture get_texture(std::string filename);
+	Texture get_texture(GLuint id);
 }
 
 #endif // TEXTURE_HPP

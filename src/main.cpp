@@ -5,35 +5,35 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "errors.hpp"
+#include "error.hpp"
 #include "model.hpp"
-#include "shaders.hpp"
+#include "shader.hpp"
 
 // @TODO: Make everything compliant with C++ Core Guidelines
 
-GLFWwindow* initGL();
+GLFWwindow* init_GL();
 
 int main() {
-	GLFWwindow* window = initGL();
+	GLFWwindow* window = init_GL();
 	if (window == nullptr)
 		return -1;
 
-	Shader baseShader("shaders/vertex.glsl", "shaders/fragment.glsl");
-	if (baseShader.fail())
+	Shader base_shader("shaders/vertex.glsl", "shaders/fragment.glsl");
+	if (base_shader.fail())
 		return -1;
 
-	baseShader.use();
+	base_shader.use();
 
 	Model mdl("models/nanosuit.obj");
 
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.f);
-	baseShader.setUniform(baseShader.getUniformLocation("proj"), projection);
+	base_shader.set_uniform(base_shader.get_uniform_location("proj"), projection);
 
 	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
-	baseShader.setUniform(baseShader.getUniformLocation("view"), view);
+	base_shader.set_uniform(base_shader.get_uniform_location("view"), view);
 
-	GLint uniTime = baseShader.getUniformLocation("time");
-	GLint uniModel = baseShader.getUniformLocation("model");
+	GLint uniTime = base_shader.get_uniform_location("time");
+	GLint uniModel = base_shader.get_uniform_location("model");
 
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -44,11 +44,11 @@ int main() {
 		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 		model = glm::rotate(model, time, glm::vec3(0.0f, 1.0f, 0.0f));
 
-		baseShader.use();
-		baseShader.setUniform(uniModel, model);
-		baseShader.setUniform(uniTime, time);
+		base_shader.use();
+		base_shader.set_uniform(uniModel, model);
+		base_shader.set_uniform(uniTime, time);
 
-		mdl.draw(baseShader);
+		mdl.draw(base_shader);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -63,7 +63,7 @@ int main() {
 	*
 	* @return nullptr if there's an error
 **/
-GLFWwindow* initGL() {
+GLFWwindow* init_GL() {
 	if (!glfwInit()) {
 		PRINT_ERROR("Error initialising GLFW");
 		return nullptr;

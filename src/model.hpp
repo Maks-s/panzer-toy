@@ -5,7 +5,7 @@
 #include <string>
 
 #include "mesh.hpp"
-#include "shaders.hpp"
+#include "shader.hpp"
 
 class Model {
 public:
@@ -13,7 +13,7 @@ public:
 	void draw(Shader shader);
 
 private:
-	std::vector<Mesh> mMeshes;
+	std::vector<Mesh> meshes;
 };
 
 #endif // MODEL_HPP
