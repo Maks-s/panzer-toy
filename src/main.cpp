@@ -5,6 +5,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "camera.hpp"
 #include "error.hpp"
 #include "model.hpp"
 #include "shader.hpp"
@@ -25,28 +26,25 @@ int main() {
 	base_shader.use();
 
 	Model mdl("models/nanosuit.obj");
+	Camera cam(glm::vec3(-5.0f, 0.0f, 0.0f), glm::vec3(0.0f), 45.0f);
 
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.f);
-	base_shader.set_uniform(base_shader.get_uniform_location("proj"), projection);
-
-	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
-	base_shader.set_uniform(base_shader.get_uniform_location("view"), view);
-
-	GLint uniTime = base_shader.get_uniform_location("time");
-	GLint uniModel = base_shader.get_uniform_location("model");
+	GLint uniform_time = base_shader.get_uniform_location("time");
+	GLint uniform_MVP = base_shader.get_uniform_location("MVP");
 
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		float time = glfwGetTime();
 
+		cam.rotate(glm::vec3(0.01f, 0.0f, 0.01f));
+
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.75f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 		model = glm::rotate(model, time, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		base_shader.use();
-		base_shader.set_uniform(uniModel, model);
-		base_shader.set_uniform(uniTime, time);
+		base_shader.set_uniform(uniform_time, time);
+		base_shader.set_uniform(uniform_MVP, cam.get_VP() * model);
 
 		mdl.draw(base_shader);
 
