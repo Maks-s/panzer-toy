@@ -10,7 +10,7 @@
 
 std::vector<Texture> loaded_textures;
 
-Texture TextureManager::load_texture(std::string filename, bool flip, aiTextureType type) {
+Texture TextureManager::load_texture(std::string filename, aiTextureType type, bool flip) {
 	for (int i=loaded_textures.size() - 1; i >= 0; --i) {
 		if (loaded_textures[i].path == filename) {
 			return loaded_textures[i];

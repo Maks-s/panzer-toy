@@ -58,7 +58,7 @@ void load_textures(std::vector<Texture>& textures, std::string path, aiMaterial*
 		aiString str;
 		mat->GetTexture(type, i, &str);
 
-		textures.push_back(TextureManager::load_texture(path + str.C_Str(), false, type));
+		textures.push_back(TextureManager::load_texture(path + str.C_Str(), type));
 	}
 }
 
@@ -95,6 +95,8 @@ Mesh process_mesh(aiMesh* mesh, const aiScene* scene, std::string path) {
 		aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
 		load_textures(textures, path, mat, aiTextureType_DIFFUSE);
 		load_textures(textures, path, mat, aiTextureType_SPECULAR);
+	} else {
+		textures.push_back(TextureManager::load_texture("assets/missing_texture.png", aiTextureType_DIFFUSE));
 	}
 
 	return Mesh(vertices, indices, textures);

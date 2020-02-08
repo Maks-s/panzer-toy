@@ -7,7 +7,7 @@
 
 class Player : public Model {
 public:
-	Player() : Model("models/nanosuit.obj") {};
+	Player() : Model("models/cube.dae") {};
 	Player(glm::vec3 pos) : Player() { set_position(pos); };
 };
 
