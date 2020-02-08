@@ -2,12 +2,12 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
-#include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "camera.hpp"
 #include "error.hpp"
 #include "model.hpp"
+#include "player.hpp"
 #include "shader.hpp"
 
 // @TODO: Make everything compliant with C++ Core Guidelines
@@ -25,8 +25,8 @@ int main() {
 
 	base_shader.use();
 
-	Model mdl("models/nanosuit.obj");
 	Camera cam(glm::vec3(-5.0f, 0.0f, 0.0f), glm::vec3(0.0f), 45.0f);
+	Player player(glm::vec3(0.0f, -1.75f, 0.0f));
 
 	GLint uniform_time = base_shader.get_uniform_location("time");
 	GLint uniform_MVP = base_shader.get_uniform_location("MVP");
@@ -35,18 +35,19 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		float time = glfwGetTime();
-
-		cam.rotate(glm::vec3(0.01f, 0.0f, 0.01f));
-
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.75f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-		model = glm::rotate(model, time, glm::vec3(0.0f, 1.0f, 0.0f));
-
 		base_shader.use();
 		base_shader.set_uniform(uniform_time, time);
-		base_shader.set_uniform(uniform_MVP, cam.get_VP() * model);
 
-		mdl.draw(base_shader);
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			player.move(glm::vec3(0.0f, 0.0f, 0.1f));
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			player.move(glm::vec3(0.1f, 0.0f, 0.0f));
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			player.move(glm::vec3(-0.1f, 0.0f, 0.0f));
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			player.move(glm::vec3(0.0f, 0.0f, -0.1f));
+
+		player.draw(base_shader, uniform_MVP, cam.get_VP());
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

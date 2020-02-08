@@ -2,6 +2,7 @@
 #include <vector>
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -33,10 +34,23 @@ Model::Model(std::string path) {
 	}
 }
 
-void Model::draw(Shader shader) {
+void Model::draw(Shader shader, GLint uniform_MVP, glm::mat4 VP) {
+	glm::mat4 MVP = VP * model_mat;
+	shader.set_uniform(uniform_MVP, MVP);
+
 	for (auto& mesh : meshes) {
 		mesh.draw(shader);
 	}
+}
+
+void Model::set_position(glm::vec3 pos) {
+	position = pos;
+	model_mat = glm::translate(glm::mat4(1.0f), position);
+}
+
+void Model::move(glm::vec3 pos) {
+	position = position + pos;
+	model_mat = glm::translate(glm::mat4(1.0f), position);
 }
 
 void load_textures(std::vector<Texture>& textures, std::string path, aiMaterial* mat, aiTextureType type) {

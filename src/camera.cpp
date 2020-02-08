@@ -4,8 +4,6 @@
 
 #include "camera.hpp"
 
-// @TODO: Change to quaternion rotation (next commit :p)
-
 void Camera::calculate_VP() {
 	glm::vec3 direction = glm::vec3(
 		std::cos(angle.x) * std::cos(angle.y),
