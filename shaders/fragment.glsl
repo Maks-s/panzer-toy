@@ -9,5 +9,5 @@ const float PI = 3.14159265359;
 
 void main() {
 	FragColor = texture(textureDiffuse0, texCoords);
-	FragColor = FragColor * vec4(1f, sin(mod(time, 1) * PI), .2f, 1f);
+	// FragColor = FragColor * vec4(1f, sin(mod(time, 1) * PI), .2f, 1f);
 }

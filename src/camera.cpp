@@ -21,12 +21,12 @@ void Camera::set_fov(float fov) {
 	calculate_VP();
 }
 
-void Camera::set_angle(glm::vec3 angle) {
+void Camera::set_angle(glm::vec2 angle) {
 	this->angle = angle;
 	calculate_VP();
 }
 
-void Camera::rotate(glm::vec3 angle) {
+void Camera::rotate(glm::vec2 angle) {
 	// @TODO
 	// I'm lazy
 	this->angle += angle;

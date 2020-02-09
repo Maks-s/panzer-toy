@@ -6,6 +6,7 @@
 
 #include "camera.hpp"
 #include "error.hpp"
+#include "map.hpp"
 #include "model.hpp"
 #include "player.hpp"
 #include "shader.hpp"
@@ -25,8 +26,10 @@ int main() {
 
 	base_shader.use();
 
-	Camera cam(glm::vec3(-5.0f, 0.0f, 0.0f), glm::vec3(0.0f), 45.0f);
-	Player player(glm::vec3(0.0f, -1.75f, 0.0f));
+	// Set up the camera to be aligned with the map
+	Camera cam(glm::vec3(3.0f, 30.0f, 10.5f), glm::vec2(0.0f, -1.4f)); // 1.4 rad ~= 80 deg
+	Player player(glm::vec3(0.0f));
+	Map map("assets/map_0.txt");
 
 	GLint uniform_time = base_shader.get_uniform_location("time");
 	GLint uniform_MVP = base_shader.get_uniform_location("MVP");
@@ -38,16 +41,17 @@ int main() {
 		base_shader.use();
 		base_shader.set_uniform(uniform_time, time);
 
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			player.move(glm::vec3(0.0f, 0.0f, 0.1f));
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			player.move(glm::vec3(0.0f, 0.0f, 0.1f));
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 			player.move(glm::vec3(0.1f, 0.0f, 0.0f));
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			player.move(glm::vec3(-0.1f, 0.0f, 0.0f));
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			player.move(glm::vec3(-0.1f, 0.0f, 0.0f));
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 			player.move(glm::vec3(0.0f, 0.0f, -0.1f));
 
 		player.draw(base_shader, uniform_MVP, cam.get_VP());
+		map.draw(base_shader, uniform_MVP, cam.get_VP());
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
