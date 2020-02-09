@@ -12,6 +12,7 @@
 class Map {
 public:
 	Map(const char* filename);
+	bool collision_check(glm::vec3 pos);
 	void draw(Shader shader, GLint uniform_MVP, glm::mat4 VP);
 	glm::vec3 get_player_starting_pos();
 

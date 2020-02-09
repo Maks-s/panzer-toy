@@ -16,6 +16,8 @@ public:
 	void set_position(glm::vec3 pos);
 	void move(glm::vec3 pos);
 
+	glm::vec3 get_position() { return position; };
+
 private:
 	std::vector<Mesh> meshes;
 	glm::mat4 model_mat;

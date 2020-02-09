@@ -1,3 +1,4 @@
+#include <cmath>
 #include <fstream>
 #include <iterator>
 #include <memory>
@@ -23,6 +24,9 @@
  * 4 -> player
  * 5 -> enemy lvl 1
  * 5+i -> enemy lvl 1+i
+ *
+ * WARNING:
+ * The map array is accessed with map[y][x], NOT map[x][y]
 **/
 
 std::unique_ptr<Model> Map::strong_wall;
@@ -106,11 +110,44 @@ void Map::draw(Shader shader, GLint uniform_MVP, glm::mat4 VP) {
 glm::vec3 Map::get_player_starting_pos() {
 	for (int i=0; i < 16; ++i) {
 		for (int j=0; j < 22; ++j) {
-			if (datamap[i][j] == 4)
+			if (datamap[i][j] == 4) {
 				return glm::vec3(i, 0.0f, j);
+			}
 		}
 	}
 
 	PRINT_ERROR("How the hell did you get here ? Stay back, wizard !");
 	return glm::vec3(0.0f);
+}
+
+// In "screen coordinates", x is y and z is x
+bool Map::collision_check(glm::vec3 pos) {
+	// Normal map bounds
+	if (pos.x > 15 || pos.x < 0 || pos.z > 21 || pos.z < 0)
+		return true;
+
+	// Check if each point of the bounding box square is in a wall
+	// @TODO: Make it dynamic
+	int x = round(pos.z - 0.35f);
+	int y = round(pos.x - 0.35f);
+
+	if (datamap[y][x] == 1)
+		return true;
+
+	y = round(pos.x + 0.35f);
+
+	if (datamap[y][x] == 1)
+		return true;
+
+	x = round(pos.z + 0.35f);
+
+	if (datamap[y][x] == 1)
+		return true;
+
+	y = round(pos.x - 0.35f);
+
+	if (datamap[y][x] == 1)
+		return true;
+
+	return false;
 }
