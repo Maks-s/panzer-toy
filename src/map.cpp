@@ -41,6 +41,8 @@ Map::Map(const char* filename) {
 		return;
 	}
 
+	bool required_ply_spawn = false;
+
 	for (int i=0; i < 16; ++i) {
 		if (file.eof()) {
 			PRINT_ERROR("Invalid map (not enough row): " << filename);
@@ -67,7 +69,20 @@ Map::Map(const char* filename) {
 			int stocked = std::stoi(data[j]);
 			datamap[i][j] = stocked;
 			source[i][j] = stocked;
+
+			if (stocked == 4) {
+				required_ply_spawn = true;
+			} else if (stocked == 4 && required_ply_spawn) {
+				PRINT_ERROR("Invalid map (more than one player spawn)");
+				failed = true;
+				return;
+			}
 		}
+	}
+
+	if (!required_ply_spawn) {
+		PRINT_ERROR("Invalid map (no player spawn)");
+		failed = true;
 	}
 }
 
@@ -76,19 +91,26 @@ void Map::draw(Shader shader, GLint uniform_MVP, glm::mat4 VP) {
 		for (int j=0; j < 22; ++j) {
 			Model* mdl;
 
-			switch (datamap[i][j]) {
-			case 0:
-				continue;
-			case 1:
+			if (datamap[i][j] == 1) {
 				mdl = strong_wall.get();
-				break;
-			default:
-				PRINT_ERROR("Unimplemented map number");
-				break;
+			} else {
+				continue;
 			}
 
 			mdl->set_position(glm::vec3(i, 0.0f, j));
 			mdl->draw(shader, uniform_MVP, VP);
 		}
 	}
+}
+
+glm::vec3 Map::get_player_starting_pos() {
+	for (int i=0; i < 16; ++i) {
+		for (int j=0; j < 22; ++j) {
+			if (datamap[i][j] == 4)
+				return glm::vec3(i, 0.0f, j);
+		}
+	}
+
+	PRINT_ERROR("How the hell did you get here ? Stay back, wizard !");
+	return glm::vec3(0.0f);
 }

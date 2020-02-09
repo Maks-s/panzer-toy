@@ -28,8 +28,12 @@ int main() {
 
 	// Set up the camera to be aligned with the map
 	Camera cam(glm::vec3(3.0f, 30.0f, 10.5f), glm::vec2(0.0f, -1.4f)); // 1.4 rad ~= 80 deg
-	Player player(glm::vec3(0.0f));
+
 	Map map("assets/map_0.txt");
+	if (map.has_failed())
+		return -1;
+
+	Player player(map.get_player_starting_pos());
 
 	GLint uniform_time = base_shader.get_uniform_location("time");
 	GLint uniform_MVP = base_shader.get_uniform_location("MVP");
