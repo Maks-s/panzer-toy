@@ -3,6 +3,7 @@
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/ext/scalar_constants.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -35,6 +36,12 @@ Model::Model(std::string path) {
 }
 
 void Model::draw(Shader shader, GLint uniform_MVP, glm::mat4 VP) {
+	if (dirty) {
+		dirty = false;
+		model_mat = glm::translate(glm::mat4(1.0f), position);
+		model_mat = glm::rotate(model_mat, angle, glm::vec3(0.0f, 1.0f, 0.0f));
+	}
+
 	glm::mat4 MVP = VP * model_mat;
 	shader.set_uniform(uniform_MVP, MVP);
 
@@ -45,12 +52,28 @@ void Model::draw(Shader shader, GLint uniform_MVP, glm::mat4 VP) {
 
 void Model::set_position(glm::vec3 pos) {
 	position = pos;
-	model_mat = glm::translate(glm::mat4(1.0f), position);
+	dirty = true;
 }
 
 void Model::move(glm::vec3 pos) {
 	position = position + pos;
-	model_mat = glm::translate(glm::mat4(1.0f), position);
+	dirty = true;
+}
+
+void Model::set_angle(float angle) {
+	this->angle = angle;
+	dirty = true;
+}
+
+void Model::rotate(float angle) {
+	this->angle += angle;
+
+	const float full_rotation = glm::pi<float>() * 2.0f;
+	if (this->angle > full_rotation || this->angle < -full_rotation) {
+		this->angle = glm::mod(this->angle, full_rotation);
+	}
+
+	dirty = true;
 }
 
 void load_textures(std::vector<Texture>& textures, std::string path, aiMaterial* mat, aiTextureType type) {

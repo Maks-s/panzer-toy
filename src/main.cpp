@@ -12,8 +12,10 @@
 #include "shader.hpp"
 
 // @TODO: Make everything compliant with C++ Core Guidelines
+// @TODO: Document everything
 
 GLFWwindow* init_GL();
+float calculate_cursor_angle(glm::mat4 VP, glm::vec3 player_pos);
 
 int main() {
 	GLFWwindow* window = init_GL();
@@ -72,6 +74,7 @@ int main() {
 			}
 		}
 
+		player.set_angle(calculate_cursor_angle(cam.get_VP(), player.get_position()));
 		player.draw(base_shader, uniform_MVP, cam.get_VP());
 		map.draw(base_shader, uniform_MVP, cam.get_VP());
 
@@ -81,6 +84,25 @@ int main() {
 
 	glfwTerminate();
 	return 0;
+}
+
+glm::vec2 cursor_pos = glm::vec2(0.0f);
+float calculate_cursor_angle(glm::mat4 VP, glm::vec3 player_pos) {
+	// World coordinates to screen coordinates
+	glm::vec4 world_pos = VP * glm::vec4(player_pos, 1.0f);
+	world_pos /= world_pos.w;
+	float screen_x = (world_pos.x + 1) / 2.0f * 500.0f + 0.5f;
+	float screen_y = (1 - world_pos.y) / 2.0f * 500.0f + 0.5f;
+
+	// Set origin to player, and change to cartesian coordinate system
+	float x = cursor_pos.x - screen_x;
+	float y = screen_y - cursor_pos.y;
+
+	return glm::atan(y, x);
+}
+
+static void cursor_pos_callback(GLFWwindow* window, double x, double y) {
+	cursor_pos = glm::vec2(x, y);
 }
 
 /**
@@ -107,6 +129,7 @@ GLFWwindow* init_GL() {
 		return nullptr;
 	}
 	glfwMakeContextCurrent(window);
+	glfwSetCursorPosCallback(window, cursor_pos_callback);
 	glfwSwapInterval(1);
 
 	if (gl3wInit()) {
