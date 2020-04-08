@@ -27,7 +27,7 @@ private:
 	std::vector<Mesh> meshes;
 	glm::mat4 model_mat;
 	glm::vec3 position = glm::vec3(0.0f);
-	float angle = 0.0f; // angle is in radians
+	float angle = 0.0f;
 	bool dirty;
 };
 

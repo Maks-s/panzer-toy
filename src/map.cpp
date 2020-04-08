@@ -121,7 +121,7 @@ glm::vec3 Map::get_player_starting_pos() {
 }
 
 // In "screen coordinates", x is y and z is x
-bool Map::collision_check(glm::vec3 pos) {
+int Map::collision_check(glm::vec3 pos) {
 	// Normal map bounds
 	if (pos.x > 15 || pos.x < 0 || pos.z > 21 || pos.z < 0)
 		return true;
@@ -132,22 +132,22 @@ bool Map::collision_check(glm::vec3 pos) {
 	int y = round(pos.x - 0.35f);
 
 	if (datamap[y][x] == 1)
-		return true;
+		return 1;
 
 	y = round(pos.x + 0.35f);
 
 	if (datamap[y][x] == 1)
-		return true;
+		return 2;
 
 	x = round(pos.z + 0.35f);
 
 	if (datamap[y][x] == 1)
-		return true;
+		return 3;
 
 	y = round(pos.x - 0.35f);
 
 	if (datamap[y][x] == 1)
-		return true;
+		return 4;
 
-	return false;
+	return 0;
 }

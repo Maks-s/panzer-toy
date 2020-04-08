@@ -4,6 +4,7 @@
 #include <glm/ext.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "bullet.hpp"
 #include "camera.hpp"
 #include "error.hpp"
 #include "map.hpp"
@@ -13,9 +14,12 @@
 
 // @TODO: Make everything compliant with C++ Core Guidelines
 // @TODO: Document everything
+// @TODO: Make a fucking Game class, this is a real mess >:(
 
 GLFWwindow* init_GL();
 float calculate_cursor_angle(glm::mat4 VP, glm::vec3 player_pos);
+// THIS IS A PLACEHOLDER. DON'T JUDGE ME, NOR DO THAT.
+Map* map_ptr;
 
 int main() {
 	GLFWwindow* window = init_GL();
@@ -31,7 +35,10 @@ int main() {
 	// Set up the camera to be aligned with the map
 	Camera cam(glm::vec3(3.0f, 30.0f, 10.5f), glm::vec2(0.0f, -1.4f)); // 1.4 rad ~= 80 deg
 
-	Map map("assets/map_0.txt");
+	// This is BAD. Use a class.
+	Map map = Map("assets/map_0.txt");
+	map_ptr = &map;
+
 	if (map.has_failed())
 		return -1;
 
@@ -74,6 +81,9 @@ int main() {
 			}
 		}
 
+		BulletManager::tick(map);
+		BulletManager::draw(base_shader, uniform_MVP, cam.get_VP());
+
 		player.set_angle(calculate_cursor_angle(cam.get_VP(), player.get_position()));
 		player.draw(base_shader, uniform_MVP, cam.get_VP());
 		map.draw(base_shader, uniform_MVP, cam.get_VP());
@@ -101,8 +111,16 @@ float calculate_cursor_angle(glm::mat4 VP, glm::vec3 player_pos) {
 	return glm::atan(y, x);
 }
 
-static void cursor_pos_callback(GLFWwindow* window, double x, double y) {
+void cursor_pos_callback(GLFWwindow*, double x, double y) {
 	cursor_pos = glm::vec2(x, y);
+}
+
+float angle_test = 0.0f;
+void mouse_btn_callback(GLFWwindow*, int btn, int action, int) {
+	if (btn == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+		angle_test += 0.1f;
+		BulletManager::create(glm::vec2(5.0f, 3.0f), angle_test, *map_ptr);
+	}
 }
 
 /**
@@ -130,6 +148,7 @@ GLFWwindow* init_GL() {
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetCursorPosCallback(window, cursor_pos_callback);
+	glfwSetMouseButtonCallback(window, mouse_btn_callback);
 	glfwSwapInterval(1);
 
 	if (gl3wInit()) {
