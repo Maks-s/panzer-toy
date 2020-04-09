@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "bullet.hpp"
-#include "error.hpp"
+#include "log.hpp"
 #include "map.hpp"
 #include "model.hpp"
 #include "shader.hpp"
@@ -27,7 +27,7 @@ bool BulletManager::create(glm::vec2 pos, float angle, Map map) {
 	}
 
 	if (map.collision_check(position)) {
-		PRINT_ERROR("Invalid bullet position");
+		Log::error("Invalid bullet position");
 		return false;
 	}
 
@@ -73,7 +73,6 @@ static float get_collision_angle(Map& map, glm::vec3 new_pos, glm::vec3 old_pos)
 
 void BulletManager::tick(Map map) {
 	for (int i=bullets.size() - 1; i >= 0; --i) {
-		// PRINT_ERROR(i);
 		Bullet& bullet = bullets[i];
 
 		glm::vec3 new_pos = bullet.position + bullet.velocity;

@@ -8,7 +8,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "error.hpp"
+#include "log.hpp"
 #include "model.hpp"
 #include "mesh.hpp"
 #include "shader.hpp"
@@ -24,7 +24,7 @@ Model::Model(std::string path) {
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-		PRINT_ERROR("Error opening model, " << importer.GetErrorString());
+		Log::error("Error opening model, ", importer.GetErrorString());
 		return;
 	}
 

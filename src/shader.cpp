@@ -5,7 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "shader.hpp"
-#include "error.hpp"
+#include "log.hpp"
 
 static std::string readfile(const char* filename);
 
@@ -31,13 +31,13 @@ Shader::Shader(const char* vtx_path, const char* frag_path) {
 	if (!vtx_success) {
 		char info[512];
 		glGetShaderInfoLog(vtx_shader, 512, nullptr, info);
-		PRINT_ERROR("Error compiling vertex shader: " << std::endl << info);
+		Log::error("Error compiling vertex shader: ", '\n', info);
 	}
 
 	if (!frag_success) {
 		char info[512];
 		glGetShaderInfoLog(frag_shader, 512, nullptr, info);
-		PRINT_ERROR("Error compiling fragment shader: " << std::endl << info);
+		Log::error("Error compiling fragment shader: ", '\n', info);
 	}
 
 	failed = (!frag_success || !vtx_success);
@@ -54,7 +54,7 @@ Shader::Shader(const char* vtx_path, const char* frag_path) {
 	if (!prog_success) {
 		char info[512];
 		glGetProgramInfoLog(glProgram, 512, nullptr, info);
-		PRINT_ERROR("Error linking shaders: " << std::endl << info);
+		Log::error("Error linking shaders: ", '\n', info);
 	}
 
 	failed = !prog_success;
@@ -75,7 +75,7 @@ static std::string readfile(const char* filename) {
 	std::ifstream shaderfile(filename, std::ios::ate);
 
 	if (!shaderfile.is_open()) {
-		PRINT_ERROR("Error opening file: " << filename);
+		Log::error("Error opening file: ", filename);
 		return "";
 	}
 

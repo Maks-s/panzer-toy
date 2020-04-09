@@ -1,4 +1,4 @@
-#include <exception>
+#include <system_error>
 #include <memory>
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -9,7 +9,7 @@
 #include "game.hpp"
 #include "bullet.hpp"
 #include "camera.hpp"
-#include "error.hpp"
+#include "log.hpp"
 #include "map.hpp"
 #include "model.hpp"
 #include "player.hpp"

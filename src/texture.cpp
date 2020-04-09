@@ -5,7 +5,7 @@
 #include <GL/gl3w.h>
 #include <assimp/material.h>
 
-#include "error.hpp"
+#include "log.hpp"
 #include "texture.hpp"
 
 namespace TextureManager {
@@ -32,7 +32,7 @@ Texture TextureManager::load_texture(std::string filename, aiTextureType type, b
 	unsigned char* pixels = stbi_load(filename.c_str(), &width, &height, &comp, STBI_default);
 
 	if (!pixels) {
-		PRINT_ERROR("Could not load texture image at " << filename);
+		Log::error("Could not load texture image at ", filename);
 		return texture;
 	}
 
@@ -51,7 +51,7 @@ Texture TextureManager::load_texture(std::string filename, aiTextureType type, b
 		format = GL_RGBA;
 		break;
 	default:
-		PRINT_ERROR("Unknown image components: " << filename);
+		Log::error("Unknown image components: ", filename);
 		return texture;
 	}
 

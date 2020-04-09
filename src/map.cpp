@@ -6,7 +6,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-#include "error.hpp"
+#include "log.hpp"
 #include "map.hpp"
 #include "model.hpp"
 #include "shader.hpp"
@@ -38,7 +38,7 @@ Map::Map(const char* filename) {
 	std::ifstream file(filename);
 
 	if (!file.is_open()) {
-		PRINT_ERROR("Error opening file: " << filename);
+		Log::error("Error opening file: ", filename);
 		failed = true;
 		return;
 	}
@@ -47,7 +47,7 @@ Map::Map(const char* filename) {
 
 	for (int i=0; i < 16; ++i) {
 		if (file.eof()) {
-			PRINT_ERROR("Invalid map (not enough row): " << filename);
+			Log::error("Invalid map (not enough row): ", filename);
 			failed = true;
 			return;
 		}
@@ -62,7 +62,7 @@ Map::Map(const char* filename) {
 		);
 
 		if (data.size() != 22) {
-			PRINT_ERROR("Invalid map (column number mismatch): " << filename);
+			Log::error("Invalid map (column number mismatch): ", filename);
 			failed = true;
 			return;
 		}
@@ -75,7 +75,7 @@ Map::Map(const char* filename) {
 			if (stocked == 4) {
 				required_ply_spawn = true;
 			} else if (stocked == 4 && required_ply_spawn) {
-				PRINT_ERROR("Invalid map (more than one player spawn)");
+				Log::error("Invalid map (more than one player spawn)");
 				failed = true;
 				return;
 			}
@@ -83,7 +83,7 @@ Map::Map(const char* filename) {
 	}
 
 	if (!required_ply_spawn) {
-		PRINT_ERROR("Invalid map (no player spawn)");
+		Log::error("Invalid map (no player spawn)");
 		failed = true;
 	}
 }
@@ -114,7 +114,7 @@ glm::vec3 Map::get_player_starting_pos() {
 		}
 	}
 
-	PRINT_ERROR("How the hell did you get here ? Stay back, wizard !");
+	Log::error("How the hell did you get here ? Stay back, wizard !");
 	return glm::vec3(0.0f);
 }
 

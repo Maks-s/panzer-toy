@@ -2,7 +2,7 @@
 #include <GL/gl3w.h>
 #include <assimp/material.h>
 
-#include "error.hpp"
+#include "log.hpp"
 #include "mesh.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
