@@ -33,7 +33,7 @@ int main() {
 	base_shader.use();
 
 	// Set up the camera to be aligned with the map
-	Camera cam(glm::vec3(3.0f, 30.0f, 10.5f), glm::vec2(0.0f, -1.4f)); // 1.4 rad ~= 80 deg
+	Camera cam(glm::vec3(11.0f, 10.0f, 10.5f), glm::vec2(0.0f, -1.9f));
 
 	// This is BAD. Use a class.
 	Map map = Map("assets/map_0.txt");
@@ -57,24 +57,24 @@ int main() {
 		// WASD / ZQSD controls
 		glm::vec3 player_pos = player.get_position();
 
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 			glm::vec3 offset = glm::vec3(0.0f, 0.0f, 0.1f);
 			if (!map.collision_check(player_pos + offset)) {
 				player.move(offset);
 			}
-		} else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+		} else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 			glm::vec3 offset = glm::vec3(0.0f, 0.0f, -0.1f);
 			if (!map.collision_check(player_pos + offset)) {
 				player.move(offset);
 			}
 		}
 
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 			glm::vec3 offset = glm::vec3(-0.1f, 0.0f, 0.0f);
 			if (!map.collision_check(player_pos + offset)) {
 				player.move(offset);
 			}
-		} else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		} else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 			glm::vec3 offset = glm::vec3(0.1f, 0.0f, 0.0f);
 			if (!map.collision_check(player_pos + offset)) {
 				player.move(offset);

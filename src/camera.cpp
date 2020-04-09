@@ -4,6 +4,8 @@
 
 #include "camera.hpp"
 
+const glm::mat4 projection = glm::ortho(-12.5f, 12.5f, -12.5f, 12.5f, 0.1f, 100.0f);
+
 void Camera::calculate_VP() {
 	glm::vec3 direction = glm::vec3(
 		std::cos(angle.x) * std::cos(angle.y),
@@ -16,19 +18,12 @@ void Camera::calculate_VP() {
 	VP = projection * view;
 }
 
-void Camera::set_fov(float fov) {
-	projection = glm::perspective(glm::radians(fov), 1.0f, 0.1f, 100.0f);
-	calculate_VP();
-}
-
 void Camera::set_angle(glm::vec2 angle) {
 	this->angle = angle;
 	calculate_VP();
 }
 
 void Camera::rotate(glm::vec2 angle) {
-	// @TODO
-	// I'm lazy
 	this->angle += angle;
 	calculate_VP();
 }

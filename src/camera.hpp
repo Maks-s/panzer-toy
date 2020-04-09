@@ -2,19 +2,15 @@
 
 class Camera {
 public:
-	Camera(
-		glm::vec3 _pos = glm::vec3(0.0f),
-		glm::vec2 _angle = glm::vec2(0.0f),
-		float fov = 45.0f
-	) : pos(_pos), angle(_angle) { set_fov(fov); };
+	Camera() { calculate_VP(); };
 
-	Camera(float fov) : Camera(glm::vec3(0.0f), glm::vec3(0.0f), fov) {};
+	Camera(
+		glm::vec3 _pos,
+		glm::vec2 _angle
+	) : pos(_pos), angle(_angle) { calculate_VP(); };
 
 	glm::mat4 get_VP() const { return VP; };
 
-	void set_fov(float fov); // FOV in degrees
-
-	// Angle is in radian !
 	void set_angle(glm::vec2 angle);
 	void rotate(glm::vec2 angle);
 
@@ -22,9 +18,8 @@ public:
 	void move(glm::vec3 offset);
 
 private:
-	glm::vec3 pos;
-	glm::vec2 angle; // yaw, pitch in radians
-	glm::mat4 projection;
+	glm::vec3 pos = glm::vec3(0.0f);
+	glm::vec2 angle = glm::vec2(0.0f); // yaw, pitch
 	glm::mat4 VP; // projection * view, view isn't saved. See calculate_VP
 
 	void calculate_VP();
