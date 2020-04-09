@@ -11,6 +11,7 @@
 
 class Map {
 public:
+	Map() {};
 	Map(const char* filename);
 	int collision_check(glm::vec3 pos);
 	void draw(Shader shader, GLint uniform_MVP, glm::mat4 VP);

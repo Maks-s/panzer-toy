@@ -6,6 +6,7 @@
 
 class Shader {
 public:
+	Shader() {};
 	Shader(const char* vtx_path, const char* frag_path);
 	void use() const;
 	bool fail() const { return failed; }
@@ -18,8 +19,8 @@ public:
 	void set_uniform(GLint, glm::mat4) const;
 
 private:
-	GLuint glProgram;
-	bool failed;
+	GLuint glProgram = 0;
+	bool failed = false;
 };
 
 #endif // SHADER_HPP
