@@ -10,9 +10,13 @@
 #include "model.hpp"
 #include "shader.hpp"
 
-std::unique_ptr<Model> bullet_mdl;
-std::vector<Bullet> bullets;
-const float speed = 0.2f;
+namespace BulletManager {
+	namespace {
+		const float speed = 0.2f;
+		std::unique_ptr<Model> bullet_mdl;
+		std::vector<Bullet> bullets;
+	}
+}
 
 bool BulletManager::create(glm::vec2 pos, float angle, Map map) {
 	glm::vec3 position = glm::vec3(pos.x, 1.0f, pos.y);
@@ -40,7 +44,7 @@ bool BulletManager::create(glm::vec2 pos, float angle, Map map) {
 }
 
 // Return collision angle with the wall at its origin
-float get_collision_angle(Map& map, glm::vec3 new_pos, glm::vec3 old_pos) {
+static float get_collision_angle(Map& map, glm::vec3 new_pos, glm::vec3 old_pos) {
 	int collision = map.collision_check(new_pos);
 
 	if (!collision) {

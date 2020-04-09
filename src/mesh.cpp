@@ -1,3 +1,4 @@
+#include <string>
 #include <GL/gl3w.h>
 #include <assimp/material.h>
 

@@ -1,14 +1,13 @@
 #include <fstream>
 
 #include <GL/gl3w.h>
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "shader.hpp"
 #include "error.hpp"
 
-std::string readfile(const char* filename);
+static std::string readfile(const char* filename);
 
 Shader::Shader(const char* vtx_path, const char* frag_path) {
 	GLuint vtx_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -72,7 +71,7 @@ GLint Shader::get_uniform_location(const char* name) const {
 	return glGetUniformLocation(glProgram, name);
 }
 
-std::string readfile(const char* filename) {
+static std::string readfile(const char* filename) {
 	std::ifstream shaderfile(filename, std::ios::ate);
 
 	if (!shaderfile.is_open()) {

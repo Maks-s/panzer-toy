@@ -8,7 +8,11 @@
 #include "error.hpp"
 #include "texture.hpp"
 
-std::vector<Texture> loaded_textures;
+namespace TextureManager {
+	namespace  {
+		std::vector<Texture> loaded_textures;
+	}
+}
 
 Texture TextureManager::load_texture(std::string filename, aiTextureType type, bool flip) {
 	for (int i=loaded_textures.size() - 1; i >= 0; --i) {

@@ -2,7 +2,7 @@
 #define SHADER_HPP
 
 #include <GL/gl3w.h>
-#include <glm/mat4x4.hpp>
+#include <glm/glm.hpp>
 
 class Shader {
 public:

@@ -1,13 +1,14 @@
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
-#include <vector>
 #include <string>
+#include <vector>
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
 
 #include "mesh.hpp"
-#include "shader.hpp"
+
+class Shader;
 
 class Model {
 public:

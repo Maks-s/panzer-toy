@@ -1,12 +1,12 @@
 #ifndef BULLET_HPP
 #define BULLET_HPP
 
+#include <vector>
 #include <gl/gl3w.h>
 #include <glm/glm.hpp>
 
-#include "map.hpp"
-#include "model.hpp"
-#include "shader.hpp"
+class Map;
+class Shader;
 
 struct Bullet {
 	glm::vec3 velocity; // offset by which the bullet moves

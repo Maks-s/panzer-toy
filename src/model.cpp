@@ -16,8 +16,8 @@
 
 // Meshes loading can be changed to a parent-child system, but we don't need it right now
 
-void load_textures(std::vector<Texture>& textures, std::string path, aiMaterial* mat, aiTextureType type);
-Mesh process_mesh(aiMesh* mesh, const aiScene* scene, std::string path);
+static void load_textures(std::vector<Texture>& textures, std::string path, aiMaterial* mat, aiTextureType type);
+static Mesh process_mesh(aiMesh* mesh, const aiScene* scene, std::string path);
 
 Model::Model(std::string path) {
 	Assimp::Importer importer;
@@ -76,7 +76,7 @@ void Model::rotate(float angle) {
 	dirty = true;
 }
 
-void load_textures(std::vector<Texture>& textures, std::string path, aiMaterial* mat, aiTextureType type) {
+static void load_textures(std::vector<Texture>& textures, std::string path, aiMaterial* mat, aiTextureType type) {
 	for (int i = mat->GetTextureCount(type) - 1; i >= 0; --i) {
 		aiString str;
 		mat->GetTexture(type, i, &str);
@@ -85,7 +85,7 @@ void load_textures(std::vector<Texture>& textures, std::string path, aiMaterial*
 	}
 }
 
-Mesh process_mesh(aiMesh* mesh, const aiScene* scene, std::string path) {
+static Mesh process_mesh(aiMesh* mesh, const aiScene* scene, std::string path) {
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 	std::vector<Texture> textures;

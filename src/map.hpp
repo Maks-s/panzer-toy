@@ -6,8 +6,8 @@
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
 
-#include "model.hpp"
-#include "shader.hpp"
+class Model;
+class Shader;
 
 class Map {
 public:

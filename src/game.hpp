@@ -5,16 +5,12 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <glm/ext.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
-#include "bullet.hpp"
 #include "camera.hpp"
-#include "error.hpp"
 #include "map.hpp"
-#include "model.hpp"
-#include "player.hpp"
 #include "shader.hpp"
+
+class Player;
 
 class Game {
 public:

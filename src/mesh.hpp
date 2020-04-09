@@ -2,12 +2,12 @@
 #define MESH_HPP
 
 #include <vector>
-#include <string>
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
 
-#include "shader.hpp"
 #include "texture.hpp"
+
+class Shader;
 
 struct Vertex {
 	glm::vec3 pos;

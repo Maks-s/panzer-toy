@@ -18,12 +18,12 @@
 // @TODO: Make everything compliant with C++ Core Guidelines
 // @TODO: Document everything
 
-void cursor_pos_callback(GLFWwindow* window, double x, double y) {
+static void cursor_pos_callback(GLFWwindow* window, double x, double y) {
 	Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
 	game->set_cursor_pos(glm::vec2(x, y));
 }
 
-void mouse_btn_callback(GLFWwindow* window, int btn, int action, int) {
+static void mouse_btn_callback(GLFWwindow* window, int btn, int action, int) {
 	Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
 
 	if (btn == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
@@ -96,7 +96,7 @@ void Game::run() {
 	}
 }
 
-float calculate_cursor_angle(glm::mat4 VP, glm::vec3 player_pos, glm::vec2 cursor_pos) {
+static float calculate_cursor_angle(glm::mat4 VP, glm::vec3 player_pos, glm::vec2 cursor_pos) {
 	// World coordinates to screen coordinates
 	glm::vec4 world_pos = VP * glm::vec4(player_pos, 1.0f);
 	world_pos /= world_pos.w;

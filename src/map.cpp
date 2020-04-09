@@ -1,11 +1,9 @@
-#include <cmath>
 #include <fstream>
 #include <iterator>
 #include <memory>
 #include <string>
 #include <sstream>
 #include <vector>
-#include <GL/gl3w.h>
 #include <glm/glm.hpp>
 
 #include "error.hpp"
