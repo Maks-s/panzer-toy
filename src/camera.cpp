@@ -7,9 +7,9 @@ const glm::mat4 projection = glm::ortho(12.5f, -12.5f, 12.5f, -12.5f, 0.1f, 100.
 
 void Camera::calculate_VP() {
 	glm::vec3 direction = glm::vec3(
-		std::cos(angle.x) * std::cos(angle.y),
-		std::sin(angle.y),
-		std::sin(angle.x) * std::cos(angle.y)
+		glm::cos(angle.x) * glm::cos(angle.y),
+		glm::sin(angle.y),
+		glm::sin(angle.x) * glm::cos(angle.y)
 	);
 
 	glm::mat4 view = glm::lookAt(pos, pos + direction, glm::vec3(0.0f, 1.0f, 0.0f));

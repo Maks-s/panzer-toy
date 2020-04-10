@@ -31,8 +31,7 @@ std::unique_ptr<Model> Map::strong_wall;
 
 Map::Map(const char* filename) {
 	if (!strong_wall) {
-		Model mdl("models/strong_wall.obj");
-		strong_wall = std::make_unique<Model>(mdl);
+		strong_wall = std::make_unique<Model>(Model("models/strong_wall.obj"));
 	}
 
 	std::ifstream file(filename);

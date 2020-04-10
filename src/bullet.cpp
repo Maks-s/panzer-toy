@@ -22,8 +22,7 @@ bool BulletManager::create(glm::vec2 pos, float angle, Map map) {
 	glm::vec3 position = glm::vec3(pos.x, 1.0f, pos.y);
 
 	if (!bullet_mdl) {
-		Model mdl("models/bullet.obj");
-		bullet_mdl = std::make_unique<Model>(mdl);
+		bullet_mdl = std::make_unique<Model>(Model("models/bullet.obj"));
 	}
 
 	if (map.collision_check(position)) {
@@ -35,7 +34,7 @@ bool BulletManager::create(glm::vec2 pos, float angle, Map map) {
 		.velocity = glm::vec3(glm::sin(angle) * speed, 0.0f, glm::cos(angle) * speed),
 		.position = position,
 		.angle = angle,
-		.remaining_hit = 10,
+		.remaining_hit = 3,
 	};
 
 	bullets.push_back(bullet);

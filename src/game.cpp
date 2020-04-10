@@ -26,9 +26,16 @@ static void cursor_pos_callback(GLFWwindow* window, double x, double y) {
 static void mouse_btn_callback(GLFWwindow* window, int btn, int action, int) {
 	Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
 
-	if (btn == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-		BulletManager::create(glm::vec2(5.0f, 3.0f), 0.3f, game->get_map());
+	if (btn != GLFW_MOUSE_BUTTON_LEFT || action != GLFW_PRESS) {
+		return;
 	}
+
+	const float offset = 0.8f;
+	float angle = game->get_player_angle();
+	glm::vec3 ply_pos = game->get_player_pos();
+	glm::vec2 pos(glm::sin(angle) * offset + ply_pos.x, glm::cos(angle) * offset + ply_pos.z);
+
+	BulletManager::create(pos, game->get_player_angle(), game->get_map());
 }
 
 Game::Game() {
@@ -75,6 +82,7 @@ Game::Game() {
 	base_shader.use();
 
 	// Set up the camera to be aligned with the map
+	// @TODO: Put camera in normal position
 	cam = Camera(glm::vec3(11.0f, 10.0f, 10.5f), glm::vec2(0.0f, -1.9f));
 
 	map = Map("assets/map_0.txt");
@@ -83,8 +91,7 @@ Game::Game() {
 		throw std::system_error(EINTR, std::generic_category(), "Error loading map");
 	}
 
-	Player ply = Player(map.get_player_starting_pos());
-	player = std::make_unique<Player>(ply);
+	player = std::make_unique<Player>(Player(map.get_player_starting_pos()));
 
 	uniform_time = base_shader.get_uniform_location("time");
 	uniform_MVP = base_shader.get_uniform_location("MVP");
@@ -120,24 +127,24 @@ void Game::tick() {
 	// WASD / ZQSD controls
 	glm::vec3 player_pos = player->get_position();
 
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(0.0f, 0.0f, 0.1f);
 		if (!map.collision_check(player_pos + offset)) {
 			player->move(offset);
 		}
-	} else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+	} else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(0.0f, 0.0f, -0.1f);
 		if (!map.collision_check(player_pos + offset)) {
 			player->move(offset);
 		}
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(-0.1f, 0.0f, 0.0f);
 		if (!map.collision_check(player_pos + offset)) {
 			player->move(offset);
 		}
-	} else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+	} else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(0.1f, 0.0f, 0.0f);
 		if (!map.collision_check(player_pos + offset)) {
 			player->move(offset);

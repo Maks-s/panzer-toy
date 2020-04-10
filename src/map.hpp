@@ -9,6 +9,8 @@
 class Model;
 class Shader;
 
+// @TODO: Safe class (unitialised arrays and ptr aren't safe)
+
 class Map {
 public:
 	Map() {};
