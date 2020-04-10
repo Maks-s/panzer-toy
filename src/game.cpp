@@ -82,7 +82,6 @@ Game::Game() {
 	base_shader.use();
 
 	// Set up the camera to be aligned with the map
-	// @TODO: Put camera in normal position
 	cam = Camera(glm::vec3(11.0f, 10.0f, 10.5f), glm::vec2(0.0f, -1.9f));
 
 	map = Map("assets/map_0.txt");
@@ -114,7 +113,7 @@ static float calculate_cursor_angle(glm::mat4 VP, glm::vec3 player_pos, glm::vec
 	float x = cursor_pos.x - screen_x;
 	float y = screen_y - cursor_pos.y;
 
-	return glm::atan(y, x);
+	return glm::atan(y, x) - M_PI;
 }
 
 void Game::tick() {
@@ -127,24 +126,24 @@ void Game::tick() {
 	// WASD / ZQSD controls
 	glm::vec3 player_pos = player->get_position();
 
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(0.0f, 0.0f, 0.1f);
 		if (!map.collision_check(player_pos + offset)) {
 			player->move(offset);
 		}
-	} else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+	} else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(0.0f, 0.0f, -0.1f);
 		if (!map.collision_check(player_pos + offset)) {
 			player->move(offset);
 		}
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(-0.1f, 0.0f, 0.0f);
 		if (!map.collision_check(player_pos + offset)) {
 			player->move(offset);
 		}
-	} else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+	} else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(0.1f, 0.0f, 0.0f);
 		if (!map.collision_check(player_pos + offset)) {
 			player->move(offset);
