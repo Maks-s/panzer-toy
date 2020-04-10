@@ -84,6 +84,7 @@ void BulletManager::tick(Map map) {
 
 		if (!bullet.remaining_hit--) {
 			bullets.erase(bullets.begin() + i);
+			continue;
 		}
 
 		// Check if the bullet hit the wall from right or left
