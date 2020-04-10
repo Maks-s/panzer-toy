@@ -29,7 +29,7 @@ namespace Log {
 
 	template<typename T>
 	void debug(T msg) {
-		std::clog << msg << '\n';
+		std::clog << msg << std::endl; // Debug flush output buffer
 	}
 
 	template<typename T, typename... Args>
