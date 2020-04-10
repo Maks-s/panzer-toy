@@ -14,7 +14,7 @@ namespace Log {
 	void error(T first, Args... args) {
 		std::cerr << first;
 		error(args...);
-	};
+	}
 
 	template<typename T>
 	void info(T msg) {
@@ -25,7 +25,7 @@ namespace Log {
 	void info(T first, Args... args) {
 		std::cout << first;
 		info(args...);
-	};
+	}
 
 	template<typename T>
 	void debug(T msg) {
@@ -36,7 +36,7 @@ namespace Log {
 	void debug(T first, Args... args) {
 		std::clog << first;
 		debug(args...);
-	};
+	}
 }
 
 #endif // LOG_HPP

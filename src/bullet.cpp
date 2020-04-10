@@ -44,21 +44,27 @@ bool BulletManager::create(glm::vec2 pos, float angle, Map map) {
 
 // Return collision angle with the wall at its origin
 static float get_collision_angle(Map& map, glm::vec3 new_pos, glm::vec3 old_pos) {
-	int collision = map.collision_check(new_pos);
+	Map_collision collision = map.collision_check(new_pos);
 
 	if (!collision) {
 		return -100.0f;
 	}
 
+	if (collision == Map_collision::right_or_left) {
+		return 0.0f;
+	} else if (collision == Map_collision::up_or_down) {
+		return M_PI;
+	}
+
 	float x, y;
 
-	if (collision == 1 || collision == 2) {
+	if (collision == Map_collision::upper_left || collision == Map_collision::bottom_left) {
 		x = round(new_pos.z - 0.35f);
 	} else {
 		x = round(new_pos.z + 0.35f);
 	}
 
-	if (collision == 1 || collision == 4) {
+	if (collision == Map_collision::upper_left || collision == Map_collision::upper_right) {
 		y = round(new_pos.x - 0.35f);
 	} else {
 		y = round(new_pos.x + 0.35f);

@@ -28,10 +28,17 @@
 **/
 
 std::unique_ptr<Model> Map::strong_wall;
+std::unique_ptr<Model> Map::map_mdl;
 
 Map::Map() {
 	if (!strong_wall) {
 		strong_wall = std::make_unique<Model>(Model("models/strong_wall.obj"));
+	}
+
+	if (!map_mdl) {
+		map_mdl = std::make_unique<Model>(Model("models/map.obj"));
+		map_mdl->set_position(glm::vec3(7.55f, -0.0f, 10.5f));
+		map_mdl->set_angle(0.0f);
 	}
 }
 
@@ -70,15 +77,17 @@ Map::Map(const char* filename) : Map::Map() {
 
 		for (int j=0; j < 22; ++j) {
 			int stocked = std::stoi(data[j]);
-			datamap[i][j] = stocked;
-			source[i][j] = stocked;
+			datamap[i][21 - j] = stocked;
+			source[i][21 - j] = stocked;
 
 			if (stocked == 4) {
+				if (required_ply_spawn) {
+					Log::error("Invalid map (more than one player spawn)");
+					failed = true;
+					return;
+				}
+
 				required_ply_spawn = true;
-			} else if (stocked == 4 && required_ply_spawn) {
-				Log::error("Invalid map (more than one player spawn)");
-				failed = true;
-				return;
 			}
 		}
 	}
@@ -90,6 +99,8 @@ Map::Map(const char* filename) : Map::Map() {
 }
 
 void Map::draw(Shader shader, GLint uniform_MVP, glm::mat4 VP) {
+	map_mdl->draw(shader, uniform_MVP, VP);
+
 	for (int i=0; i < 16; ++i) {
 		for (int j=0; j < 22; ++j) {
 			Model* mdl;
@@ -120,10 +131,13 @@ glm::vec3 Map::get_player_starting_pos() {
 }
 
 // In "screen coordinates", x is y and z is x
-int Map::collision_check(glm::vec3 pos) {
+Map_collision Map::collision_check(glm::vec3 pos) {
 	// Normal map bounds
-	if (pos.x > 15 || pos.x < 0 || pos.z > 21 || pos.z < 0)
-		return true;
+	if (pos.x > 15.0f || pos.x < -0.25f) {
+		return Map_collision::up_or_down;
+	} else if (pos.z > 21.2f || pos.z < -0.1f) {
+		return Map_collision::right_or_left;
+	}
 
 	// Check if each point of the bounding box square is in a wall
 	// @TODO: Make it dynamic
@@ -131,22 +145,22 @@ int Map::collision_check(glm::vec3 pos) {
 	int y = round(pos.x - 0.35f);
 
 	if (datamap[y][x] == 1)
-		return 1;
+		return Map_collision::upper_left;
 
 	y = round(pos.x + 0.35f);
 
 	if (datamap[y][x] == 1)
-		return 2;
+		return Map_collision::bottom_left;
 
 	x = round(pos.z + 0.35f);
 
 	if (datamap[y][x] == 1)
-		return 3;
+		return Map_collision::bottom_right;
 
 	y = round(pos.x - 0.35f);
 
 	if (datamap[y][x] == 1)
-		return 4;
+		return Map_collision::upper_right;
 
-	return 0;
+	return Map_collision::none;
 }
