@@ -22,8 +22,8 @@ public:
 
 private:
 	// 2 dimensional array, 22 columns 16 rows
-	std::array<std::array<int, 22>, 16> datamap{0};
-	std::array<std::array<int, 22>, 16> source{0};
+	std::array<std::array<int, 22>, 16> datamap{};
+	std::array<std::array<int, 22>, 16> source{};
 	bool failed = false;
 
 	static std::unique_ptr<Model> strong_wall;
