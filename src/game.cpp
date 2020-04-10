@@ -84,13 +84,13 @@ Game::Game() {
 	// Set up the camera to be aligned with the map
 	cam = Camera(glm::vec3(11.0f, 10.0f, 10.5f), glm::vec2(0.0f, -1.9f));
 
-	map = Map("assets/map_0.txt");
+	map = std::make_unique<Map>(Map("assets/map_0.txt"));
 
-	if (map.has_failed()) {
+	if (map->has_failed()) {
 		throw std::system_error(EINTR, std::generic_category(), "Error loading map");
 	}
 
-	player = std::make_unique<Player>(Player(map.get_player_starting_pos()));
+	player = std::make_unique<Player>(Player(map->get_player_starting_pos()));
 
 	uniform_time = base_shader.get_uniform_location("time");
 	uniform_MVP = base_shader.get_uniform_location("MVP");
@@ -128,34 +128,34 @@ void Game::tick() {
 
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(0.0f, 0.0f, 0.1f);
-		if (!map.collision_check(player_pos + offset)) {
+		if (!map->collision_check(player_pos + offset)) {
 			player->move(offset);
 		}
 	} else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(0.0f, 0.0f, -0.1f);
-		if (!map.collision_check(player_pos + offset)) {
+		if (!map->collision_check(player_pos + offset)) {
 			player->move(offset);
 		}
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(-0.1f, 0.0f, 0.0f);
-		if (!map.collision_check(player_pos + offset)) {
+		if (!map->collision_check(player_pos + offset)) {
 			player->move(offset);
 		}
 	} else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(0.1f, 0.0f, 0.0f);
-		if (!map.collision_check(player_pos + offset)) {
+		if (!map->collision_check(player_pos + offset)) {
 			player->move(offset);
 		}
 	}
 
-	BulletManager::tick(map);
+	BulletManager::tick(*map);
 	BulletManager::draw(base_shader, uniform_MVP, cam.get_VP());
 
 	player->set_angle(calculate_cursor_angle(cam.get_VP(), player->get_position(), cursor_pos));
 	player->draw(base_shader, uniform_MVP, cam.get_VP());
-	map.draw(base_shader, uniform_MVP, cam.get_VP());
+	map->draw(base_shader, uniform_MVP, cam.get_VP());
 
 	glfwSwapBuffers(window);
 	glfwPollEvents();

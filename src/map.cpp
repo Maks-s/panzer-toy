@@ -29,11 +29,13 @@
 
 std::unique_ptr<Model> Map::strong_wall;
 
-Map::Map(const char* filename) {
+Map::Map() {
 	if (!strong_wall) {
 		strong_wall = std::make_unique<Model>(Model("models/strong_wall.obj"));
 	}
+}
 
+Map::Map(const char* filename) : Map::Map() {
 	std::ifstream file(filename);
 
 	if (!file.is_open()) {

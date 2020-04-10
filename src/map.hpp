@@ -9,11 +9,9 @@
 class Model;
 class Shader;
 
-// @TODO: Safe class (unitialised arrays and ptr aren't safe)
-
 class Map {
 public:
-	Map() {};
+	Map();
 	Map(const char* filename);
 	int collision_check(glm::vec3 pos);
 	void draw(Shader shader, GLint uniform_MVP, glm::mat4 VP);
@@ -24,8 +22,8 @@ public:
 
 private:
 	// 2 dimensional array, 22 columns 16 rows
-	std::array<std::array<int, 22>, 16> datamap;
-	std::array<std::array<int, 22>, 16> source;
+	std::array<std::array<int, 22>, 16> datamap{0};
+	std::array<std::array<int, 22>, 16> source{0};
 	bool failed = false;
 
 	static std::unique_ptr<Model> strong_wall;
