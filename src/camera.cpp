@@ -3,7 +3,7 @@
 
 #include "camera.hpp"
 
-const glm::mat4 projection = glm::ortho(-12.5f, 12.5f, -12.5f, 12.5f, 0.1f, 100.0f);
+const glm::mat4 projection = glm::ortho(12.5f, -12.5f, 12.5f, -12.5f, 0.1f, 100.0f);
 
 void Camera::calculate_VP() {
 	glm::vec3 direction = glm::vec3(
