@@ -15,6 +15,7 @@
 #include "texture.hpp"
 
 // Meshes loading can be changed to a parent-child system, but we don't need it right now
+// @TODO: Do something to load models only 1 time
 
 static void load_textures(std::vector<Texture>& textures, std::string path, aiMaterial* mat, aiTextureType type);
 static Mesh process_mesh(aiMesh* mesh, const aiScene* scene, std::string path);

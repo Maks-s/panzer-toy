@@ -14,7 +14,7 @@
 #include "log.hpp"
 #include "map.hpp"
 #include "model.hpp"
-#include "player.hpp"
+#include "tank.hpp"
 #include "shader.hpp"
 
 // @TODO: Make everything compliant with C++ Core Guidelines
@@ -32,12 +32,7 @@ static void mouse_btn_callback(GLFWwindow* window, int btn, int action, int) {
 		return;
 	}
 
-	const float offset = 0.8f;
-	float angle = game->get_player_angle();
-	glm::vec3 ply_pos = game->get_player_pos();
-	glm::vec2 pos(glm::sin(angle) * offset + ply_pos.x, glm::cos(angle) * offset + ply_pos.z);
-
-	BulletManager::create(pos, game->get_player_angle(), game->get_map());
+	game->player_shoot();
 }
 
 Game::Game() {
@@ -86,15 +81,16 @@ Game::Game() {
 	// Set up the camera to be aligned with the map
 	cam = Camera(glm::vec3(11.0f, 10.0f, 10.5f), glm::vec2(0.0f, -1.9f));
 
-	map = std::make_unique<Map>(Map("assets/map_0.txt"));
+	map = std::make_unique<Map>("assets/map_0.txt");
 
 	if (map->has_failed()) {
 		throw std::system_error(EINTR, std::generic_category(), "Error loading map");
 	}
 
-	player = std::make_unique<Player>(Player(map->get_player_starting_pos()));
+	player = std::make_unique<Tank>(map->get_player_starting_pos());
 
 	uniform_time = base_shader.get_uniform_location("time");
+	// @TODO: See if it's possible to move uniform_MVP to Shader
 	uniform_MVP = base_shader.get_uniform_location("MVP");
 }
 
@@ -102,6 +98,10 @@ void Game::run() {
 	while (!glfwWindowShouldClose(window)) {
 		tick();
 	}
+}
+
+void Game::player_shoot() {
+	player->shoot(this);
 }
 
 static float calculate_cursor_angle(glm::mat4 VP, glm::vec3 player_pos, glm::vec2 cursor_pos) {
@@ -121,9 +121,9 @@ static float calculate_cursor_angle(glm::mat4 VP, glm::vec3 player_pos, glm::vec
 void Game::tick() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	float time = glfwGetTime();
+	current_time = glfwGetTime();
 	base_shader.use();
-	base_shader.set_uniform(uniform_time, time);
+	base_shader.set_uniform(uniform_time, current_time);
 
 	// WASD / ZQSD controls
 	glm::vec3 player_pos = player->get_position();
@@ -152,6 +152,7 @@ void Game::tick() {
 		}
 	}
 
+	TankManager::frame(this, base_shader, uniform_MVP, cam.get_VP());
 	BulletManager::tick(*map);
 	BulletManager::draw(base_shader, uniform_MVP, cam.get_VP());
 

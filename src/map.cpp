@@ -10,8 +10,10 @@
 #include "map.hpp"
 #include "model.hpp"
 #include "shader.hpp"
+#include "tank.hpp"
 
 // @TODO: Holes, weak walls
+// @TODO: Enum instead of int
 
 /**
  * Map values :
@@ -32,11 +34,11 @@ std::unique_ptr<Model> Map::map_mdl;
 
 Map::Map() {
 	if (!strong_wall) {
-		strong_wall = std::make_unique<Model>(Model("models/strong_wall.obj"));
+		strong_wall = std::make_unique<Model>("models/strong_wall.obj");
 	}
 
 	if (!map_mdl) {
-		map_mdl = std::make_unique<Model>(Model("models/map.obj"));
+		map_mdl = std::make_unique<Model>("models/map.obj");
 		map_mdl->set_position(glm::vec3(7.55f, -0.0f, 10.5f));
 		map_mdl->set_angle(0.0f);
 	}
@@ -79,6 +81,11 @@ Map::Map(const char* filename) : Map::Map() {
 			int stocked = std::stoi(data[j]);
 			datamap[i][21 - j] = stocked;
 			source[i][21 - j] = stocked;
+
+			if (stocked >= 5) {
+				TankManager::create(glm::vec3(i, 0.0f, 21-j));
+				continue;
+			}
 
 			if (stocked == 4) {
 				if (required_ply_spawn) {

@@ -9,6 +9,7 @@
 #include "map.hpp"
 #include "model.hpp"
 #include "shader.hpp"
+#include "tank.hpp"
 
 namespace BulletManager {
 	namespace {
@@ -19,10 +20,10 @@ namespace BulletManager {
 }
 
 bool BulletManager::create(glm::vec2 pos, float angle, Map map) {
-	glm::vec3 position = glm::vec3(pos.x, 1.0f, pos.y);
+	glm::vec3 position = glm::vec3(pos.x, 0.0f, pos.y);
 
 	if (!bullet_mdl) {
-		bullet_mdl = std::make_unique<Model>(Model("models/bullet.obj"));
+		bullet_mdl = std::make_unique<Model>("models/bullet.obj");
 	}
 
 	if (map.collision_check(position)) {
@@ -77,12 +78,16 @@ static float get_collision_angle(Map& map, glm::vec3 new_pos, glm::vec3 old_pos)
 }
 
 void BulletManager::tick(Map map) {
+	// @TODO: Replace by iterators
 	for (int i=bullets.size() - 1; i >= 0; --i) {
 		Bullet& bullet = bullets[i];
-
 		glm::vec3 new_pos = bullet.position + bullet.velocity;
-		float angle = get_collision_angle(map, new_pos, bullet.position);
 
+		if (TankManager::bullet_collision(new_pos)) {
+			bullets.erase(bullets.begin() + i);
+		}
+
+		float angle = get_collision_angle(map, new_pos, bullet.position);
 		if (angle == -100.0f) {
 			bullet.position = new_pos;
 			continue;
