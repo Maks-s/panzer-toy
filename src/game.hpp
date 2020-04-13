@@ -35,7 +35,6 @@ private:
 	std::unique_ptr<Map> map;
 	std::unique_ptr<Tank> player;
 	GLint uniform_time;
-	GLint uniform_MVP;
 	GLFWwindow* window;
 
 	void tick();

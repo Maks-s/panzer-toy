@@ -80,25 +80,13 @@ static float get_collision_angle(
 	return glm::atan(y, x);
 }
 
-static void draw(
-	const Bullet& bullet,
-	const Shader& shader,
-	GLint uniform_MVP,
-	const glm::mat4& VP
-	) {
-
+static void draw(const Bullet& bullet, const Shader& shader, const glm::mat4& VP) {
 	bullet_mdl.set_angle(bullet.angle);
 	bullet_mdl.set_pos(bullet.position);
-	bullet_mdl.draw(shader, uniform_MVP, VP);
+	bullet_mdl.draw(shader, VP);
 }
 
-void BulletManager::frame(
-	const Game& game,
-	const Shader& shader,
-	GLint uniform_MVP,
-	const glm::mat4& VP
-	) {
-
+void BulletManager::frame(const Game& game, const Shader& shader, const glm::mat4& VP) {
 	for (auto bullet = bullets.begin(); bullet != bullets.end(); ++bullet) {
 		glm::vec3 new_pos = bullet->position + bullet->velocity;
 
@@ -110,7 +98,7 @@ void BulletManager::frame(
 		float angle = get_collision_angle(game.get_map(), new_pos, bullet->position);
 		if (angle == -100.0f) {
 			bullet->position = new_pos;
-			draw(*bullet, shader, uniform_MVP, VP);
+			draw(*bullet, shader, VP);
 			continue;
 		}
 
@@ -134,6 +122,6 @@ void BulletManager::frame(
 		}
 
 		bullet->angle = glm::atan(bullet->velocity.x, bullet->velocity.z);
-		draw(*bullet, shader, uniform_MVP, VP);
+		draw(*bullet, shader, VP);
 	}
 }

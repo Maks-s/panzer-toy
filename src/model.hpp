@@ -15,7 +15,7 @@ public:
 	Model() {};
 	Model(const std::string& path) { load(path); };
 	void load(std::string path);
-	void draw(const Shader& shader, GLint uniform_MVP, const glm::mat4& VP);
+	void draw(const Shader& shader, const glm::mat4& VP);
 
 	void set_pos(const glm::vec3& pos);
 	void move(const glm::vec3& pos);

@@ -102,13 +102,8 @@ void Map::load(const char* filename) {
 		throw std::runtime_error((std::string)"Invalid map (no player spawn)" + filename);
 }
 
-void Map::draw(
-	const Shader& shader,
-	GLint uniform_MVP,
-	const glm::mat4& VP
-	) const {
-
-	map_mdl.draw(shader, uniform_MVP, VP);
+void Map::draw(const Shader& shader, const glm::mat4& VP) const {
+	map_mdl.draw(shader, VP);
 
 	for (int i=0; i < 16; ++i) {
 		for (int j=0; j < 22; ++j) {
@@ -121,7 +116,7 @@ void Map::draw(
 			}
 
 			mdl->set_pos(glm::vec3(i, 0.0f, j));
-			mdl->draw(shader, uniform_MVP, VP);
+			mdl->draw(shader, VP);
 		}
 	}
 }

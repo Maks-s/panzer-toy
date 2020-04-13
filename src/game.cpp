@@ -80,8 +80,6 @@ Game::Game() {
 	player = std::make_unique<Tank>(map->get_player_starting_pos());
 
 	uniform_time = base_shader.get_uniform_location("time");
-	// @TODO: See if it's possible to move uniform_MVP to Shader
-	uniform_MVP = base_shader.get_uniform_location("MVP");
 }
 
 void Game::run() {
@@ -148,12 +146,12 @@ void Game::tick() {
 	}
 
 	const glm::mat4 VP = cam.get_VP();
-	TankManager::frame(*this, base_shader, uniform_MVP, VP);
-	BulletManager::frame(*this, base_shader, uniform_MVP, VP);
+	TankManager::frame(*this, base_shader, VP);
+	BulletManager::frame(*this, base_shader, VP);
 
 	player->set_angle(calculate_cursor_angle(VP, player->get_pos(), cursor_pos));
-	player->draw(base_shader, uniform_MVP, VP);
-	map->draw(base_shader, uniform_MVP, VP);
+	player->draw(base_shader, VP);
+	map->draw(base_shader, VP);
 
 	glfwSwapBuffers(window);
 	glfwPollEvents();

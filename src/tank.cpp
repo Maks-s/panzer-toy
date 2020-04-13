@@ -24,21 +24,16 @@ void Tank::shoot(const Game& game) {
 	glm::vec3 tank_pos = get_pos();
 	glm::vec2 pos(glm::sin(angle) * offset + tank_pos.x, glm::cos(angle) * offset + tank_pos.z);
 
-	BulletManager::create(pos, angle, game.get_map());
-	last_shoot_time = time;
+	if (BulletManager::create(pos, angle, game.get_map())) {
+		last_shoot_time = time;
+	}
 }
 
 void TankManager::create(const glm::vec3& pos) {
 	enemy_list.push_back(Tank(pos));
 }
 
-void TankManager::frame(
-	const Game& game,
-	const Shader& shader,
-	GLint uniform_MVP,
-	const glm::mat4& VP
-	) {
-
+void TankManager::frame(const Game& game, const Shader& shader, const glm::mat4& VP) {
 	glm::vec3 tank_pos = game.get_player_pos();
 
 	for (auto& enemy : enemy_list) {
@@ -49,7 +44,7 @@ void TankManager::frame(
 
 		enemy.set_angle(glm::atan(y, x));
 		enemy.shoot(game);
-		enemy.draw(shader, uniform_MVP, VP);
+		enemy.draw(shader, VP);
 	}
 }
 

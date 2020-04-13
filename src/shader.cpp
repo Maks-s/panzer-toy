@@ -57,6 +57,11 @@ void Shader::load(const char* vtx_path, const char* frag_path) {
 
 	glDeleteShader(vtx_shader);
 	glDeleteShader(frag_shader);
+
+	uniform_MVP = glGetUniformLocation(glProgram, "MVP");
+	if (uniform_MVP == -1) {
+		throw std::runtime_error((std::string)"No MVP uniform in shader: " + vtx_path);
+	}
 }
 
 void Shader::use() const {
@@ -65,6 +70,10 @@ void Shader::use() const {
 
 GLint Shader::get_uniform_location(const char* name) const {
 	return glGetUniformLocation(glProgram, name);
+}
+
+void Shader::set_MVP(const glm::mat4& MVP) const {
+	set_uniform(uniform_MVP, MVP);
 }
 
 static std::string readfile(const char* filename) {
@@ -86,18 +95,18 @@ static std::string readfile(const char* filename) {
 	return content;
 }
 
-void Shader::set_uniform(GLint location, float f) const {
+void Shader::set_uniform(GLint location, float f) {
 	glUniform1f(location, f);
 }
 
-void Shader::set_uniform(GLint location, float x, float y, float z, float w) const {
+void Shader::set_uniform(GLint location, float x, float y, float z, float w) {
 	glUniform4f(location, x, y, z, w);
 }
 
-void Shader::set_uniform(GLint location, int i) const {
+void Shader::set_uniform(GLint location, int i) {
 	glUniform1i(location, i);
 }
 
-void Shader::set_uniform(GLint location, const glm::mat4& mat) const {
+void Shader::set_uniform(GLint location, const glm::mat4& mat) {
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 }

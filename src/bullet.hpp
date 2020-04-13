@@ -17,7 +17,7 @@ struct Bullet {
 
 namespace BulletManager {
 	bool create(const glm::vec2& pos, float angle, const Map& map);
-	void frame(const Game& game, const Shader& shader, GLint uniform_MVP, const glm::mat4& VP);
+	void frame(const Game& game, const Shader& shader, const glm::mat4& VP);
 }
 
 #endif // BULLET_HPP

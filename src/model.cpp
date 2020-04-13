@@ -35,7 +35,7 @@ void Model::load(std::string path) {
 	}
 }
 
-void Model::draw(const Shader& shader, GLint uniform_MVP, const glm::mat4& VP) {
+void Model::draw(const Shader& shader, const glm::mat4& VP) {
 	if (dirty) {
 		dirty = false;
 		model_mat = glm::translate(glm::mat4(1.0f), pos);
@@ -43,7 +43,7 @@ void Model::draw(const Shader& shader, GLint uniform_MVP, const glm::mat4& VP) {
 	}
 
 	glm::mat4 MVP = VP * model_mat;
-	shader.set_uniform(uniform_MVP, MVP);
+	shader.set_MVP(MVP);
 
 	for (auto& mesh : meshes) {
 		mesh.draw(shader);

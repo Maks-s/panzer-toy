@@ -26,7 +26,7 @@ private:
 
 namespace TankManager {
 	void create(const glm::vec3& pos);
-	void frame(const Game& game, const Shader& shader, GLint uniform_MVP, const glm::mat4& VP);
+	void frame(const Game& game, const Shader& shader, const glm::mat4& VP);
 	bool bullet_collision(const glm::vec3& bullet_pos);
 }
 
