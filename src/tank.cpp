@@ -1,5 +1,5 @@
 #include <memory>
-#include <forward_list>
+#include <vector>
 #include <glm/glm.hpp>
 
 #include "bullet.hpp"
@@ -10,49 +10,55 @@
 
 namespace TankManager {
 	namespace {
-		std::forward_list<std::unique_ptr<Tank>> enemy_list;
+		std::vector<Tank> enemy_list;
 	}
 }
 
-void Tank::shoot(Game* game) {
-	const float time = game->get_current_time();
+void Tank::shoot(const Game& game) {
+	const float time = game.get_current_time();
 	if (time - last_shoot_time < 2.0f)
 		return;
 
 	const float offset = 0.8f;
 	const float angle = get_angle();
-	glm::vec3 ply_pos = get_position();
-	glm::vec2 pos(glm::sin(angle) * offset + ply_pos.x, glm::cos(angle) * offset + ply_pos.z);
+	glm::vec3 tank_pos = get_pos();
+	glm::vec2 pos(glm::sin(angle) * offset + tank_pos.x, glm::cos(angle) * offset + tank_pos.z);
 
-	BulletManager::create(pos, angle, game->get_map());
+	BulletManager::create(pos, angle, game.get_map());
 	last_shoot_time = time;
 }
 
-void TankManager::create(glm::vec3 pos) {
-	enemy_list.push_front(std::make_unique<Tank>(pos));
+void TankManager::create(const glm::vec3& pos) {
+	enemy_list.push_back(Tank(pos));
 }
 
-void TankManager::frame(Game* game, Shader shader, GLint uniform_MVP, glm::mat4 VP) {
-	glm::vec3 ply_pos = game->get_player_pos();
+void TankManager::frame(
+	const Game& game,
+	const Shader& shader,
+	GLint uniform_MVP,
+	const glm::mat4& VP
+	) {
+
+	glm::vec3 tank_pos = game.get_player_pos();
 
 	for (auto& enemy : enemy_list) {
-		glm::vec3 foe_pos = enemy->get_position();
+		glm::vec3 foe_pos = enemy.get_pos();
 
-		float x = ply_pos.z - foe_pos.z;
-		float y = ply_pos.x - foe_pos.x;
+		float x = tank_pos.z - foe_pos.z;
+		float y = tank_pos.x - foe_pos.x;
 
-		enemy->set_angle(glm::atan(y, x));
-		enemy->shoot(game);
-		enemy->draw(shader, uniform_MVP, VP);
+		enemy.set_angle(glm::atan(y, x));
+		enemy.shoot(game);
+		enemy.draw(shader, uniform_MVP, VP);
 	}
 }
 
-bool TankManager::bullet_collision(glm::vec3 bullet_pos) {
-	for (auto& enemy : enemy_list) {
-		glm::vec3 foe_pos = enemy->get_position();
+bool TankManager::bullet_collision(const glm::vec3& bullet_pos) {
+	for (auto enemy = enemy_list.begin(); enemy != enemy_list.end(); ++enemy) {
+		glm::vec3 foe_pos = enemy->get_pos();
 
 		if (glm::distance(bullet_pos, foe_pos) < 0.4f) {
-			enemy_list.remove(enemy);
+			enemy = enemy_list.erase(enemy) - 1;
 			return true;
 		}
 	}

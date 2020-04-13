@@ -14,10 +14,10 @@ namespace TextureManager {
 	}
 }
 
-Texture TextureManager::load_texture(std::string filename, aiTextureType type, bool flip) {
-	for (int i=loaded_textures.size() - 1; i >= 0; --i) {
-		if (loaded_textures[i].path == filename) {
-			return loaded_textures[i];
+Texture TextureManager::load_texture(const std::string& filename, aiTextureType type, bool flip) {
+	for (const auto& texture : loaded_textures) {
+		if (texture.path == filename) {
+			return texture;
 		}
 	}
 
@@ -71,18 +71,18 @@ Texture TextureManager::load_texture(std::string filename, aiTextureType type, b
 	return texture;
 }
 
-Texture TextureManager::get_texture(std::string filename) {
-	for (auto& texture : loaded_textures) {
+Texture TextureManager::get_texture(const std::string& filename) {
+	for (const auto& texture : loaded_textures) {
 		if (texture.path == filename) {
 			return texture;
 		}
 	}
 
-	return Texture(); // Return invalid texture
+	return Texture(); // Invalid texture
 }
 
 Texture TextureManager::get_texture(GLuint id) {
-	for (auto& texture : loaded_textures) {
+	for (const auto& texture : loaded_textures) {
 		if (texture.id == id) {
 			return texture;
 		}

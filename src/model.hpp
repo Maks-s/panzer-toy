@@ -12,24 +12,28 @@ class Shader;
 
 class Model {
 public:
-	Model(std::string path);
-	void draw(Shader shader, GLint uniform_MVP, glm::mat4 VP);
+	Model() {};
+	Model(const std::string& path) { load(path); };
+	void load(std::string path);
+	void draw(const Shader& shader, GLint uniform_MVP, const glm::mat4& VP);
 
-	void set_position(glm::vec3 pos);
-	void move(glm::vec3 pos);
+	void set_pos(const glm::vec3& pos);
+	void move(const glm::vec3& pos);
 
 	void set_angle(float angle);
 	void rotate(float angle);
 
-	glm::vec3 get_position() { return position; };
-	float get_angle() { return angle; };
+	glm::vec3 get_pos() const { return pos; };
+	float get_angle() const { return angle; };
+
+	bool is_empty() { return meshes.empty(); };
 
 private:
 	std::vector<Mesh> meshes;
-	glm::mat4 model_mat;
-	glm::vec3 position = glm::vec3(0.0f);
+	glm::mat4 model_mat = glm::mat4(0.0f);
+	glm::vec3 pos = glm::vec3(0.0f);
 	float angle = 0.0f;
-	bool dirty;
+	bool dirty = false;
 };
 
 #endif // MODEL_HPP

@@ -17,10 +17,9 @@
 // Meshes loading can be changed to a parent-child system, but we don't need it right now
 // @TODO: Do something to load models only 1 time
 
-static void load_textures(std::vector<Texture>& textures, std::string path, aiMaterial* mat, aiTextureType type);
-static Mesh process_mesh(aiMesh* mesh, const aiScene* scene, std::string path);
+static Mesh process_mesh(aiMesh* mesh, const aiScene* scene, const std::string& path);
 
-Model::Model(std::string path) {
+void Model::load(std::string path) {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph);
 
@@ -29,17 +28,17 @@ Model::Model(std::string path) {
 		return;
 	}
 
-	std::string dir = path.substr(0, path.find_last_of('/') + 1);
+	path = path.substr(0, path.find_last_of('/') + 1);
 
 	for (int i = scene->mNumMeshes - 1; i >= 0; --i) {
-		meshes.push_back(process_mesh(scene->mMeshes[i], scene, dir));
+		meshes.push_back(process_mesh(scene->mMeshes[i], scene, path));
 	}
 }
 
-void Model::draw(Shader shader, GLint uniform_MVP, glm::mat4 VP) {
+void Model::draw(const Shader& shader, GLint uniform_MVP, const glm::mat4& VP) {
 	if (dirty) {
 		dirty = false;
-		model_mat = glm::translate(glm::mat4(1.0f), position);
+		model_mat = glm::translate(glm::mat4(1.0f), pos);
 		model_mat = glm::rotate(model_mat, angle, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
@@ -51,13 +50,13 @@ void Model::draw(Shader shader, GLint uniform_MVP, glm::mat4 VP) {
 	}
 }
 
-void Model::set_position(glm::vec3 pos) {
-	position = pos;
+void Model::set_pos(const glm::vec3& pos) {
+	this->pos = pos;
 	dirty = true;
 }
 
-void Model::move(glm::vec3 pos) {
-	position = position + pos;
+void Model::move(const glm::vec3& pos) {
+	this->pos += pos;
 	dirty = true;
 }
 
@@ -77,7 +76,7 @@ void Model::rotate(float angle) {
 	dirty = true;
 }
 
-static void load_textures(std::vector<Texture>& textures, std::string path, aiMaterial* mat, aiTextureType type) {
+static void load_textures(std::vector<Texture>& textures, const std::string& path, aiMaterial* mat, aiTextureType type) {
 	for (int i = mat->GetTextureCount(type) - 1; i >= 0; --i) {
 		aiString str;
 		mat->GetTexture(type, i, &str);
@@ -86,7 +85,7 @@ static void load_textures(std::vector<Texture>& textures, std::string path, aiMa
 	}
 }
 
-static Mesh process_mesh(aiMesh* mesh, const aiScene* scene, std::string path) {
+static Mesh process_mesh(aiMesh* mesh, const aiScene* scene, const std::string& path) {
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 	std::vector<Texture> textures;

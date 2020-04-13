@@ -7,7 +7,12 @@
 #include "shader.hpp"
 #include "texture.hpp"
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures) {
+Mesh::Mesh(
+	const std::vector<Vertex>& vertices,
+	const std::vector<GLuint>& indices,
+	const std::vector<Texture>& textures
+	) {
+
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
@@ -33,7 +38,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vecto
 	this->textures = textures;
 }
 
-void Mesh::draw(Shader shader) {
+void Mesh::draw(const Shader& shader) const {
 	int diffuse = 0;
 	int specular = 0;
 

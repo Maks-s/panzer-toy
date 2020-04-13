@@ -17,9 +17,12 @@ struct Vertex {
 
 class Mesh {
 public:
-	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures);
+	Mesh(
+		const std::vector<Vertex>& vertices,
+		const std::vector<GLuint>& indices,
+		const std::vector<Texture>& textures);
 
-	void draw(Shader shader);
+	void draw(const Shader& shader) const;
 
 private:
 	GLuint VAO, VBO, EBO;

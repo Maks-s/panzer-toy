@@ -7,7 +7,6 @@
 #include "model.hpp"
 
 class Game;
-class Map;
 class Shader;
 
 // @TODO: Separate Player and Enemy
@@ -15,10 +14,10 @@ class Shader;
 class Tank : public Model {
 public:
 	Tank() : Model("models/tank.obj") {};
-	Tank(glm::vec3 pos) : Tank() { set_position(pos); };
+	Tank(const glm::vec3& pos) : Tank() { set_pos(pos); };
 
-	void shoot(Game* game);
-	float get_last_shoot_time() { return last_shoot_time; };
+	void shoot(const Game& game);
+	float get_last_shoot_time() const { return last_shoot_time; };
 	void set_last_shoot_time(float time) { last_shoot_time = time; };
 
 private:
@@ -26,9 +25,9 @@ private:
 };
 
 namespace TankManager {
-	void create(glm::vec3 pos);
-	void frame(Game* game, Shader shader, GLint uniform_MVP, glm::mat4 VP);
-	bool bullet_collision(glm::vec3 bullet_pos);
+	void create(const glm::vec3& pos);
+	void frame(const Game& game, const Shader& shader, GLint uniform_MVP, const glm::mat4& VP);
+	bool bullet_collision(const glm::vec3& bullet_pos);
 }
 
 #endif // TANK_HPP

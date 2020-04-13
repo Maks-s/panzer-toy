@@ -3,7 +3,9 @@
 
 #include "camera.hpp"
 
-const glm::mat4 projection = glm::ortho(-14.0f, 14.0f, -14.0f, 14.0f, 0.1f, 100.0f);
+namespace {
+	const glm::mat4 projection = glm::ortho(-14.0f, 14.0f, -14.0f, 14.0f, 0.1f, 100.0f);
+}
 
 void Camera::calculate_VP() {
 	glm::vec3 direction = glm::vec3(
@@ -17,22 +19,22 @@ void Camera::calculate_VP() {
 	VP = projection * view;
 }
 
-void Camera::set_angle(glm::vec2 angle) {
+void Camera::set_angle(const glm::vec2& angle) {
 	this->angle = angle;
 	calculate_VP();
 }
 
-void Camera::rotate(glm::vec2 angle) {
+void Camera::rotate(const glm::vec2& angle) {
 	this->angle += angle;
 	calculate_VP();
 }
 
-void Camera::set_position(glm::vec3 pos) {
+void Camera::set_pos(const glm::vec3& pos) {
 	this->pos = pos;
 	calculate_VP();
 }
 
-void Camera::move(glm::vec3 offset) {
+void Camera::move(const glm::vec3& offset) {
 	pos += offset;
 	calculate_VP();
 }

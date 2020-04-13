@@ -1,5 +1,3 @@
-#define _USE_MATH_DEFINES
-#include <cmath>
 #include <system_error>
 #include <memory>
 #include <GL/gl3w.h>
@@ -71,22 +69,14 @@ Game::Game() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	base_shader = Shader("shaders/vertex.glsl", "shaders/fragment.glsl");
-	if (base_shader.fail()) {
-		throw std::system_error(EINTR, std::generic_category(), "Error loading base shader");
-	}
-
+	base_shader.load("shaders/vertex.glsl", "shaders/fragment.glsl");
 	base_shader.use();
 
 	// Set up the camera to be aligned with the map
-	cam = Camera(glm::vec3(11.0f, 10.0f, 10.5f), glm::vec2(0.0f, -1.9f));
+	cam.set_pos(glm::vec3(11.0f, 10.0f, 10.5f));
+	cam.set_angle(glm::vec2(0.0f, -1.9f));
 
 	map = std::make_unique<Map>("assets/map_0.txt");
-
-	if (map->has_failed()) {
-		throw std::system_error(EINTR, std::generic_category(), "Error loading map");
-	}
-
 	player = std::make_unique<Tank>(map->get_player_starting_pos());
 
 	uniform_time = base_shader.get_uniform_location("time");
@@ -100,11 +90,16 @@ void Game::run() {
 	}
 }
 
-void Game::player_shoot() {
-	player->shoot(this);
+void Game::player_shoot() const {
+	player->shoot(*this);
 }
 
-static float calculate_cursor_angle(glm::mat4 VP, glm::vec3 player_pos, glm::vec2 cursor_pos) {
+static float calculate_cursor_angle(
+	const glm::mat4& VP,
+	const glm::vec3& player_pos,
+	const glm::vec2& cursor_pos
+	) {
+
 	// World coordinates to screen coordinates
 	glm::vec4 world_pos = VP * glm::vec4(player_pos, 1.0f);
 	world_pos /= world_pos.w;
@@ -115,7 +110,7 @@ static float calculate_cursor_angle(glm::mat4 VP, glm::vec3 player_pos, glm::vec
 	float x = cursor_pos.x - screen_x;
 	float y = screen_y - cursor_pos.y;
 
-	return glm::atan(y, x) - M_PI;
+	return glm::atan(y, x) - glm::pi<float>();
 }
 
 void Game::tick() {
@@ -126,39 +121,39 @@ void Game::tick() {
 	base_shader.set_uniform(uniform_time, current_time);
 
 	// WASD / ZQSD controls
-	glm::vec3 player_pos = player->get_position();
+	glm::vec3 player_pos = player->get_pos();
 
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(0.0f, 0.0f, 0.1f);
-		if (!map->collision_check(player_pos + offset)) {
+		if (map->collision_check(player_pos + offset) == Map_collision::none) {
 			player->move(offset);
 		}
 	} else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(0.0f, 0.0f, -0.1f);
-		if (!map->collision_check(player_pos + offset)) {
+		if (map->collision_check(player_pos + offset) == Map_collision::none) {
 			player->move(offset);
 		}
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(-0.1f, 0.0f, 0.0f);
-		if (!map->collision_check(player_pos + offset)) {
+		if (map->collision_check(player_pos + offset) == Map_collision::none) {
 			player->move(offset);
 		}
 	} else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 		glm::vec3 offset = glm::vec3(0.1f, 0.0f, 0.0f);
-		if (!map->collision_check(player_pos + offset)) {
+		if (map->collision_check(player_pos + offset) == Map_collision::none) {
 			player->move(offset);
 		}
 	}
 
-	TankManager::frame(this, base_shader, uniform_MVP, cam.get_VP());
-	BulletManager::tick(*map);
-	BulletManager::draw(base_shader, uniform_MVP, cam.get_VP());
+	const glm::mat4 VP = cam.get_VP();
+	TankManager::frame(*this, base_shader, uniform_MVP, VP);
+	BulletManager::frame(*this, base_shader, uniform_MVP, VP);
 
-	player->set_angle(calculate_cursor_angle(cam.get_VP(), player->get_position(), cursor_pos));
-	player->draw(base_shader, uniform_MVP, cam.get_VP());
-	map->draw(base_shader, uniform_MVP, cam.get_VP());
+	player->set_angle(calculate_cursor_angle(VP, player->get_pos(), cursor_pos));
+	player->draw(base_shader, uniform_MVP, VP);
+	map->draw(base_shader, uniform_MVP, VP);
 
 	glfwSwapBuffers(window);
 	glfwPollEvents();

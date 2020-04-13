@@ -1,4 +1,6 @@
 #include <fstream>
+#include <stdexcept>
+#include <string>
 
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
@@ -9,7 +11,7 @@
 
 static std::string readfile(const char* filename);
 
-Shader::Shader(const char* vtx_path, const char* frag_path) {
+void Shader::load(const char* vtx_path, const char* frag_path) {
 	GLuint vtx_shader = glCreateShader(GL_VERTEX_SHADER);
 	GLuint frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -31,18 +33,14 @@ Shader::Shader(const char* vtx_path, const char* frag_path) {
 	if (!vtx_success) {
 		char info[512];
 		glGetShaderInfoLog(vtx_shader, 512, nullptr, info);
-		Log::error("Error compiling vertex shader: ", '\n', info);
+		throw std::runtime_error((std::string)"Error compiling vertex shader: \n" + info);
 	}
 
 	if (!frag_success) {
 		char info[512];
 		glGetShaderInfoLog(frag_shader, 512, nullptr, info);
-		Log::error("Error compiling fragment shader: ", '\n', info);
+		throw std::runtime_error((std::string)"Error compiling fragment shader: \n" + info);
 	}
-
-	failed = (!frag_success || !vtx_success);
-	if (failed)
-		return;
 
 	glProgram = glCreateProgram();
 	glAttachShader(glProgram, vtx_shader);
@@ -54,10 +52,8 @@ Shader::Shader(const char* vtx_path, const char* frag_path) {
 	if (!prog_success) {
 		char info[512];
 		glGetProgramInfoLog(glProgram, 512, nullptr, info);
-		Log::error("Error linking shaders: ", '\n', info);
+		throw std::runtime_error((std::string)"Error linking shaders: \n" + info);
 	}
-
-	failed = !prog_success;
 
 	glDeleteShader(vtx_shader);
 	glDeleteShader(frag_shader);
@@ -102,6 +98,6 @@ void Shader::set_uniform(GLint location, int i) const {
 	glUniform1i(location, i);
 }
 
-void Shader::set_uniform(GLint location, glm::mat4 mat) const {
+void Shader::set_uniform(GLint location, const glm::mat4& mat) const {
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 }

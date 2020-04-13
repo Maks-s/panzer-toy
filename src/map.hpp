@@ -6,10 +6,9 @@
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
 
-class Model;
 class Shader;
 
-enum Map_collision {
+enum class Map_collision {
 	none = false,
 	bottom_left,
 	bottom_right,
@@ -22,22 +21,18 @@ enum Map_collision {
 class Map {
 public:
 	Map();
-	Map(const char* filename);
-	Map_collision collision_check(glm::vec3 pos);
-	void draw(Shader shader, GLint uniform_MVP, glm::mat4 VP);
-	glm::vec3 get_player_starting_pos();
+	Map(const char* filename) : Map() { load(filename); };
+	void load(const char* filename);
+	Map_collision collision_check(const glm::vec3& pos) const;
+	void draw(const Shader& shader, GLint uniform_MVP, const glm::mat4& VP) const;
+	glm::vec3 get_player_starting_pos() const;
 
 	void reset() { datamap = source; };
-	bool has_failed() { return failed; };
 
 private:
 	// 2 dimensional array, 22 columns 16 rows
 	std::array<std::array<int, 22>, 16> datamap{};
 	std::array<std::array<int, 22>, 16> source{};
-	bool failed = false;
-
-	static std::unique_ptr<Model> strong_wall;
-	static std::unique_ptr<Model> map_mdl;
 };
 
 #endif // MAP_HPP

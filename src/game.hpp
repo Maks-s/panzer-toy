@@ -11,22 +11,20 @@
 #include "tank.hpp"
 #include "shader.hpp"
 
-// @TODO: Use something else to note what TODO
-// @TODO: Use pointers instead of class
-
 class Game {
 public:
 	Game();
 	~Game();
 	void run();
-	void player_shoot();
+	void player_shoot() const;
 
 	void set_cursor_pos(glm::vec2 pos) { cursor_pos = pos; };
-	glm::vec2 get_cursor_pos() { return cursor_pos; };
-	Map get_map() { return *map; };
-	glm::vec3 get_player_pos() { return player->get_position(); };
-	float get_player_angle() { return player->get_angle(); };
-	float get_current_time() { return current_time; };
+	glm::vec2 get_cursor_pos() const { return cursor_pos; };
+
+	Map get_map() const { return *map; };
+	glm::vec3 get_player_pos() const { return player->get_pos(); };
+	float get_player_angle() const { return player->get_angle(); };
+	float get_current_time() const { return current_time; };
 
 private:
 	Shader base_shader;
