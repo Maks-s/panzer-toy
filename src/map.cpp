@@ -11,7 +11,7 @@
 #include "map.hpp"
 #include "model.hpp"
 #include "shader.hpp"
-#include "tank.hpp"
+#include "enemy.hpp"
 
 /**
  * Map values :
@@ -84,7 +84,7 @@ void Map::load(const char* filename) {
 
 			switch ((Map_object)stocked) {
 			case Map_object::enemy:
-				TankManager::create(glm::vec3(i, 0.0f, 21-j));
+				EnemyManager::create(glm::vec3(i, 0.0f, 21-j));
 				break;
 			case Map_object::player:
 				if (required_ply_spawn)

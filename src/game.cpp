@@ -9,6 +9,7 @@
 #include "game.hpp"
 #include "bullet.hpp"
 #include "camera.hpp"
+#include "enemy.hpp"
 #include "log.hpp"
 #include "map.hpp"
 #include "model.hpp"
@@ -122,7 +123,7 @@ void Game::frame() {
 	player->handle_movement(*this, window);
 
 	const glm::mat4 VP = cam.get_VP();
-	TankManager::frame(*this, base_shader, VP);
+	EnemyManager::frame(*this, base_shader, VP);
 	BulletManager::frame(*this, base_shader, VP);
 
 	// player->set_angle(calculate_cursor_angle(VP, player->get_pos(), cursor_pos));

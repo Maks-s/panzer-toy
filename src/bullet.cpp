@@ -9,7 +9,7 @@
 #include "map.hpp"
 #include "model.hpp"
 #include "shader.hpp"
-#include "tank.hpp"
+#include "enemy.hpp"
 
 namespace {
 	Model bullet_mdl;
@@ -90,7 +90,7 @@ void BulletManager::frame(const Game& game, const Shader& shader, const glm::mat
 	for (auto bullet = bullets.begin(); bullet != bullets.end(); ++bullet) {
 		glm::vec3 new_pos = bullet->position + bullet->velocity;
 
-		if (TankManager::bullet_collision(new_pos)) {
+		if (EnemyManager::bullet_collision(new_pos)) {
 			bullet = bullets.erase(bullet) - 1;
 			continue;
 		}
