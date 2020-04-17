@@ -1,10 +1,10 @@
+#include "game.hpp"
 #include <memory>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
 #include "bullet.hpp"
-#include "game.hpp"
 #include "log.hpp"
 #include "map.hpp"
 #include "model.hpp"
@@ -16,14 +16,14 @@ namespace {
 	std::vector<Bullet> bullets;
 }
 
-bool BulletManager::create(const glm::vec2& pos, float angle, const Map& map) {
+bool BulletManager::create(const glm::vec2& pos, float angle, const Game& game) {
 	glm::vec3 position = glm::vec3(pos.x, 0.0f, pos.y);
 
 	if (bullet_mdl.is_empty()) {
 		bullet_mdl.load("models/bullet.obj");
 	}
 
-	if (map.collision_check(position) != Map_collision::none) {
+	if (game.collision_check(position) != Map_collision::none) {
 		Log::error("Invalid bullet position");
 		return false;
 	}
@@ -43,12 +43,12 @@ bool BulletManager::create(const glm::vec2& pos, float angle, const Map& map) {
 
 // Return collision angle with the wall at its origin
 static float get_collision_angle(
-	const Map& map,
+	const Game& game,
 	const glm::vec3& new_pos,
 	const glm::vec3& old_pos
 	) {
 
-	Map_collision collision = map.collision_check(new_pos);
+	Map_collision collision = game.collision_check(new_pos);
 
 	if (collision == Map_collision::none) {
 		return -100.0f;
@@ -95,7 +95,7 @@ void BulletManager::frame(const Game& game, const Shader& shader, const glm::mat
 			continue;
 		}
 
-		float angle = get_collision_angle(game.get_map(), new_pos, bullet->position);
+		float angle = get_collision_angle(game, new_pos, bullet->position);
 		if (angle == -100.0f) {
 			bullet->position = new_pos;
 			draw(*bullet, shader, VP);

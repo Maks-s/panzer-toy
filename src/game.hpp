@@ -8,7 +8,7 @@
 
 #include "camera.hpp"
 #include "map.hpp"
-#include "tank.hpp"
+#include "player.hpp"
 #include "shader.hpp"
 
 class Game {
@@ -21,7 +21,10 @@ public:
 	void set_cursor_pos(glm::vec2 pos) { cursor_pos = pos; };
 	glm::vec2 get_cursor_pos() const { return cursor_pos; };
 
-	Map get_map() const { return *map; };
+	Map_collision collision_check(const glm::vec3& pos) const {
+		return map->collision_check(pos);
+	};
+
 	glm::vec3 get_player_pos() const { return player->get_pos(); };
 	float get_player_angle() const { return player->get_angle(); };
 	float get_current_time() const { return current_time; };
@@ -33,11 +36,11 @@ private:
 	glm::vec2 cursor_pos;
 	// Instancing directly will segfault because OpenGL isn't initialised
 	std::unique_ptr<Map> map;
-	std::unique_ptr<Tank> player;
+	std::unique_ptr<Player> player;
 	GLint uniform_time;
 	GLFWwindow* window;
 
-	void tick();
+	void frame();
 };
 
 #endif // GAME_HPP

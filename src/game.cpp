@@ -12,7 +12,7 @@
 #include "log.hpp"
 #include "map.hpp"
 #include "model.hpp"
-#include "tank.hpp"
+#include "player.hpp"
 #include "shader.hpp"
 
 // @TODO: Make everything compliant with C++ Core Guidelines
@@ -77,14 +77,14 @@ Game::Game() {
 	cam.set_angle(glm::vec2(0.0f, -1.9f));
 
 	map = std::make_unique<Map>("assets/map_0.txt");
-	player = std::make_unique<Tank>(map->get_player_starting_pos());
+	player = std::make_unique<Player>(map->get_player_starting_pos());
 
 	uniform_time = base_shader.get_uniform_location("time");
 }
 
 void Game::run() {
 	while (!glfwWindowShouldClose(window)) {
-		tick();
+		frame();
 	}
 }
 
@@ -111,7 +111,7 @@ static float calculate_cursor_angle(
 	return glm::atan(y, x) - glm::pi<float>();
 }
 
-void Game::tick() {
+void Game::frame() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	current_time = glfwGetTime();
@@ -119,37 +119,13 @@ void Game::tick() {
 	base_shader.set_uniform(uniform_time, current_time);
 
 	// WASD / ZQSD controls
-	glm::vec3 player_pos = player->get_pos();
-
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		glm::vec3 offset = glm::vec3(0.0f, 0.0f, 0.1f);
-		if (map->collision_check(player_pos + offset) == Map_collision::none) {
-			player->move(offset);
-		}
-	} else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		glm::vec3 offset = glm::vec3(0.0f, 0.0f, -0.1f);
-		if (map->collision_check(player_pos + offset) == Map_collision::none) {
-			player->move(offset);
-		}
-	}
-
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		glm::vec3 offset = glm::vec3(-0.1f, 0.0f, 0.0f);
-		if (map->collision_check(player_pos + offset) == Map_collision::none) {
-			player->move(offset);
-		}
-	} else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		glm::vec3 offset = glm::vec3(0.1f, 0.0f, 0.0f);
-		if (map->collision_check(player_pos + offset) == Map_collision::none) {
-			player->move(offset);
-		}
-	}
+	player->handle_movement(*this, window);
 
 	const glm::mat4 VP = cam.get_VP();
 	TankManager::frame(*this, base_shader, VP);
 	BulletManager::frame(*this, base_shader, VP);
 
-	player->set_angle(calculate_cursor_angle(VP, player->get_pos(), cursor_pos));
+	// player->set_angle(calculate_cursor_angle(VP, player->get_pos(), cursor_pos));
 	player->draw(base_shader, VP);
 	map->draw(base_shader, VP);
 

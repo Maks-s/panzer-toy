@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 
 class Game;
-class Map;
 class Shader;
 
 struct Bullet {
@@ -16,7 +15,7 @@ struct Bullet {
 };
 
 namespace BulletManager {
-	bool create(const glm::vec2& pos, float angle, const Map& map);
+	bool create(const glm::vec2& pos, float angle, const Game& game);
 	void frame(const Game& game, const Shader& shader, const glm::mat4& VP);
 }
 
