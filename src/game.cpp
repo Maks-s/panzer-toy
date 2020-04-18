@@ -81,6 +81,8 @@ Game::Game() {
 	player = std::make_unique<Player>(map->get_player_starting_pos());
 
 	uniform_time = base_shader.get_uniform_location("time");
+
+	EnemyManager::init();
 }
 
 void Game::run() {

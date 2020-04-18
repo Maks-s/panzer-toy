@@ -10,8 +10,7 @@ class GLFWwindow;
 
 class Player : public Tank {
 public:
-	Player() : Tank() {};
-	Player(const glm::vec3& pos) : Tank(pos) {};
+	using Tank::Tank;
 
 	void handle_movement(const Game& game, GLFWwindow* window);
 };

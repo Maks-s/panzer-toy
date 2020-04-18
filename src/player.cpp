@@ -18,7 +18,12 @@ void Player::handle_movement(const Game& game, GLFWwindow* window) {
 	const float half_pi = glm::half_pi<float>();
 	const float quarter_pi = glm::quarter_pi<float>();
 
-	if ((w_pressed && s_pressed) || (d_pressed && a_pressed)) {
+	if (
+		(w_pressed && s_pressed)
+		|| (d_pressed && a_pressed)
+		|| !(w_pressed || a_pressed || s_pressed || d_pressed)
+		) {
+
 		tick();
 		return;
 	}
@@ -45,7 +50,7 @@ void Player::handle_movement(const Game& game, GLFWwindow* window) {
 		set_direction(pi);
 	}
 
-	if (get_remaining_steps() == 0) {
+	if (get_remaining_steps() <= 0) {
 		const float angle = get_angle();
 		const float speed = 0.03f;
 

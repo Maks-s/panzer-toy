@@ -7,12 +7,23 @@
 class Game;
 class Shader;
 
-class Enemy : public Tank {
+enum class Enemy_type : int {
+	basic = 5,
+	crazy = 6
+};
 
+
+class Enemy : public Tank {
+public:
+	using Tank::Tank;
+	virtual ~Enemy() = default;
+
+	virtual void behavior(const Game&, const glm::vec3&) {};
 };
 
 namespace EnemyManager {
-	void create(const glm::vec3& pos);
+	void init();
+	void create(const glm::vec3& pos, Enemy_type type);
 	void frame(const Game& game, const Shader& shader, const glm::mat4& VP);
 	bool bullet_collision(const glm::vec3& bullet_pos);
 }

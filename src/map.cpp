@@ -82,10 +82,12 @@ void Map::load(const char* filename) {
 			datamap[i][21 - j] = stocked;
 			source[i][21 - j] = stocked;
 
+			if (stocked >= 5) {
+				EnemyManager::create(glm::vec3(i, 0.0f, 21-j), (Enemy_type)stocked);
+				continue;
+			}
+
 			switch ((Map_object)stocked) {
-			case Map_object::enemy:
-				EnemyManager::create(glm::vec3(i, 0.0f, 21-j));
-				break;
 			case Map_object::player:
 				if (required_ply_spawn)
 					throw std::runtime_error((std::string)"Invalid map (more than one player spawn)" + filename);

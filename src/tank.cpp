@@ -52,7 +52,9 @@ void Tank::set_direction(float direction) {
 }
 
 void Tank::tick() {
-	if (--steps >= 0) {
+	if (steps > 0) {
+		steps--;
+
 		if (clockwise) {
 			rotate(speed * -1.0f);
 		} else {
