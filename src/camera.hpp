@@ -14,9 +14,11 @@ public:
 
 	glm::mat4 get_VP() const { return VP; };
 
+	glm::vec2 get_angle() const { return angle; };
 	void set_angle(const glm::vec2& angle);
 	void rotate(const glm::vec2& angle);
 
+	glm::vec3 get_pos() const { return pos; };
 	void set_pos(const glm::vec3& pos);
 	void move(const glm::vec3& offset);
 

@@ -21,7 +21,7 @@ public:
 	void set_cursor_pos(glm::vec2 pos) { cursor_pos = pos; };
 	glm::vec2 get_cursor_pos() const { return cursor_pos; };
 
-	Map_collision collision_check(const glm::vec3& pos) const {
+	MapCollision collision_check(const glm::vec3& pos) const {
 		return map->collision_check(pos);
 	};
 
@@ -31,6 +31,7 @@ public:
 
 private:
 	Shader base_shader;
+	Shader bone_shader;
 	Camera cam;
 	float current_time;
 	glm::vec2 cursor_pos;
@@ -38,6 +39,7 @@ private:
 	std::unique_ptr<Map> map;
 	std::unique_ptr<Player> player;
 	GLint uniform_time;
+	GLint uniform_bone_time;
 	GLFWwindow* window;
 
 	void frame();

@@ -12,7 +12,7 @@ namespace {
 	std::minstd_rand rdm;
 }
 
-// @TODO: Implement AI
+// @TODO: Implement good AI
 
 class BasicEnemy : public Enemy {
 public:
@@ -24,7 +24,7 @@ public:
 		float x = ply_pos.z - foe_pos.z;
 		float y = ply_pos.x - foe_pos.x;
 
-		set_angle(glm::atan(y, x));
+		set_bone_angle(glm::atan(y, x));
 		shoot(game);
 	}
 };
@@ -33,23 +33,37 @@ class CrazyEnemy : public Enemy {
 public:
 	using Enemy::Enemy;
 
-	void behavior(const Game& game, const glm::vec3& ply_pos) {
-		if (get_remaining_steps() <= 0) {
-			set_direction(rdm() % 6);
+	void behavior(const Game& game, const glm::vec3&) {
+		if (--steps <= 0) {
+			steps = smooth_turn_angle(get_bone_angle(), rdm() % 6, speed, clockwise);
+		} else {
+			float new_angle;
+			if (clockwise) {
+				new_angle = get_bone_angle() + speed;
+			} else {
+				new_angle = get_bone_angle() - speed;
+			}
+
+			set_bone_angle(new_angle);
 		}
 
 		shoot(game);
 		tick();
 	}
+
+private:
+	int steps = 0;
+	bool clockwise = false;
+	const float speed = 0.1f;
 };
 
 void EnemyManager::init() {
 	rdm.seed(std::chrono::system_clock::now().time_since_epoch().count());
 }
 
-void EnemyManager::create(const glm::vec3& pos, Enemy_type type) {
+void EnemyManager::create(const glm::vec3& pos, EnemyType type) {
 	switch (type) {
-	case Enemy_type::crazy:
+	case EnemyType::crazy:
 		enemy_list.push_back(std::make_unique<CrazyEnemy>(pos));
 		break;
 	default:

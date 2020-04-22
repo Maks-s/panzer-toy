@@ -55,7 +55,7 @@ void Player::handle_movement(const Game& game, GLFWwindow* window) {
 		const float speed = 0.03f;
 
 		glm::vec3 offset = glm::vec3(glm::sin(angle) * speed, 0.0f, glm::cos(angle) * speed);
-		if (game.collision_check(get_pos() + offset) == Map_collision::none) {
+		if (game.collision_check(get_pos() + offset) == MapCollision::none) {
 			move(offset);
 		}
 	}

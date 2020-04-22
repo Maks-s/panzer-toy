@@ -19,7 +19,7 @@ void Tank::shoot(const Game& game) {
 		return;
 
 	const float offset = 0.8f;
-	const float angle = get_angle();
+	const float angle = get_bone_angle() + get_angle();
 	glm::vec3 tank_pos = get_pos();
 	glm::vec2 pos(glm::sin(angle) * offset + tank_pos.x, glm::cos(angle) * offset + tank_pos.z);
 
@@ -28,27 +28,31 @@ void Tank::shoot(const Game& game) {
 	}
 }
 
-void Tank::set_direction(float direction) {
-	const float angle = glm::mod(get_angle(), 2*pi);
-	float distance = glm::abs(angle - direction);
+int Tank::smooth_turn_angle(float from, float to, float speed, bool& clockwise) {
+	from = glm::mod(from, 2*pi);
+	float distance = glm::abs(from - to);
 
-	if (direction > angle) {
+	if (to > from) {
 		if (distance > pi) {
 			clockwise = true;
-			distance = angle + 2 * pi - direction;
+			distance = from + 2 * pi - to;
 		} else {
 			clockwise = false;
 		}
 	} else {
 		if (distance > pi) {
 			clockwise = false;
-			distance = direction + 2 * pi - angle;
+			distance = to + 2 * pi - from;
 		} else {
 			clockwise = true;
 		}
 	}
 
-	steps = distance / speed;
+	return glm::round(distance / speed);
+}
+
+void Tank::set_direction(float direction) {
+	steps = smooth_turn_angle(get_angle(), direction, speed, clockwise);
 }
 
 void Tank::tick() {
@@ -56,7 +60,7 @@ void Tank::tick() {
 		steps--;
 
 		if (clockwise) {
-			rotate(speed * -1.0f);
+			rotate(-speed);
 		} else {
 			rotate(speed);
 		}

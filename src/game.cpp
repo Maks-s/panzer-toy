@@ -71,7 +71,7 @@ Game::Game() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	base_shader.load("shaders/vertex.glsl", "shaders/fragment.glsl");
-	base_shader.use();
+	bone_shader.load("shaders/bone_vtx.glsl", "shaders/fragment.glsl");
 
 	// Set up the camera to be aligned with the map
 	cam.set_pos(glm::vec3(11.0f, 10.0f, 10.5f));
@@ -81,6 +81,7 @@ Game::Game() {
 	player = std::make_unique<Player>(map->get_player_starting_pos());
 
 	uniform_time = base_shader.get_uniform_location("time");
+	uniform_bone_time = bone_shader.get_uniform_location("time");
 
 	EnemyManager::init();
 }
@@ -120,16 +121,21 @@ void Game::frame() {
 	current_time = glfwGetTime();
 	base_shader.use();
 	base_shader.set_uniform(uniform_time, current_time);
+	bone_shader.use();
+	bone_shader.set_uniform(uniform_bone_time, current_time);
 
 	// WASD / ZQSD controls
 	player->handle_movement(*this, window);
 
 	const glm::mat4 VP = cam.get_VP();
-	EnemyManager::frame(*this, base_shader, VP);
+	EnemyManager::frame(*this, bone_shader, VP);
+	base_shader.use();
 	BulletManager::frame(*this, base_shader, VP);
 
-	// player->set_angle(calculate_cursor_angle(VP, player->get_pos(), cursor_pos));
-	player->draw(base_shader, VP);
+	player->set_bone_angle(calculate_cursor_angle(VP, player->get_pos(), cursor_pos));
+	bone_shader.use();
+	player->draw(bone_shader, VP);
+	base_shader.use();
 	map->draw(base_shader, VP);
 
 	glfwSwapBuffers(window);

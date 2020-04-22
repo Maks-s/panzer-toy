@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include <GL/gl3w.h>
@@ -17,22 +18,46 @@
 // Meshes loading can be changed to a parent-child system, but we don't need it right now
 // @TODO: Do something to load models only 1 time
 
-static Mesh process_mesh(aiMesh* mesh, const aiScene* scene, const std::string& path);
+static Mesh process_mesh(
+	aiMesh* mesh,
+	const aiScene* scene,
+	const aiMatrix4x4& transform,
+	const std::string& path
+);
 
-void Model::load(std::string path) {
+Model::Model(const std::string& path) {
+	if (!load(path)) {
+		throw std::runtime_error("Could not load scene: " + path);
+	}
+}
+
+bool Model::load(std::string path) {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph);
+	const aiScene* scene = importer.ReadFile(
+		path,
+		aiProcess_Triangulate
+		| aiProcess_FlipUVs
+		| aiProcess_OptimizeMeshes
+		| aiProcess_OptimizeGraph
+	);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		Log::error("Error opening model, ", importer.GetErrorString());
-		return;
+		return false;
 	}
 
 	path = path.substr(0, path.find_last_of('/') + 1);
 
 	for (int i = scene->mNumMeshes - 1; i >= 0; --i) {
-		meshes.push_back(process_mesh(scene->mMeshes[i], scene, path));
+		meshes.push_back(process_mesh(
+			scene->mMeshes[i],
+			scene,
+			scene->mRootNode->mTransformation,
+			path
+		));
 	}
+
+	return true;
 }
 
 void Model::draw(const Shader& shader, const glm::mat4& VP) {
@@ -76,7 +101,13 @@ void Model::rotate(float angle) {
 	dirty = true;
 }
 
-static void load_textures(std::vector<Texture>& textures, const std::string& path, aiMaterial* mat, aiTextureType type) {
+static void load_textures(
+		std::vector<Texture>& textures,
+		const std::string& path,
+		aiMaterial* mat,
+		aiTextureType type
+	) {
+
 	for (int i = mat->GetTextureCount(type) - 1; i >= 0; --i) {
 		aiString str;
 		mat->GetTexture(type, i, &str);
@@ -85,7 +116,13 @@ static void load_textures(std::vector<Texture>& textures, const std::string& pat
 	}
 }
 
-static Mesh process_mesh(aiMesh* mesh, const aiScene* scene, const std::string& path) {
+static Mesh process_mesh(
+		aiMesh* mesh,
+		const aiScene* scene,
+		const aiMatrix4x4& transform,
+		const std::string& path
+	) {
+
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 	std::vector<Texture> textures;
@@ -93,8 +130,11 @@ static Mesh process_mesh(aiMesh* mesh, const aiScene* scene, const std::string& 
 	for (int i = mesh->mNumVertices - 1; i >= 0; --i) {
 		Vertex vtx;
 
-		vtx.pos = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-		vtx.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+		aiVector3D pos = transform * mesh->mVertices[i];
+		aiVector3D normal = transform * mesh->mNormals[i];
+
+		vtx.pos = glm::vec3(pos.x, pos.y, pos.z);
+		vtx.normal = glm::vec3(normal.x, normal.y, normal.z);
 
 		if (mesh->mTextureCoords[0]) {
 			aiVector3D vec = mesh->mTextureCoords[0][i];
@@ -114,11 +154,11 @@ static Mesh process_mesh(aiMesh* mesh, const aiScene* scene, const std::string& 
 		}
 	}
 
-	if (mesh->mMaterialIndex > 0) {
-		aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
-		load_textures(textures, path, mat, aiTextureType_DIFFUSE);
-		load_textures(textures, path, mat, aiTextureType_SPECULAR);
-	} else {
+	aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
+	load_textures(textures, path, mat, aiTextureType_DIFFUSE);
+	load_textures(textures, path, mat, aiTextureType_SPECULAR);
+
+	if (textures.empty()) {
 		textures.push_back(TextureManager::load_texture("assets/missing_texture.png", aiTextureType_DIFFUSE));
 	}
 

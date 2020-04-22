@@ -20,10 +20,10 @@ bool BulletManager::create(const glm::vec2& pos, float angle, const Game& game) 
 	glm::vec3 position = glm::vec3(pos.x, 0.0f, pos.y);
 
 	if (bullet_mdl.is_empty()) {
-		bullet_mdl.load("models/bullet.obj");
+		bullet_mdl.load("models/bullet.dae");
 	}
 
-	if (game.collision_check(position) != Map_collision::none) {
+	if (game.collision_check(position) != MapCollision::none) {
 		Log::error("Invalid bullet position");
 		return false;
 	}
@@ -43,32 +43,32 @@ bool BulletManager::create(const glm::vec2& pos, float angle, const Game& game) 
 
 // Return collision angle with the wall at its origin
 static float get_collision_angle(
-	const Game& game,
-	const glm::vec3& new_pos,
-	const glm::vec3& old_pos
+		const Game& game,
+		const glm::vec3& new_pos,
+		const glm::vec3& old_pos
 	) {
 
-	Map_collision collision = game.collision_check(new_pos);
+	MapCollision collision = game.collision_check(new_pos);
 
-	if (collision == Map_collision::none) {
+	if (collision == MapCollision::none) {
 		return -100.0f;
 	}
 
-	if (collision == Map_collision::right_or_left) {
+	if (collision == MapCollision::right_or_left) {
 		return 0.0f;
-	} else if (collision == Map_collision::up_or_down) {
+	} else if (collision == MapCollision::up_or_down) {
 		return glm::pi<float>();
 	}
 
 	float x, y;
 
-	if (collision == Map_collision::upper_left || collision == Map_collision::bottom_left) {
+	if (collision == MapCollision::upper_left || collision == MapCollision::bottom_left) {
 		x = round(new_pos.z - 0.35f);
 	} else {
 		x = round(new_pos.z + 0.35f);
 	}
 
-	if (collision == Map_collision::upper_left || collision == Map_collision::upper_right) {
+	if (collision == MapCollision::upper_left || collision == MapCollision::upper_right) {
 		y = round(new_pos.x - 0.35f);
 	} else {
 		y = round(new_pos.x + 0.35f);

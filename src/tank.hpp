@@ -3,15 +3,16 @@
 
 #include <glm/glm.hpp>
 
-#include "model.hpp"
+#include "animatedmodel.hpp"
 
 class Game;
 class Shader;
 
-class Tank : public Model {
+class Tank : public AnimatedModel {
 public:
-	Tank() : Model("models/tank.obj") {};
+	Tank() : AnimatedModel("models/tank.dae") {};
 	Tank(const glm::vec3& pos) : Tank() { set_pos(pos); };
+	virtual ~Tank() = default;
 
 	void shoot(const Game& game);
 	void tick();
@@ -21,6 +22,7 @@ public:
 
 	// Indicate where the tank wants to turn
 	void set_direction(float new_direction);
+	static int smooth_turn_angle(float from, float to, float speed, bool& clockwise);
 	int get_remaining_steps() const { return steps; };
 
 private:

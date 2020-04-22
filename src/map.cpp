@@ -27,7 +27,7 @@
  * The map array is accessed with map[y][x], NOT map[x][y]
 **/
 
-enum class Map_object : int {
+enum class MapObject : int {
 	nothing = 0,
 	strong_wall = 1,
 	weak_wall = 2,
@@ -43,13 +43,12 @@ namespace {
 
 Map::Map() {
 	if (strong_wall.is_empty()) {
-		strong_wall.load("models/strong_wall.obj");
+		strong_wall.load("models/strong_wall.dae");
 	}
 
 	if (map_mdl.is_empty()) {
-		map_mdl.load("models/map.obj");
+		map_mdl.load("models/map.dae");
 		map_mdl.set_pos(glm::vec3(7.55f, -0.0f, 10.5f));
-		map_mdl.set_angle(0.0f);
 	}
 }
 
@@ -83,12 +82,12 @@ void Map::load(const char* filename) {
 			source[i][21 - j] = stocked;
 
 			if (stocked >= 5) {
-				EnemyManager::create(glm::vec3(i, 0.0f, 21-j), (Enemy_type)stocked);
+				EnemyManager::create(glm::vec3(i, 0.0f, 21-j), (EnemyType)stocked);
 				continue;
 			}
 
-			switch ((Map_object)stocked) {
-			case Map_object::player:
+			switch ((MapObject)stocked) {
+			case MapObject::player:
 				if (required_ply_spawn)
 					throw std::runtime_error((std::string)"Invalid map (more than one player spawn)" + filename);
 
@@ -111,7 +110,7 @@ void Map::draw(const Shader& shader, const glm::mat4& VP) const {
 		for (int j=0; j < 22; ++j) {
 			Model* mdl;
 
-			if ((Map_object)datamap[i][j] == Map_object::strong_wall) {
+			if ((MapObject)datamap[i][j] == MapObject::strong_wall) {
 				mdl = &strong_wall;
 			} else {
 				continue;
@@ -126,7 +125,7 @@ void Map::draw(const Shader& shader, const glm::mat4& VP) const {
 glm::vec3 Map::get_player_starting_pos() const {
 	for (int i=0; i < 16; ++i) {
 		for (int j=0; j < 22; ++j) {
-			if ((Map_object)datamap[i][j] == Map_object::player) {
+			if ((MapObject)datamap[i][j] == MapObject::player) {
 				return glm::vec3(i, 0.0f, j);
 			}
 		}
@@ -137,12 +136,12 @@ glm::vec3 Map::get_player_starting_pos() const {
 }
 
 // In "screen coordinates", x is y and z is x
-Map_collision Map::collision_check(const glm::vec3& pos) const {
+MapCollision Map::collision_check(const glm::vec3& pos) const {
 	// Normal map bounds
 	if (pos.x > 15.0f || pos.x < -0.25f) {
-		return Map_collision::up_or_down;
+		return MapCollision::up_or_down;
 	} else if (pos.z > 21.2f || pos.z < -0.1f) {
-		return Map_collision::right_or_left;
+		return MapCollision::right_or_left;
 	}
 
 	// Check if each point of the bounding box square is in a wall
@@ -151,22 +150,22 @@ Map_collision Map::collision_check(const glm::vec3& pos) const {
 	int y = round(pos.x - 0.35f);
 
 	if (datamap[y][x] == 1)
-		return Map_collision::upper_left;
+		return MapCollision::upper_left;
 
 	y = round(pos.x + 0.35f);
 
 	if (datamap[y][x] == 1)
-		return Map_collision::bottom_left;
+		return MapCollision::bottom_left;
 
 	x = round(pos.z + 0.35f);
 
 	if (datamap[y][x] == 1)
-		return Map_collision::bottom_right;
+		return MapCollision::bottom_right;
 
 	y = round(pos.x - 0.35f);
 
 	if (datamap[y][x] == 1)
-		return Map_collision::upper_right;
+		return MapCollision::upper_right;
 
-	return Map_collision::none;
+	return MapCollision::none;
 }

@@ -8,7 +8,7 @@
 
 class Shader;
 
-enum class Map_collision {
+enum class MapCollision {
 	none = false,
 	bottom_left,
 	bottom_right,
@@ -23,7 +23,7 @@ public:
 	Map();
 	Map(const char* filename) : Map() { load(filename); };
 	void load(const char* filename);
-	Map_collision collision_check(const glm::vec3& pos) const;
+	MapCollision collision_check(const glm::vec3& pos) const;
 	void draw(const Shader& shader, const glm::mat4& VP) const;
 	glm::vec3 get_player_starting_pos() const;
 

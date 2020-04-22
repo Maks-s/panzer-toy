@@ -1,16 +1,25 @@
+// See header of animatedmodel.cpp
+// See header of animatedmodel.cpp
+// See header of animatedmodel.cpp
+// See header of animatedmodel.cpp
+// See header of animatedmodel.cpp
+// See header of animatedmodel.cpp
+// See header of animatedmodel.cpp
+// See header of animatedmodel.cpp
+// See header of animatedmodel.cpp
+
 #include <string>
 #include <GL/gl3w.h>
 #include <assimp/material.h>
 
-#include "log.hpp"
-#include "mesh.hpp"
+#include "animatedmesh.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
 
-Mesh::Mesh(
-		const std::vector<Vertex>& vertices,
-		const std::vector<GLuint>& indices,
-		const std::vector<Texture>& textures
+AnimatedMesh::AnimatedMesh(
+	const std::vector<BoneVertex>& vertices,
+	const std::vector<GLuint>& indices,
+	const std::vector<Texture>& textures
 	) {
 
 	glGenVertexArrays(1, &VAO);
@@ -18,18 +27,20 @@ Mesh::Mesh(
 
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(BoneVertex), &vertices[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(BoneVertex), nullptr);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(BoneVertex), (void*)offsetof(BoneVertex, normal));
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(BoneVertex), (void*)offsetof(BoneVertex, texCoords));
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(BoneVertex), (void*)offsetof(BoneVertex, boneWeight));
 
 	glBindVertexArray(0);
 
@@ -38,7 +49,7 @@ Mesh::Mesh(
 	this->textures = textures;
 }
 
-void Mesh::draw(const Shader& shader) const {
+void AnimatedMesh::draw(const Shader& shader) const {
 	int diffuse = 0;
 	int specular = 0;
 

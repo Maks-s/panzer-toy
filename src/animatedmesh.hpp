@@ -1,5 +1,5 @@
-#ifndef MESH_HPP
-#define MESH_HPP
+#ifndef ANIMATED_MESH_HPP
+#define ANIMATED_MESH_HPP
 
 #include <vector>
 #include <GL/gl3w.h>
@@ -9,16 +9,17 @@
 
 class Shader;
 
-struct Vertex {
+struct BoneVertex {
 	glm::vec3 pos;
 	glm::vec3 normal;
 	glm::vec2 texCoords;
+	float boneWeight;
 };
 
-class Mesh {
+class AnimatedMesh {
 public:
-	Mesh(
-		const std::vector<Vertex>& vertices,
+	AnimatedMesh(
+		const std::vector<BoneVertex>& vertices,
 		const std::vector<GLuint>& indices,
 		const std::vector<Texture>& textures
 	);
@@ -27,9 +28,9 @@ public:
 
 private:
 	GLuint VAO, VBO, EBO;
-	std::vector<Vertex> vertices;
+	std::vector<BoneVertex> vertices;
 	std::vector<GLuint> indices;
 	std::vector<Texture> textures;
 };
 
-#endif // MESH_HPP
+#endif // ANIMATED_MESH_HPP
