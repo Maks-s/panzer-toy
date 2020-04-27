@@ -17,7 +17,7 @@ public:
 	using Tank::Tank;
 	virtual ~Enemy() = default;
 
-	virtual void behavior(const Game&, const glm::vec3&) {};
+	virtual void behavior(const Game&, const glm::vec3&) = 0;
 };
 
 namespace EnemyManager {

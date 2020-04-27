@@ -1,6 +1,4 @@
 #include "game.hpp"
-#include <memory>
-#include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
@@ -11,6 +9,18 @@
 
 namespace {
 	const float pi = glm::pi<float>();
+	Model tank_top_mdl;
+	Model tank_base_mdl;
+}
+
+Tank::Tank() {
+	if (tank_top_mdl.is_empty()) {
+		tank_top_mdl.load("models/tank_top.dae");
+	}
+
+	if (tank_base_mdl.is_empty()) {
+		tank_base_mdl.load("models/tank_base.dae");
+	}
 }
 
 void Tank::shoot(const Game& game) {
@@ -19,32 +29,30 @@ void Tank::shoot(const Game& game) {
 		return;
 
 	const float offset = 0.8f;
-	const float angle = get_bone_angle() + get_angle();
-	glm::vec3 tank_pos = get_pos();
-	glm::vec2 pos(glm::sin(angle) * offset + tank_pos.x, glm::cos(angle) * offset + tank_pos.z);
+	glm::vec3 position(glm::sin(angle_top) * offset + pos.x, 0.0f, glm::cos(angle_top) * offset + pos.z);
 
-	if (BulletManager::create(pos, angle, game)) {
+	if (BulletManager::create(position, angle_top, game)) {
 		last_shoot_time = time;
 	}
 }
 
-int Tank::smooth_turn_angle(float from, float to, float speed, bool& clockwise) {
+int Tank::smooth_turn_angle(float from, float to, float speed, bool& clockwise_out) {
 	from = glm::mod(from, 2*pi);
 	float distance = glm::abs(from - to);
 
 	if (to > from) {
 		if (distance > pi) {
-			clockwise = true;
+			clockwise_out = true;
 			distance = from + 2 * pi - to;
 		} else {
-			clockwise = false;
+			clockwise_out = false;
 		}
 	} else {
 		if (distance > pi) {
-			clockwise = false;
+			clockwise_out = false;
 			distance = to + 2 * pi - from;
 		} else {
-			clockwise = true;
+			clockwise_out = true;
 		}
 	}
 
@@ -52,7 +60,19 @@ int Tank::smooth_turn_angle(float from, float to, float speed, bool& clockwise) 
 }
 
 void Tank::set_direction(float direction) {
-	steps = smooth_turn_angle(get_angle(), direction, speed, clockwise);
+	steps = smooth_turn_angle(angle_base, direction, speed, clockwise);
+}
+
+void Tank::draw(const Shader& shader, const glm::mat4& VP) const {
+	// We could use bones, but it's faster and cheaper to use 2 models
+	tank_top_mdl.set_pos(glm::vec3(pos.x, pos.y + 0.2f, pos.z));
+	tank_base_mdl.set_pos(pos);
+
+	tank_base_mdl.set_angle(angle_base);
+	tank_top_mdl.set_angle(angle_top);
+
+	tank_top_mdl.draw(shader, VP);
+	tank_base_mdl.draw(shader, VP);
 }
 
 void Tank::tick() {
@@ -60,9 +80,9 @@ void Tank::tick() {
 		steps--;
 
 		if (clockwise) {
-			rotate(-speed);
+			angle_base -= speed;
 		} else {
-			rotate(speed);
+			angle_base += speed;
 		}
 	}
 }

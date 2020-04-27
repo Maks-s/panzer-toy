@@ -13,7 +13,7 @@ class Shader;
 
 class Model {
 public:
-	Model() {};
+	Model() = default;
 	Model(const std::string& path);
 	virtual ~Model() = default;
 
@@ -28,7 +28,7 @@ public:
 	void set_angle(float angle);
 	void rotate(float angle);
 
-	bool is_empty() { return meshes.empty(); };
+	bool is_empty() const { return meshes.empty(); };
 
 private:
 	std::vector<Mesh> meshes;

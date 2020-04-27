@@ -5,7 +5,7 @@
 
 class Camera {
 public:
-	Camera() {};
+	Camera() = default;
 
 	Camera(
 		const glm::vec3& _pos,

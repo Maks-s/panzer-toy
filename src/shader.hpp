@@ -6,7 +6,7 @@
 
 class Shader {
 public:
-	Shader() {};
+	Shader() = default;
 	Shader(const char* vtx_path, const char* frag_path) { load(vtx_path, frag_path); };
 	void load(const char* vtx_path, const char* frag_path);
 	void use() const;

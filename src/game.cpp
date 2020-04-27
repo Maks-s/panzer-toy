@@ -3,7 +3,6 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <glm/ext.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "game.hpp"
@@ -132,7 +131,7 @@ void Game::frame() {
 	base_shader.use();
 	BulletManager::frame(*this, base_shader, VP);
 
-	player->set_bone_angle(calculate_cursor_angle(VP, player->get_pos(), cursor_pos));
+	player->set_top_angle(calculate_cursor_angle(VP, player->get_pos(), cursor_pos));
 	bone_shader.use();
 	player->draw(bone_shader, VP);
 	base_shader.use();

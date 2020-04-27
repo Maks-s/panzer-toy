@@ -51,7 +51,7 @@ void Player::handle_movement(const Game& game, GLFWwindow* window) {
 	}
 
 	if (get_remaining_steps() <= 0) {
-		const float angle = get_angle();
+		const float angle = get_base_angle();
 		const float speed = 0.03f;
 
 		glm::vec3 offset = glm::vec3(glm::sin(angle) * speed, 0.0f, glm::cos(angle) * speed);

@@ -5,6 +5,7 @@
 
 namespace {
 	const glm::mat4 projection = glm::ortho(-14.0f, 14.0f, -14.0f, 14.0f, 0.1f, 100.0f);
+	// const glm::mat4 projection = glm::perspective(1.57f, 1.0f, 0.1f, 100.0f); // Used for debugging purpose
 }
 
 void Camera::calculate_VP() {

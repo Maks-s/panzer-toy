@@ -26,7 +26,6 @@ public:
 	};
 
 	glm::vec3 get_player_pos() const { return player->get_pos(); };
-	float get_player_angle() const { return player->get_angle(); };
 	float get_current_time() const { return current_time; };
 
 private:

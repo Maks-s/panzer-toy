@@ -24,7 +24,7 @@ public:
 		float x = ply_pos.z - foe_pos.z;
 		float y = ply_pos.x - foe_pos.x;
 
-		set_bone_angle(glm::atan(y, x));
+		set_base_angle(glm::atan(y, x));
 		shoot(game);
 	}
 };
@@ -35,16 +35,16 @@ public:
 
 	void behavior(const Game& game, const glm::vec3&) {
 		if (--steps <= 0) {
-			steps = smooth_turn_angle(get_bone_angle(), rdm() % 6, speed, clockwise);
+			steps = smooth_turn_angle(get_top_angle(), rdm() % 6, speed, clockwise);
 		} else {
 			float new_angle;
 			if (clockwise) {
-				new_angle = get_bone_angle() + speed;
+				new_angle = get_top_angle() + speed;
 			} else {
-				new_angle = get_bone_angle() - speed;
+				new_angle = get_top_angle() - speed;
 			}
 
-			set_bone_angle(new_angle);
+			set_top_angle(new_angle);
 		}
 
 		shoot(game);

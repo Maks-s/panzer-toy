@@ -16,14 +16,12 @@ namespace {
 	std::vector<Bullet> bullets;
 }
 
-bool BulletManager::create(const glm::vec2& pos, float angle, const Game& game) {
-	glm::vec3 position = glm::vec3(pos.x, 0.0f, pos.y);
-
+bool BulletManager::create(const glm::vec3& pos, float angle, const Game& game) {
 	if (bullet_mdl.is_empty()) {
 		bullet_mdl.load("models/bullet.dae");
 	}
 
-	if (game.collision_check(position) != MapCollision::none) {
+	if (game.collision_check(pos) != MapCollision::none) {
 		Log::error("Invalid bullet position");
 		return false;
 	}
@@ -31,7 +29,7 @@ bool BulletManager::create(const glm::vec2& pos, float angle, const Game& game) 
 	const float speed = 0.2f;
 	Bullet bullet = {
 		.velocity = glm::vec3(glm::sin(angle) * speed, 0.0f, glm::cos(angle) * speed),
-		.position = position,
+		.position = pos,
 		.angle = angle,
 		.remaining_hit = 3,
 	};
