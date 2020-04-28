@@ -14,6 +14,7 @@
 #include "model.hpp"
 #include "player.hpp"
 #include "shader.hpp"
+#include "version.hpp"
 
 // @TODO: Make everything compliant with C++ Core Guidelines
 // @TODO: Document everything
@@ -44,7 +45,7 @@ Game::Game() {
 	// @TODO: Implement resizability
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-	window = glfwCreateWindow(500, 500, "Panzer Toy", nullptr, nullptr);
+	window = glfwCreateWindow(500, 500, PanzerToy_TITLE, nullptr, nullptr);
 	if (window == nullptr) {
 		glfwTerminate();
 		throw std::system_error(EINTR, std::generic_category(), "Error creating window");

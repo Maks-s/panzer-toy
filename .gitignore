@@ -12,8 +12,11 @@ CTestTestfile.cmake
 _deps
 
 # Build
+build
 bin
 *.o
+
+# Blender backup files
 *.blend[0-9]
 *.blend[0-9][0-9]
 
