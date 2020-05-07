@@ -13,6 +13,7 @@ public:
 	using Tank::Tank;
 
 	void handle_movement(const Game& game, GLFWwindow* window);
+	bool bullet_collision(Game& game, const glm::vec3& bullet_pos);
 };
 
 #endif // PLAYER_HPP

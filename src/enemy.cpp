@@ -2,6 +2,7 @@
 #include <memory>
 #include <random>
 #include <glm/glm.hpp>
+#include <glm/gtx/norm.hpp>
 
 #include "enemy.hpp"
 #include "game.hpp"
@@ -24,7 +25,7 @@ public:
 		float x = ply_pos.z - foe_pos.z;
 		float y = ply_pos.x - foe_pos.x;
 
-		set_base_angle(glm::atan(y, x));
+		set_top_angle(glm::atan(y, x));
 		shoot(game);
 	}
 };
@@ -87,11 +88,15 @@ bool EnemyManager::bullet_collision(const glm::vec3& bullet_pos) {
 
 		glm::vec3 foe_pos = enemy->get_pos();
 
-		if (glm::distance(bullet_pos, foe_pos) < 0.4f) {
+		if (glm::distance2(bullet_pos, foe_pos) < 0.16f) {
 			ptr = enemy_list.erase(ptr) - 1;
 			return true;
 		}
 	}
 
 	return false;
+}
+
+void EnemyManager::clear() {
+	enemy_list.clear();
 }

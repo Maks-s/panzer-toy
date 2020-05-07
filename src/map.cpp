@@ -27,15 +27,6 @@
  * The map array is accessed with map[y][x], NOT map[x][y]
 **/
 
-enum class MapObject : int {
-	nothing = 0,
-	strong_wall = 1,
-	weak_wall = 2,
-	hole = 3,
-	player = 4,
-	enemy = 5
-};
-
 namespace {
 	Model strong_wall;
 	Model map_mdl;
@@ -52,17 +43,25 @@ Map::Map() {
 	}
 }
 
-void Map::load(const char* filename) {
+void Map::process_object(int x, int y, MapObject type) {
+	if (static_cast<int>(type) >= 5) {
+		EnemyManager::create(glm::vec3(x, 0, y), static_cast<EnemyType>(type));
+	}
+}
+
+void Map::load(const std::string& filename) {
 	std::ifstream file(filename);
 
-	if (!file.is_open())
-		throw std::fstream::failure((std::string)"Could not open map file" + filename);
+	if (!file.is_open()) {
+		throw std::fstream::failure("Could not open map file" + filename);
+	}
 
 	bool required_ply_spawn = false;
 
 	for (int i=0; i < 16; ++i) {
-		if (file.eof())
-			throw std::runtime_error((std::string)"Invalid map (not enough row): " + filename);
+		if (file.eof()) {
+			throw std::runtime_error("Invalid map (not enough row): " + filename);
+		}
 
 		std::string line;
 		std::getline(file, line);
@@ -73,34 +72,37 @@ void Map::load(const char* filename) {
 			std::istream_iterator<std::string>()
 		);
 
-		if (data.size() != 22)
-			throw std::runtime_error((std::string)"Invalid map (column number mismatch):" + filename);
+		if (data.size() != 22) {
+			throw std::runtime_error("Invalid map (column number mismatch):" + filename);
+		}
 
 		for (int j=0; j < 22; ++j) {
-			int stocked = std::stoi(data[j]);
+			MapObject stocked = static_cast<MapObject>(std::stoi(data[j]));
 			datamap[i][21 - j] = stocked;
-			source[i][21 - j] = stocked;
 
-			if (stocked >= 5) {
-				EnemyManager::create(glm::vec3(i, 0.0f, 21-j), (EnemyType)stocked);
-				continue;
-			}
+			process_object(i, 21 - j, stocked);
 
-			switch ((MapObject)stocked) {
-			case MapObject::player:
-				if (required_ply_spawn)
-					throw std::runtime_error((std::string)"Invalid map (more than one player spawn)" + filename);
+			if (stocked == MapObject::player) {
+				if (required_ply_spawn) {
+					throw std::runtime_error("Invalid map (more than one player spawn)" + filename);
+				}
 
 				required_ply_spawn = true;
-				break;
-			default:
-				break;
 			}
 		}
 	}
 
-	if (!required_ply_spawn)
-		throw std::runtime_error((std::string)"Invalid map (no player spawn)" + filename);
+	if (!required_ply_spawn) {
+		throw std::runtime_error("Invalid map (no player spawn)" + filename);
+	}
+}
+
+void Map::reset() {
+	for (int i=0; i < 16; ++i) {
+		for (int j=0; j < 22; ++j) {
+			process_object(i, j, datamap[i][j]);
+		}
+	}
 }
 
 void Map::draw(const Shader& shader, const glm::mat4& VP) const {
@@ -110,7 +112,7 @@ void Map::draw(const Shader& shader, const glm::mat4& VP) const {
 		for (int j=0; j < 22; ++j) {
 			Model* mdl;
 
-			if ((MapObject)datamap[i][j] == MapObject::strong_wall) {
+			if (datamap[i][j] == MapObject::strong_wall) {
 				mdl = &strong_wall;
 			} else {
 				continue;
@@ -125,7 +127,7 @@ void Map::draw(const Shader& shader, const glm::mat4& VP) const {
 glm::vec3 Map::get_player_starting_pos() const {
 	for (int i=0; i < 16; ++i) {
 		for (int j=0; j < 22; ++j) {
-			if ((MapObject)datamap[i][j] == MapObject::player) {
+			if (datamap[i][j] == MapObject::player) {
 				return glm::vec3(i, 0.0f, j);
 			}
 		}
@@ -149,22 +151,22 @@ MapCollision Map::collision_check(const glm::vec3& pos) const {
 	int x = round(pos.z - 0.35f);
 	int y = round(pos.x - 0.35f);
 
-	if (datamap[y][x] == 1)
+	if (datamap[y][x] == MapObject::strong_wall)
 		return MapCollision::upper_left;
 
 	y = round(pos.x + 0.35f);
 
-	if (datamap[y][x] == 1)
+	if (datamap[y][x] == MapObject::strong_wall)
 		return MapCollision::bottom_left;
 
 	x = round(pos.z + 0.35f);
 
-	if (datamap[y][x] == 1)
+	if (datamap[y][x] == MapObject::strong_wall)
 		return MapCollision::bottom_right;
 
 	y = round(pos.x - 0.35f);
 
-	if (datamap[y][x] == 1)
+	if (datamap[y][x] == MapObject::strong_wall)
 		return MapCollision::upper_right;
 
 	return MapCollision::none;

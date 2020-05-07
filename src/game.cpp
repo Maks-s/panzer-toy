@@ -19,6 +19,8 @@
 // @TODO: Make everything compliant with C++ Core Guidelines
 // @TODO: Document everything
 
+float Game::current_time = 0.0f;
+
 static void cursor_pos_callback(GLFWwindow* window, double x, double y) {
 	Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
 	game->set_cursor_pos(glm::vec2(x, y));
@@ -135,6 +137,14 @@ void Game::frame() {
 	glfwPollEvents();
 }
 
+void Game::reset() {
+	BulletManager::clear();
+	EnemyManager::clear();
+	map->reset();
+	player->set_pos(map->get_player_starting_pos());
+	player->set_base_angle(0.0f);
+	player->set_last_shoot_time(glfwGetTime() + 2.0f);
+}
 
 Game::~Game() {
 	glfwTerminate();

@@ -21,10 +21,12 @@ Tank::Tank() {
 	if (tank_base_mdl.is_empty()) {
 		tank_base_mdl.load("models/tank_base.dae");
 	}
+
+	last_shoot_time = Game::get_current_time() + 2.0f;
 }
 
 void Tank::shoot(const Game& game) {
-	const float time = game.get_current_time();
+	const float time = Game::get_current_time();
 	if (time - last_shoot_time < 2.0f)
 		return;
 

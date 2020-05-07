@@ -84,9 +84,13 @@ static void draw(const Bullet& bullet, const Shader& shader, const glm::mat4& VP
 	bullet_mdl.draw(shader, VP);
 }
 
-void BulletManager::frame(const Game& game, const Shader& shader, const glm::mat4& VP) {
+void BulletManager::frame(Game& game, const Shader& shader, const glm::mat4& VP) {
 	for (auto bullet = bullets.begin(); bullet != bullets.end(); ++bullet) {
 		glm::vec3 new_pos = bullet->position + bullet->velocity;
+
+		if (game.player_bullet_collision(new_pos)) {
+			return; // Game has been reset, return
+		}
 
 		if (EnemyManager::bullet_collision(new_pos)) {
 			bullet = bullets.erase(bullet) - 1;
@@ -122,4 +126,8 @@ void BulletManager::frame(const Game& game, const Shader& shader, const glm::mat
 		bullet->angle = glm::atan(bullet->velocity.x, bullet->velocity.z);
 		draw(*bullet, shader, VP);
 	}
+}
+
+void BulletManager::clear() {
+	bullets.clear();
 }

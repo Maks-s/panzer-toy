@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
+#include <glm/gtx/norm.hpp>
 
 #include "log.hpp"
 #include "map.hpp"
@@ -61,4 +62,13 @@ void Player::handle_movement(const Game& game, GLFWwindow* window) {
 	}
 
 	tick();
+}
+
+bool Player::bullet_collision(Game& game, const glm::vec3& bullet_pos) {
+	if (glm::distance2(bullet_pos, get_pos()) < 0.16f) {
+		game.reset();
+		return true;
+	}
+
+	return false;
 }
