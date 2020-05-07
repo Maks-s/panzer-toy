@@ -30,7 +30,6 @@ public:
 
 private:
 	Shader base_shader;
-	Shader bone_shader;
 	Camera cam;
 	float current_time;
 	glm::vec2 cursor_pos;
@@ -38,7 +37,6 @@ private:
 	std::unique_ptr<Map> map;
 	std::unique_ptr<Player> player;
 	GLint uniform_time;
-	GLint uniform_bone_time;
 	GLFWwindow* window;
 
 	void frame();

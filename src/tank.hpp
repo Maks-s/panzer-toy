@@ -10,7 +10,6 @@ class Shader;
 
 class Tank {
 public:
-	// @TODO: change to = default
 	Tank();
 	Tank(const glm::vec3& pos) : Tank() { this->pos = pos; };
 	virtual ~Tank() = default;
