@@ -36,6 +36,20 @@ static void mouse_btn_callback(GLFWwindow* window, int btn, int action, int) {
 	game->player_shoot();
 }
 
+// @TODO: Add infinite background material
+static void resize_window_callback(GLFWwindow* window, int width, int height) {
+	Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
+
+	float f_width = static_cast<float>(width);
+	float f_height = static_cast<float>(height);
+
+	game->set_window_width(f_width);
+	game->set_window_height(f_height);
+
+	glViewport(0, 0, width, height);
+	game->set_ratio(f_width / f_height);
+}
+
 Game::Game() {
 	if (!glfwInit()) {
 		throw std::system_error(EINTR, std::generic_category(), "Error initialising GLFW");
@@ -44,10 +58,8 @@ Game::Game() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	// @TODO: Implement resizability
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-	window = glfwCreateWindow(500, 500, PanzerToy_TITLE, nullptr, nullptr);
+	window = glfwCreateWindow(window_width, window_height, PanzerToy_TITLE, nullptr, nullptr);
 	if (window == nullptr) {
 		glfwTerminate();
 		throw std::system_error(EINTR, std::generic_category(), "Error creating window");
@@ -56,14 +68,15 @@ Game::Game() {
 	glfwSetWindowUserPointer(window, static_cast<void*>(this));
 	glfwSetCursorPosCallback(window, cursor_pos_callback);
 	glfwSetMouseButtonCallback(window, mouse_btn_callback);
-	glfwSwapInterval(1); // Cheap deltaTime
+	glfwSetWindowSizeCallback(window, resize_window_callback);
+	glfwSwapInterval(1); // @TODO: Use delta time instead of this cheap trick
 
 	if (gl3wInit()) {
 		glfwTerminate();
 		throw std::system_error(EINTR, std::generic_category(), "Error initialising GL3W");
 	}
 
-	glViewport(0, 0, 500, 500);
+	glViewport(0, 0, window_width, window_height);
 	glEnable(GL_DEPTH_TEST);
 
 	// Texture settings
@@ -77,6 +90,7 @@ Game::Game() {
 	// Set up the camera to be aligned with the map
 	cam.set_pos(glm::vec3(11.0f, 10.0f, 10.5f));
 	cam.set_angle(glm::vec2(0.0f, -1.9f));
+	cam.set_ratio(window_width / window_height);
 
 	map = std::make_unique<Map>("assets/map_0.txt");
 	player = std::make_unique<Player>(map->get_player_starting_pos());
@@ -96,17 +110,12 @@ void Game::player_shoot() const {
 	player->shoot(*this);
 }
 
-static float calculate_cursor_angle(
-	const glm::mat4& VP,
-	const glm::vec3& player_pos,
-	const glm::vec2& cursor_pos
-	) {
-
+float Game::calculate_cursor_angle(const glm::mat4& VP) const {
 	// World coordinates to screen coordinates
-	glm::vec4 world_pos = VP * glm::vec4(player_pos, 1.0f);
+	glm::vec4 world_pos = VP * glm::vec4(player->get_pos(), 1.0f);
 	world_pos /= world_pos.w;
-	float screen_x = (world_pos.x + 1) / 2.0f * 500.0f + 0.5f;
-	float screen_y = (1 - world_pos.y) / 2.0f * 500.0f + 0.5f;
+	float screen_x = (world_pos.x + 1) / 2.0f * window_width + 0.5f;
+	float screen_y = (1 - world_pos.y) / 2.0f * window_height + 0.5f;
 
 	// Set origin to player, and change to cartesian coordinate system
 	float x = cursor_pos.x - screen_x;
@@ -129,7 +138,7 @@ void Game::frame() {
 	EnemyManager::frame(*this, base_shader, VP);
 	BulletManager::frame(*this, base_shader, VP);
 
-	player->set_top_angle(calculate_cursor_angle(VP, player->get_pos(), cursor_pos));
+	player->set_top_angle(calculate_cursor_angle(VP));
 	player->draw(base_shader, VP);
 	map->draw(base_shader, VP);
 
@@ -137,6 +146,7 @@ void Game::frame() {
 	glfwPollEvents();
 }
 
+// @TODO: Lives and a nice Game Over screen
 void Game::reset() {
 	BulletManager::clear();
 	EnemyManager::clear();
