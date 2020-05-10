@@ -36,7 +36,7 @@ static void mouse_btn_callback(GLFWwindow* window, int btn, int action, int) {
 	game->player_shoot();
 }
 
-// @TODO: Add infinite background material
+// @TODO: Add restrictions to resizing to prevent the void
 static void resize_window_callback(GLFWwindow* window, int width, int height) {
 	Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
 

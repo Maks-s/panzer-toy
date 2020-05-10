@@ -10,9 +10,9 @@ public:
 	Camera(
 		const glm::vec3& _pos,
 		const glm::vec2& _angle
-	) : pos(_pos), angle(_angle) { calculate_VP(); };
+	) : pos(_pos), angle(_angle) {};
 
-	glm::mat4 get_VP() const { return VP; };
+	glm::mat4 get_VP();
 	void set_ratio(float ratio);
 
 	glm::vec2 get_angle() const { return angle; };
@@ -29,7 +29,8 @@ private:
 	glm::vec2 angle = glm::vec2(0.0f); // yaw, pitch
 	glm::mat4 VP = glm::mat4(0.0f); // projection * view, view isn't saved. See calculate_VP
 
-	// @TODO: Use dirty edits
+	bool dirty = true;
+
 	void calculate_VP();
 };
 
