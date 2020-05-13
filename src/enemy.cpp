@@ -14,6 +14,7 @@ namespace {
 }
 
 // @TODO: Implement good AI
+// @TODO: Make color-coded enemies
 
 class BasicEnemy : public Enemy {
 public:
@@ -82,7 +83,7 @@ void EnemyManager::frame(const Game& game, const Shader& shader, const glm::mat4
 	}
 }
 
-bool EnemyManager::bullet_collision(const glm::vec3& bullet_pos) {
+bool EnemyManager::bullet_collision(Game& game, const glm::vec3& bullet_pos) {
 	for (auto ptr = enemy_list.begin(); ptr != enemy_list.end(); ++ptr) {
 		Enemy* enemy = ptr->get();
 
@@ -90,11 +91,26 @@ bool EnemyManager::bullet_collision(const glm::vec3& bullet_pos) {
 
 		if (glm::distance2(bullet_pos, foe_pos) < 0.16f) {
 			ptr = enemy_list.erase(ptr) - 1;
+
+			if (enemy_list.empty()) {
+				game.finish_level();
+			}
+
 			return true;
 		}
 	}
 
 	return false;
+}
+
+void EnemyManager::set_global_last_shoot_time(float time) {
+	for (auto& enemy : enemy_list) {
+		enemy->set_last_shoot_time(time);
+	}
+}
+
+bool EnemyManager::empty() {
+	return enemy_list.empty();
 }
 
 void EnemyManager::clear() {

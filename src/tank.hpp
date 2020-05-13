@@ -41,7 +41,7 @@ private:
 	glm::vec3 pos = glm::vec3(0.0f);
 	float angle_base = 0.0f;
 	float angle_top = 0.0f;
-	float last_shoot_time = 2.0f;
+	float last_shoot_time = 0.0f;
 	float speed = 0.06f; // How much radians to turn in 1/60s
 	int steps = 0; // Steps before finishing turning
 	bool clockwise = false;

@@ -1,3 +1,4 @@
+#include <ios>
 #include <system_error>
 #include <memory>
 #include <GL/gl3w.h>
@@ -19,8 +20,6 @@
 // @TODO: Make everything compliant with C++ Core Guidelines
 // @TODO: Document everything
 
-float Game::current_time = 0.0f;
-
 static void cursor_pos_callback(GLFWwindow* window, double x, double y) {
 	Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
 	game->set_cursor_pos(glm::vec2(x, y));
@@ -36,7 +35,7 @@ static void mouse_btn_callback(GLFWwindow* window, int btn, int action, int) {
 	game->player_shoot();
 }
 
-// @TODO: Add restrictions to resizing to prevent the void
+// @TODO: Add restrictions to resizing, to prevent the void
 static void resize_window_callback(GLFWwindow* window, int width, int height) {
 	Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
 
@@ -92,7 +91,7 @@ Game::Game() {
 	cam.set_angle(glm::vec2(0.0f, -1.9f));
 	cam.set_ratio(window_width / window_height);
 
-	map = std::make_unique<Map>("assets/map_0.txt");
+	map = std::make_unique<Map>(0);
 	player = std::make_unique<Player>(map->get_player_starting_pos());
 
 	uniform_time = base_shader.get_uniform_location("time");
@@ -146,14 +145,34 @@ void Game::frame() {
 	glfwPollEvents();
 }
 
+void Game::finish_level() {
+	BulletManager::clear();
+
+	try {
+		map->load(map->get_map_id() + 1, current_time);
+	} catch (const std::ios_base::failure) {
+		Log::info("You finished the game, congratulations :D");
+		close();
+	} catch (const std::exception& e) {
+		Log::error(e.what());
+		close();
+	}
+
+	player->set_pos(map->get_player_starting_pos());
+}
+
 // @TODO: Lives and a nice Game Over screen
-void Game::reset() {
+void Game::reset_level() {
 	BulletManager::clear();
 	EnemyManager::clear();
-	map->reset();
+	map->reset(current_time);
 	player->set_pos(map->get_player_starting_pos());
 	player->set_base_angle(0.0f);
-	player->set_last_shoot_time(glfwGetTime() + 2.0f);
+	player->set_last_shoot_time(glfwGetTime());
+}
+
+void Game::close() {
+	glfwSetWindowShouldClose(window, true);
 }
 
 Game::~Game() {

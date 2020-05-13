@@ -92,7 +92,11 @@ void BulletManager::frame(Game& game, const Shader& shader, const glm::mat4& VP)
 			return; // Game has been reset, return
 		}
 
-		if (EnemyManager::bullet_collision(new_pos)) {
+		if (EnemyManager::bullet_collision(game, new_pos)) {
+			if (bullets.empty()) {
+				return; // No bullets, game has been reset
+			}
+
 			bullet = bullets.erase(bullet) - 1;
 			continue;
 		}

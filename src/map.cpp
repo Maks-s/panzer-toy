@@ -49,11 +49,14 @@ void Map::process_object(int x, int y, MapObject type) {
 	}
 }
 
-void Map::load(const std::string& filename) {
+// @TODO: Throwing should load menu
+void Map::load(int map_id, float time) {
+	std::string filename = "assets/map_" + std::to_string(map_id) + ".txt";
+
 	std::ifstream file(filename);
 
 	if (!file.is_open()) {
-		throw std::fstream::failure("Could not open map file" + filename);
+		throw std::fstream::failure("Could not open map file: " + filename);
 	}
 
 	bool required_ply_spawn = false;
@@ -73,7 +76,7 @@ void Map::load(const std::string& filename) {
 		);
 
 		if (data.size() != 22) {
-			throw std::runtime_error("Invalid map (column number mismatch):" + filename);
+			throw std::runtime_error("Invalid map (column number mismatch): " + filename);
 		}
 
 		for (int j=0; j < 22; ++j) {
@@ -84,7 +87,7 @@ void Map::load(const std::string& filename) {
 
 			if (stocked == MapObject::player) {
 				if (required_ply_spawn) {
-					throw std::runtime_error("Invalid map (more than one player spawn)" + filename);
+					throw std::runtime_error("Invalid map (more than one player spawn): " + filename);
 				}
 
 				required_ply_spawn = true;
@@ -93,16 +96,25 @@ void Map::load(const std::string& filename) {
 	}
 
 	if (!required_ply_spawn) {
-		throw std::runtime_error("Invalid map (no player spawn)" + filename);
+		throw std::runtime_error("Invalid map (no player spawn): " + filename);
 	}
+
+	if (EnemyManager::empty()) {
+		throw std::runtime_error("Invalid map (no enemy): " + filename);
+	}
+
+	EnemyManager::set_global_last_shoot_time(time);
+	this->map_id = map_id;
 }
 
-void Map::reset() {
+void Map::reset(float time) {
 	for (int i=0; i < 16; ++i) {
 		for (int j=0; j < 22; ++j) {
 			process_object(i, j, datamap[i][j]);
 		}
 	}
+
+	EnemyManager::set_global_last_shoot_time(time);
 }
 
 void Map::draw(const Shader& shader, const glm::mat4& VP) const {

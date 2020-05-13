@@ -66,7 +66,7 @@ void Player::handle_movement(const Game& game, GLFWwindow* window) {
 
 bool Player::bullet_collision(Game& game, const glm::vec3& bullet_pos) {
 	if (glm::distance2(bullet_pos, get_pos()) < 0.16f) {
-		game.reset();
+		game.reset_level();
 		return true;
 	}
 

@@ -16,7 +16,9 @@ public:
 	Game();
 	~Game();
 	void run();
-	void reset();
+	void close();
+	void finish_level();
+	void reset_level();
 	void player_shoot() const;
 	bool player_bullet_collision(const glm::vec3& bullet_pos) {
 		return player->bullet_collision(*this, bullet_pos);
@@ -34,8 +36,7 @@ public:
 	};
 
 	glm::vec3 get_player_pos() const { return player->get_pos(); };
-	// @TODO: Remove this static function
-	static float get_current_time() { return Game::current_time; };
+	float get_current_time() const { return current_time; };
 
 private:
 	float calculate_cursor_angle(const glm::mat4& VP) const;
@@ -43,14 +44,14 @@ private:
 
 	Shader base_shader;
 	Camera cam;
-	static float current_time;
+	float current_time;
 	glm::vec2 cursor_pos;
 	// Instancing directly will segfault because OpenGL isn't initialised
 	std::unique_ptr<Map> map;
 	std::unique_ptr<Player> player;
 	GLint uniform_time;
 	GLFWwindow* window;
-	float window_width = 500.0f;
+	float window_width = 600.0f;
 	float window_height = 500.0f;
 };
 

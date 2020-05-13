@@ -30,19 +30,22 @@ enum class MapObject : int {
 class Map {
 public:
 	Map();
-	Map(const char* filename) : Map() { load(filename); };
-	void load(const std::string& filename);
-	void reset();
+	Map(int map_id) : Map() { load(map_id, 0.0f); };
+	void load(int map_id, float time);
+	void draw(const Shader& shader, const glm::mat4& VP) const;
+	void reset(float time);
 
 	MapCollision collision_check(const glm::vec3& pos) const;
-	void draw(const Shader& shader, const glm::mat4& VP) const;
 	glm::vec3 get_player_starting_pos() const;
+
+	int get_map_id() const { return map_id; };
 
 private:
 	void process_object(int row, int column, MapObject type);
 
 	// 2 dimensional array, 22 columns 16 rows
 	std::array<std::array<MapObject, 22>, 16> datamap{};
+	int map_id = 0;
 };
 
 #endif // MAP_HPP
