@@ -56,9 +56,6 @@ target_include_directories(PanzerToy PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 install(TARGETS PanzerToy RUNTIME DESTINATION ${PROJECT_BINARY_DIR}/bin)
 
-# Copy assets, models and shaders directories to build/bin
-add_custom_command(TARGET PanzerToy POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/assets ${PROJECT_BINARY_DIR}/bin/assets
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/models ${PROJECT_BINARY_DIR}/bin/models
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/shaders ${PROJECT_BINARY_DIR}/bin/shaders
-)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/assets DESTINATION ${PROJECT_BINARY_DIR}/bin)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/models DESTINATION ${PROJECT_BINARY_DIR}/bin)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/shaders DESTINATION ${PROJECT_BINARY_DIR}/bin)
