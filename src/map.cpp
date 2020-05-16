@@ -117,6 +117,7 @@ void Map::reset(float time) {
 	EnemyManager::set_global_last_shoot_time(time);
 }
 
+// @TODO: Use instancing
 void Map::draw(const Shader& shader, const glm::mat4& VP) const {
 	map_mdl.draw(shader, VP);
 

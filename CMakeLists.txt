@@ -21,15 +21,15 @@ option(ASSIMP_BUILD_BOOST_WORKAROUND TRUE)
 option(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
 option(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
 set(ASSIMP_BUILD_COLLADA_IMPORTER BOOL TRUE)
-add_subdirectory(deps/assimp)
+add_subdirectory(ext/assimp)
 
 option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
 option(GLFW_BUILD_DOCS OFF)
 option(GLFW_INSTALL OFF)
-add_subdirectory(deps/glfw)
+add_subdirectory(ext/glfw)
 
-add_subdirectory(deps/glm)
+add_subdirectory(ext/glm)
 add_subdirectory(include)
 
 set(SRC_FILES
