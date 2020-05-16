@@ -23,6 +23,7 @@ public:
 		const std::vector<Texture>& textures
 	);
 
+	void clear_gl() const;
 	void draw(const Shader& shader) const;
 
 private:

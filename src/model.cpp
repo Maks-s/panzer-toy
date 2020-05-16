@@ -1,5 +1,7 @@
+#include <memory>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
@@ -16,7 +18,10 @@
 #include "texture.hpp"
 
 // Meshes loading can be changed to a parent-child system, but we don't need it right now
-// @TODO: Do something to load models only 1 time
+
+namespace {
+	std::unordered_map<std::string, std::weak_ptr<std::vector<Mesh>>> loaded_models;
+}
 
 static Mesh process_mesh(
 	aiMesh* mesh,
@@ -31,7 +36,23 @@ Model::Model(const std::string& path) {
 	}
 }
 
+Model::~Model() {
+	if (meshes.use_count() == 1) {
+		for (const auto& mesh : *meshes) {
+			mesh.clear_gl();
+		}
+
+		loaded_models.extract(path);
+	}
+}
+
 bool Model::load(std::string path) {
+	const auto& iter = loaded_models.find(path);
+	if (iter != loaded_models.end()) {
+		meshes = iter->second.lock();
+		return true;
+	}
+
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(
 		path,
@@ -42,14 +63,19 @@ bool Model::load(std::string path) {
 	);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-		Log::error("Error opening model, ", importer.GetErrorString());
+		Log::error("Error opening model at ", path, ":\n", importer.GetErrorString());
 		return false;
 	}
+
+	meshes = std::make_shared<std::vector<Mesh>>();
+	const auto& res = loaded_models.emplace(path, meshes);
+
+	this->path = path;
 
 	path = path.substr(0, path.find_last_of('/') + 1);
 
 	for (int i = scene->mNumMeshes - 1; i >= 0; --i) {
-		meshes.push_back(process_mesh(
+		meshes->push_back(process_mesh(
 			scene->mMeshes[i],
 			scene,
 			scene->mRootNode->mTransformation,
@@ -70,8 +96,10 @@ void Model::draw(const Shader& shader, const glm::mat4& VP) {
 	glm::mat4 MVP = VP * model_mat;
 	shader.set_MVP(MVP);
 
-	for (auto& mesh : meshes) {
-		mesh.draw(shader);
+	if (!is_empty()) {
+		for (const auto& mesh : *meshes) {
+			mesh.draw(shader);
+		}
 	}
 }
 

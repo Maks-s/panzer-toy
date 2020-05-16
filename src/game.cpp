@@ -168,7 +168,7 @@ void Game::reset_level() {
 	map->reset(current_time);
 	player->set_pos(map->get_player_starting_pos());
 	player->set_base_angle(0.0f);
-	player->set_last_shoot_time(glfwGetTime());
+	player->set_last_shoot_time(current_time);
 }
 
 void Game::close() {

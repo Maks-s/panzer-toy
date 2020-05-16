@@ -68,3 +68,9 @@ void Mesh::draw(const Shader& shader) const {
 
 	glActiveTexture(GL_TEXTURE0);
 }
+
+void Mesh::clear_gl() const {
+	glDeleteBuffers(1, &EBO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &VAO);
+}

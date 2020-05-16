@@ -1,6 +1,7 @@
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
+#include <memory>
 #include <string>
 #include <vector>
 #include <assimp/Importer.hpp>
@@ -15,7 +16,7 @@ class Model {
 public:
 	Model() = default;
 	Model(const std::string& path);
-	virtual ~Model() = default;
+	virtual ~Model();
 
 	virtual bool load(std::string path);
 	virtual void draw(const Shader& shader, const glm::mat4& VP);
@@ -28,10 +29,11 @@ public:
 	void set_angle(float angle);
 	void rotate(float angle);
 
-	bool is_empty() const { return meshes.empty(); };
+	bool is_empty() const { return !meshes || meshes->empty(); };
 
 private:
-	std::vector<Mesh> meshes;
+	std::string path;
+	std::shared_ptr<std::vector<Mesh>> meshes;
 	glm::mat4 model_mat = glm::mat4(0.0f);
 	glm::vec3 pos = glm::vec3(0.0f);
 	float angle = 0.0f;
