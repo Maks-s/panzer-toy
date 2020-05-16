@@ -1,5 +1,5 @@
-#ifndef BULLET_HPP
-#define BULLET_HPP
+#ifndef PANZERTOY_BULLET_HPP
+#define PANZERTOY_BULLET_HPP
 
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
@@ -20,4 +20,4 @@ namespace BulletManager {
 	void clear();
 }
 
-#endif // BULLET_HPP
+#endif // PANZERTOY_BULLET_HPP

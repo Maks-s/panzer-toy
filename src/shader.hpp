@@ -1,5 +1,5 @@
-#ifndef SHADER_HPP
-#define SHADER_HPP
+#ifndef PANZERTOY_SHADER_HPP
+#define PANZERTOY_SHADER_HPP
 
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
@@ -24,4 +24,4 @@ private:
 	GLuint glProgram = 0;
 };
 
-#endif // SHADER_HPP
+#endif // PANZERTOY_SHADER_HPP

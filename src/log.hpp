@@ -1,5 +1,5 @@
-#ifndef LOG_HPP
-#define LOG_HPP
+#ifndef PANZERTOY_LOG_HPP
+#define PANZERTOY_LOG_HPP
 
 #include <iostream>
 #include <string>
@@ -39,4 +39,4 @@ namespace Log {
 	}
 }
 
-#endif // LOG_HPP
+#endif // PANZERTOY_LOG_HPP

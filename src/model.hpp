@@ -1,5 +1,5 @@
-#ifndef MODEL_HPP
-#define MODEL_HPP
+#ifndef PANZERTOY_MODEL_HPP
+#define PANZERTOY_MODEL_HPP
 
 #include <memory>
 #include <string>
@@ -40,4 +40,4 @@ private:
 	bool dirty = false;
 };
 
-#endif // MODEL_HPP
+#endif // PANZERTOY_MODEL_HPP

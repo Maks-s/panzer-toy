@@ -29,6 +29,7 @@ option(GLFW_BUILD_DOCS OFF)
 option(GLFW_INSTALL OFF)
 add_subdirectory(ext/glfw)
 
+add_subdirectory(ext/freetype2)
 add_subdirectory(ext/glm)
 add_subdirectory(include)
 

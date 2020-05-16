@@ -1,5 +1,5 @@
-#ifndef TANK_HPP
-#define TANK_HPP
+#ifndef PANZERTOY_TANK_HPP
+#define PANZERTOY_TANK_HPP
 
 #include <glm/glm.hpp>
 
@@ -47,4 +47,4 @@ private:
 	bool clockwise = false;
 };
 
-#endif // TANK_HPP
+#endif // PANZERTOY_TANK_HPP

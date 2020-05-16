@@ -1,5 +1,5 @@
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
+#ifndef PANZERTOY_CAMERA_HPP
+#define PANZERTOY_CAMERA_HPP
 
 #include <glm/glm.hpp>
 
@@ -34,4 +34,4 @@ private:
 	void calculate_VP();
 };
 
-#endif // CAMERA_HPP
+#endif // PANZERTOY_CAMERA_HPP

@@ -1,5 +1,5 @@
-#ifndef ENEMY_HPP
-#define ENEMY_HPP
+#ifndef PANZERTOY_ENEMY_HPP
+#define PANZERTOY_ENEMY_HPP
 
 #include <glm/glm.hpp>
 #include "tank.hpp"
@@ -30,4 +30,4 @@ namespace EnemyManager {
 	void clear();
 }
 
-#endif // ENEMY_HPP
+#endif // PANZERTOY_ENEMY_HPP

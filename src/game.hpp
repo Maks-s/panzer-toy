@@ -1,5 +1,5 @@
-#ifndef GAME_HPP
-#define GAME_HPP
+#ifndef PANZERTOY_GAME_HPP
+#define PANZERTOY_GAME_HPP
 
 #include <memory>
 #include <GL/gl3w.h>
@@ -55,4 +55,4 @@ private:
 	float window_height = 500.0f;
 };
 
-#endif // GAME_HPP
+#endif // PANZERTOY_GAME_HPP

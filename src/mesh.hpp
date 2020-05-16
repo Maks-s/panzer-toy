@@ -1,5 +1,5 @@
-#ifndef MESH_HPP
-#define MESH_HPP
+#ifndef PANZERTOY_MESH_HPP
+#define PANZERTOY_MESH_HPP
 
 #include <vector>
 #include <GL/gl3w.h>
@@ -33,4 +33,4 @@ private:
 	std::vector<Texture> textures;
 };
 
-#endif // MESH_HPP
+#endif // PANZERTOY_MESH_HPP

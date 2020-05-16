@@ -1,5 +1,5 @@
-#ifndef TEXTURE_HPP
-#define TEXTURE_HPP
+#ifndef PANZERTOY_TEXTURE_HPP
+#define PANZERTOY_TEXTURE_HPP
 
 #include <string>
 #include <GL/gl3w.h>
@@ -20,4 +20,4 @@ namespace TextureManager {
 	Texture get_texture(GLuint id);
 }
 
-#endif // TEXTURE_HPP
+#endif // PANZERTOY_TEXTURE_HPP

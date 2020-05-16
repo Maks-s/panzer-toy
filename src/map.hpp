@@ -1,5 +1,5 @@
-#ifndef MAP_HPP
-#define MAP_HPP
+#ifndef PANZERTOY_MAP_HPP
+#define PANZERTOY_MAP_HPP
 
 #include <array>
 #include <memory>
@@ -48,4 +48,4 @@ private:
 	int map_id = 0;
 };
 
-#endif // MAP_HPP
+#endif // PANZERTOY_MAP_HPP

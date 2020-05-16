@@ -1,5 +1,5 @@
-#ifndef PLAYER_HPP
-#define PLAYER_HPP
+#ifndef PANZERTOY_PLAYER_HPP
+#define PANZERTOY_PLAYER_HPP
 
 #include <glm/glm.hpp>
 
@@ -16,4 +16,4 @@ public:
 	bool bullet_collision(Game& game, const glm::vec3& bullet_pos);
 };
 
-#endif // PLAYER_HPP
+#endif // PANZERTOY_PLAYER_HPP
