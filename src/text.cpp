@@ -49,7 +49,6 @@ void Text::init_settings(TextSettings& settings) {
 	settings.shader.load("shaders/glyph_vtx.glsl", "shaders/glyph_frag.glsl");
 	settings.shader.use();
 	settings.shader.set_uniform(settings.shader.get_uniform_location("textureText"), (int)0);
-	settings.shader.set_uniform(settings.shader.get_uniform_location("color"), 1.0f, 0.0f, 0.0f);
 
 	settings.uninitialized = false;
 }
@@ -81,6 +80,7 @@ void Text::draw(const TextSettings& settings) {
 	}
 
 	settings.shader.use();
+	settings.shader.set_uniform(settings.shader.get_uniform_location("color"), color.r, color.g, color.b);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(settings.VAO);

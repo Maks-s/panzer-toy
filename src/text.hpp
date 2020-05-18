@@ -44,12 +44,14 @@ public:
 	glm::vec2 get_pos() const { return pos; };
 
 	void set_scale(float scale);
+	void set_color(const glm::vec3& color) { this->color = color; };
 
 private:
 	bool dirty = true;
 	std::string text;
 	float scale = 1.0f;
 	glm::vec2 pos = glm::vec2(0.0f);
+	glm::vec3 color = glm::vec3(1.0f);
 	glm::mat4 transform;
 };
 
