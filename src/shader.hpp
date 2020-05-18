@@ -15,6 +15,7 @@ public:
 
 	// Uniforms overload
 	static void set_uniform(GLint, float);
+	static void set_uniform(GLint, float, float, float);
 	static void set_uniform(GLint, float, float, float, float);
 	static void set_uniform(GLint, int);
 	static void set_uniform(GLint, const glm::mat4&);

@@ -18,3 +18,8 @@ And voilà !
 You can find the binaries in panzertoy/build/bin
 
 Contributions are more than welcome :D
+
+## Font used
+
+We're using the font [SquareFont](https://www.dafont.com/fr/squarefont.font) by [Bou Fonts](https://www.dafont.com/fr/agustin-bou.d1728) at the moment.
+Thanks to him for his awesome work !

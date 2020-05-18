@@ -39,14 +39,25 @@ static void mouse_btn_callback(GLFWwindow* window, int btn, int action, int) {
 static void resize_window_callback(GLFWwindow* window, int width, int height) {
 	Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
 
-	float f_width = static_cast<float>(width);
-	float f_height = static_cast<float>(height);
-
-	game->set_window_width(f_width);
-	game->set_window_height(f_height);
+	game->window_resize_callback(static_cast<float>(width), static_cast<float>(height));
 
 	glViewport(0, 0, width, height);
-	game->set_ratio(f_width / f_height);
+}
+
+void Game::window_resize_callback(float width, float height) {
+	width = (width == 0.0f) ? window_width : width;
+	height = (height == 0.0f) ? window_height : height;
+
+	window_width = width;
+	window_height = height;
+
+	cam.set_ratio(width / height);
+
+	text.set_pos(glm::vec2(0.0f, window_height - 10.0f));
+
+	text_settings.projection = glm::ortho(0.0f, width, height, 0.0f);
+	text_settings.shader.set_MVP(text_settings.projection);
+	Text::window_size(text_settings, width, height);
 }
 
 Game::Game() {
@@ -77,6 +88,8 @@ Game::Game() {
 
 	glViewport(0, 0, window_width, window_height);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Texture settings
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
@@ -86,10 +99,14 @@ Game::Game() {
 
 	base_shader.load("shaders/vertex.glsl", "shaders/fragment.glsl");
 
+	text.set_text("You're beautiful");
+	Text::init_settings(text_settings);
+
+	window_resize_callback(0.0f, 0.0f);
+
 	// Set up the camera to be aligned with the map
 	cam.set_pos(glm::vec3(11.0f, 10.0f, 10.5f));
 	cam.set_angle(glm::vec2(0.0f, -1.9f));
-	cam.set_ratio(window_width / window_height);
 
 	map = std::make_unique<Map>(0);
 	player = std::make_unique<Player>(map->get_player_starting_pos());
@@ -140,6 +157,8 @@ void Game::frame() {
 	player->set_top_angle(calculate_cursor_angle(VP));
 	player->draw(base_shader, VP);
 	map->draw(base_shader, VP);
+
+	text.draw(text_settings);
 
 	glfwSwapBuffers(window);
 	glfwPollEvents();

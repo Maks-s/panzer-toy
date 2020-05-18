@@ -11,6 +11,7 @@
 
 static std::string readfile(const char* filename);
 
+// @TODO: Make shaders' root at shaders/
 void Shader::load(const char* vtx_path, const char* frag_path) {
 	GLuint vtx_shader = glCreateShader(GL_VERTEX_SHADER);
 	GLuint frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -73,6 +74,7 @@ GLint Shader::get_uniform_location(const char* name) const {
 }
 
 void Shader::set_MVP(const glm::mat4& MVP) const {
+	use();
 	set_uniform(uniform_MVP, MVP);
 }
 
@@ -97,6 +99,10 @@ static std::string readfile(const char* filename) {
 
 void Shader::set_uniform(GLint location, float f) {
 	glUniform1f(location, f);
+}
+
+void Shader::set_uniform(GLint location, float x, float y, float z) {
+	glUniform3f(location, x, y, z);
 }
 
 void Shader::set_uniform(GLint location, float x, float y, float z, float w) {

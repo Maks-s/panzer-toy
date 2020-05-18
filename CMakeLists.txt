@@ -45,12 +45,13 @@ set(SRC_FILES
 	src/player.cpp
 	src/shader.cpp
 	src/tank.cpp
+	src/text.cpp
 	src/texture.cpp
 )
 
 add_executable(PanzerToy ${SRC_FILES})
 
-target_link_libraries(PanzerToy assimp gl3w glfw glm)
+target_link_libraries(PanzerToy assimp freetype gl3w glfw glm)
 
 target_include_directories(PanzerToy PUBLIC ${PROJECT_BINARY_DIR}/src)
 target_include_directories(PanzerToy PUBLIC ${PROJECT_SOURCE_DIR}/include)

@@ -10,6 +10,7 @@
 #include "map.hpp"
 #include "player.hpp"
 #include "shader.hpp"
+#include "text.hpp"
 
 class Game {
 public:
@@ -24,9 +25,9 @@ public:
 		return player->bullet_collision(*this, bullet_pos);
 	};
 
-	void set_ratio(float ratio) { cam.set_ratio(ratio); }
-	void set_window_width(float width) { window_width = width; };
-	void set_window_height(float height) { window_height = height; };
+	void window_resize_callback(float width, float height);
+	float get_window_width() const { return window_width; };
+	float get_window_height() const { return window_height; };
 
 	void set_cursor_pos(glm::vec2 pos) { cursor_pos = pos; };
 	glm::vec2 get_cursor_pos() const { return cursor_pos; };
@@ -42,8 +43,10 @@ private:
 	float calculate_cursor_angle(const glm::mat4& VP) const;
 	void frame();
 
-	Shader base_shader;
 	Camera cam;
+	Shader base_shader;
+	Text text;
+	TextSettings text_settings;
 	float current_time;
 	glm::vec2 cursor_pos;
 	// Instancing directly will segfault because OpenGL isn't initialised
