@@ -111,8 +111,6 @@ Game::Game() {
 	map = std::make_unique<Map>(0);
 	player = std::make_unique<Player>(map->get_player_starting_pos());
 
-	uniform_time = base_shader.get_uniform_location("time");
-
 	EnemyManager::init();
 }
 
@@ -145,7 +143,6 @@ void Game::frame() {
 
 	current_time = glfwGetTime();
 	base_shader.use();
-	base_shader.set_uniform(uniform_time, current_time);
 
 	// WASD / ZQSD controls
 	player->handle_movement(*this, window);

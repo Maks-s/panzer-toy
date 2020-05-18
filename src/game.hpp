@@ -52,7 +52,6 @@ private:
 	// Instancing directly will segfault because OpenGL isn't initialised
 	std::unique_ptr<Map> map;
 	std::unique_ptr<Player> player;
-	GLint uniform_time;
 	GLFWwindow* window;
 	float window_width = 600.0f;
 	float window_height = 500.0f;
