@@ -8,10 +8,8 @@
 #include "log.hpp"
 #include "texture.hpp"
 
-namespace TextureManager {
-	namespace  {
-		std::vector<Texture> loaded_textures;
-	}
+namespace {
+	std::vector<Texture> loaded_textures;
 }
 
 Texture TextureManager::load_texture(const std::string& filename, aiTextureType type, bool flip) {

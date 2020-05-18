@@ -1,1 +1,1 @@
-#define PanzerToy_TITLE "Panzer Toy v@PanzerToy_VERSION_MAJOR@.@PanzerToy_VERSION_MINOR@"
+#define PANZERTOY_TITLE "Panzer Toy v@PanzerToy_VERSION_MAJOR@.@PanzerToy_VERSION_MINOR@"

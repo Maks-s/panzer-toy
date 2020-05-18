@@ -118,7 +118,7 @@ void Text::set_scale(float scale) {
 
 namespace {
 
-inline bool process_character(TextSettings& settings, char c)  {
+inline bool process_character(TextSettings& settings, char c) {
 	FT_Error error = FT_Load_Char(settings.face, c, FT_LOAD_RENDER);
 
 	if (error) {

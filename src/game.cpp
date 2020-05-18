@@ -69,7 +69,7 @@ Game::Game() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(window_width, window_height, PanzerToy_TITLE, nullptr, nullptr);
+	window = glfwCreateWindow(window_width, window_height, PANZERTOY_TITLE, nullptr, nullptr);
 	if (window == nullptr) {
 		glfwTerminate();
 		throw std::system_error(EINTR, std::generic_category(), "Error creating window");
