@@ -9,9 +9,8 @@
 #include "shader.hpp"
 #include "log.hpp"
 
-static std::string readfile(const char* filename);
+static std::string readfile(const std::string& filename);
 
-// @TODO: Make shaders' root at shaders/
 void Shader::load(const char* vtx_path, const char* frag_path) {
 	GLuint vtx_shader = glCreateShader(GL_VERTEX_SHADER);
 	GLuint frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -78,8 +77,8 @@ void Shader::set_MVP(const glm::mat4& MVP) const {
 	set_uniform(uniform_MVP, MVP);
 }
 
-static std::string readfile(const char* filename) {
-	std::ifstream shaderfile(filename, std::ios::ate);
+static std::string readfile(const std::string& filename) {
+	std::ifstream shaderfile("shaders/" + filename, std::ios::ate);
 
 	if (!shaderfile.is_open()) {
 		Log::error("Error opening file: ", filename);

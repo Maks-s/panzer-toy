@@ -46,7 +46,7 @@ void Text::init_settings(TextSettings& settings) {
 
 	glBindVertexArray(0);
 
-	settings.shader.load("shaders/glyph_vtx.glsl", "shaders/glyph_frag.glsl");
+	settings.shader.load("glyph_vtx.glsl", "glyph_frag.glsl");
 	settings.shader.use();
 	settings.shader.set_uniform(settings.shader.get_uniform_location("textureText"), (int)0);
 
