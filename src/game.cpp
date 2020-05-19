@@ -44,6 +44,7 @@ static void resize_window_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
+// @TODO: Make width and height integers
 void Game::window_resize_callback(float width, float height) {
 	width = (width == 0.0f) ? window_width : width;
 	height = (height == 0.0f) ? window_height : height;
@@ -55,8 +56,10 @@ void Game::window_resize_callback(float width, float height) {
 
 	text.set_pos(glm::vec2(0.0f, window_height - 10.0f));
 
-	text_settings.projection = glm::ortho(0.0f, width, height, 0.0f);
-	text_settings.shader.set_MVP(text_settings.projection);
+	glm::mat4 projection = glm::ortho(0.0f, width, height, 0.0f);
+
+	text_settings.projection = projection;
+	sprite_infos.shader.set_MVP(projection);
 	Text::window_size(text_settings, width, height);
 }
 
@@ -99,8 +102,11 @@ Game::Game() {
 
 	base_shader.load("vertex.glsl", "fragment.glsl");
 
-	text.set_text("You're beautiful");
+	Sprite::init(sprite_infos);
 	Text::init_settings(text_settings);
+
+	text.set_text("You're beautiful");
+	sprite.load("assets/sprite.png");
 
 	window_resize_callback(0.0f, 0.0f);
 
@@ -156,6 +162,7 @@ void Game::frame() {
 	map->draw(base_shader, VP);
 
 	text.draw(text_settings);
+	sprite.draw(sprite_infos);
 
 	glfwSwapBuffers(window);
 	glfwPollEvents();

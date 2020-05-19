@@ -46,7 +46,7 @@ void Text::init_settings(TextSettings& settings) {
 
 	glBindVertexArray(0);
 
-	settings.shader.load("glyph_vtx.glsl", "glyph_frag.glsl");
+	settings.shader.load("vertex_2d.glsl", "frag_greyscale.glsl");
 	settings.shader.use();
 	settings.shader.set_uniform(settings.shader.get_uniform_location("textureText"), (int)0);
 
@@ -117,84 +117,82 @@ void Text::set_scale(float scale) {
 }
 
 namespace {
+	inline bool process_character(TextSettings& settings, char c) {
+		FT_Error error = FT_Load_Char(settings.face, c, FT_LOAD_RENDER);
 
-inline bool process_character(TextSettings& settings, char c) {
-	FT_Error error = FT_Load_Char(settings.face, c, FT_LOAD_RENDER);
+		if (error) {
+			return false;
+		}
 
-	if (error) {
-		return false;
+		const FT_Glyph_Metrics_& metrics = settings.face->glyph->metrics;
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		GLuint texture_id;
+
+		auto result = settings.glyph_list.find(c);
+		if (result == settings.glyph_list.end()) {
+			glGenTextures(1, &texture_id);
+		} else {
+			texture_id = result->second.id;
+		}
+
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			settings.face->glyph->bitmap.width,
+			settings.face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			settings.face->glyph->bitmap.buffer
+		);
+
+		glTextureParameteri(texture_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTextureParameteri(texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // Restaure unpack to default value
+
+		const float scale = 0.01f; // Letters are BIG, so we scale them down
+
+		GlyphTexture glyph_texture;
+		glyph_texture.id = texture_id;
+		glyph_texture.advance = metrics.horiAdvance * scale;
+
+		float pos_left = metrics.horiBearingX * scale;
+		float pos_right = (metrics.horiBearingX + metrics.width) * scale;
+		float pos_top = -metrics.horiBearingY * scale;
+		float pos_bottom = (metrics.height - metrics.horiBearingY) * scale;
+
+		// vertices is a reference to glyph_texture.vertices
+		auto vertices = glyph_texture.vertices;
+
+		vertices[0][0] = pos_left;
+		vertices[0][1] = pos_top;
+		vertices[0][2] = 0.0f;
+		vertices[0][3] = 0.0f;
+
+		vertices[1][0] = pos_left;
+		vertices[1][1] = pos_bottom;
+		vertices[1][2] = 0.0f;
+		vertices[1][3] = 1.0f;
+
+		vertices[2][0] = pos_right;
+		vertices[2][1] = pos_bottom;
+		vertices[2][2] = 1.0f;
+		vertices[2][3] = 1.0f;
+
+		vertices[3][0] = pos_right;
+		vertices[3][1] = pos_top;
+		vertices[3][2] = 1.0f;
+		vertices[3][3] = 0.0f;
+
+		settings.glyph_list[c] = glyph_texture;
+
+		return true;
 	}
-
-	const FT_Glyph_Metrics_& metrics = settings.face->glyph->metrics;
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	GLuint texture_id;
-
-	auto result = settings.glyph_list.find(c);
-	if (result == settings.glyph_list.end()) {
-		glGenTextures(1, &texture_id);
-	} else {
-		texture_id = result->second.id;
-	}
-
-	glBindTexture(GL_TEXTURE_2D, texture_id);
-	glTexImage2D(
-		GL_TEXTURE_2D,
-		0,
-		GL_RED,
-		settings.face->glyph->bitmap.width,
-		settings.face->glyph->bitmap.rows,
-		0,
-		GL_RED,
-		GL_UNSIGNED_BYTE,
-		settings.face->glyph->bitmap.buffer
-	);
-
-	glTextureParameteri(texture_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTextureParameteri(texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // Restaure unpack to default value
-
-	const float scale = 0.01f; // Letters are BIG, so we scale them down
-
-	GlyphTexture glyph_texture;
-	glyph_texture.id = texture_id;
-	glyph_texture.advance = metrics.horiAdvance * scale;
-
-	float pos_left = metrics.horiBearingX * scale;
-	float pos_right = (metrics.horiBearingX + metrics.width) * scale;
-	float pos_top = -metrics.horiBearingY * scale;
-	float pos_bottom = (metrics.height - metrics.horiBearingY) * scale;
-
-	// vertices is a reference to glyph_texture.vertices
-	auto vertices = glyph_texture.vertices;
-
-	vertices[0][0] = pos_left;
-	vertices[0][1] = pos_top;
-	vertices[0][2] = 0.0f;
-	vertices[0][3] = 0.0f;
-
-	vertices[1][0] = pos_left;
-	vertices[1][1] = pos_bottom;
-	vertices[1][2] = 0.0f;
-	vertices[1][3] = 1.0f;
-
-	vertices[2][0] = pos_right;
-	vertices[2][1] = pos_bottom;
-	vertices[2][2] = 1.0f;
-	vertices[2][3] = 1.0f;
-
-	vertices[3][0] = pos_right;
-	vertices[3][1] = pos_top;
-	vertices[3][2] = 1.0f;
-	vertices[3][3] = 0.0f;
-
-	settings.glyph_list[c] = glyph_texture;
-
-	return true;
-}
-
 }

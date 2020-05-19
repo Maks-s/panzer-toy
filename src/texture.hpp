@@ -14,7 +14,11 @@ struct Texture {
 };
 
 namespace TextureManager {
-	Texture load_texture(const std::string& filename, aiTextureType type = aiTextureType_NONE, bool flip = false);
+	Texture load_texture(
+		const std::string& filename,
+		aiTextureType type = aiTextureType_NONE,
+		bool flip = false
+	);
 
 	Texture get_texture(const std::string& filename);
 	Texture get_texture(GLuint id);

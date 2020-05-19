@@ -10,6 +10,7 @@
 #include "map.hpp"
 #include "player.hpp"
 #include "shader.hpp"
+#include "sprite.hpp"
 #include "text.hpp"
 
 class Game {
@@ -46,7 +47,9 @@ private:
 	Camera cam;
 	Shader base_shader;
 	Text text;
+	Sprite sprite;
 	TextSettings text_settings;
+	SpriteRenderInfo sprite_infos;
 	float current_time;
 	glm::vec2 cursor_pos;
 	// Instancing directly will segfault because OpenGL isn't initialised

@@ -44,6 +44,7 @@ set(SRC_FILES
 	src/model.cpp
 	src/player.cpp
 	src/shader.cpp
+	src/sprite.cpp
 	src/tank.cpp
 	src/text.cpp
 	src/texture.cpp
