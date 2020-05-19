@@ -33,15 +33,15 @@ public:
 	Text(TextSettings& settings, const std::string& text) : Text(settings) { set_text(text); };
 
 	static void init_settings(TextSettings& settings);
-	static void window_size(TextSettings& settings, float width, float height);
+	static void window_size(TextSettings& settings, int width, int height);
 
 	void draw(const TextSettings& settings);
 
 	void set_text(const std::string& text) { this->text = text; };
 	std::string get_text() const { return text; };
 
-	void set_pos(const glm::vec2& pos);
-	glm::vec2 get_pos() const { return pos; };
+	void set_pos(const glm::ivec2& pos);
+	glm::ivec2 get_pos() const { return pos; };
 
 	void set_scale(float scale);
 	void set_color(const glm::vec3& color) { this->color = color; };
@@ -50,7 +50,7 @@ private:
 	bool dirty = true;
 	std::string text;
 	float scale = 1.0f;
-	glm::vec2 pos = glm::vec2(0.0f);
+	glm::ivec2 pos = glm::ivec2(0.0f);
 	glm::vec3 color = glm::vec3(1.0f);
 	glm::mat4 transform;
 };

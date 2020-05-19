@@ -39,24 +39,23 @@ static void mouse_btn_callback(GLFWwindow* window, int btn, int action, int) {
 static void resize_window_callback(GLFWwindow* window, int width, int height) {
 	Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
 
-	game->window_resize_callback(static_cast<float>(width), static_cast<float>(height));
+	game->window_resize_callback(width, height);
 
 	glViewport(0, 0, width, height);
 }
 
-// @TODO: Make width and height integers
-void Game::window_resize_callback(float width, float height) {
-	width = (width == 0.0f) ? window_width : width;
-	height = (height == 0.0f) ? window_height : height;
+void Game::window_resize_callback(int width, int height) {
+	width = (width == 0) ? window_size.x : width;
+	height = (height == 0) ? window_size.y : height;
 
-	window_width = width;
-	window_height = height;
+	float f_width = static_cast<float>(width);
+	float f_height = static_cast<float>(height);
 
-	cam.set_ratio(width / height);
+	cam.set_ratio(f_width / f_height);
 
-	text.set_pos(glm::vec2(0.0f, window_height - 10.0f));
+	text.set_pos(glm::ivec2(0, height - 10));
 
-	glm::mat4 projection = glm::ortho(0.0f, width, height, 0.0f);
+	glm::mat4 projection = glm::ortho(0.0f, f_width, f_height, 0.0f);
 
 	text_settings.projection = projection;
 	sprite_infos.shader.set_MVP(projection);
@@ -72,7 +71,7 @@ Game::Game() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(window_width, window_height, PANZERTOY_TITLE, nullptr, nullptr);
+	window = glfwCreateWindow(window_size.x, window_size.y, PANZERTOY_TITLE, nullptr, nullptr);
 	if (window == nullptr) {
 		glfwTerminate();
 		throw std::system_error(EINTR, std::generic_category(), "Error creating window");
@@ -89,7 +88,7 @@ Game::Game() {
 		throw std::system_error(EINTR, std::generic_category(), "Error initialising GL3W");
 	}
 
-	glViewport(0, 0, window_width, window_height);
+	glViewport(0, 0, window_size.x, window_size.y);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -108,7 +107,7 @@ Game::Game() {
 	text.set_text("You're beautiful");
 	sprite.load("assets/sprite.png");
 
-	window_resize_callback(0.0f, 0.0f);
+	window_resize_callback(0, 0);
 
 	// Set up the camera to be aligned with the map
 	cam.set_pos(glm::vec3(11.0f, 10.0f, 10.5f));
@@ -134,8 +133,8 @@ float Game::calculate_cursor_angle(const glm::mat4& VP) const {
 	// World coordinates to screen coordinates
 	glm::vec4 world_pos = VP * glm::vec4(player->get_pos(), 1.0f);
 	world_pos /= world_pos.w;
-	float screen_x = (world_pos.x + 1) / 2.0f * window_width + 0.5f;
-	float screen_y = (1 - world_pos.y) / 2.0f * window_height + 0.5f;
+	float screen_x = (world_pos.x + 1) / 2.0f * window_size.x + 0.5f;
+	float screen_y = (1 - world_pos.y) / 2.0f * window_size.y + 0.5f;
 
 	// Set origin to player, and change to cartesian coordinate system
 	float x = cursor_pos.x - screen_x;

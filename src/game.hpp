@@ -26,9 +26,8 @@ public:
 		return player->bullet_collision(*this, bullet_pos);
 	};
 
-	void window_resize_callback(float width, float height);
-	float get_window_width() const { return window_width; };
-	float get_window_height() const { return window_height; };
+	void window_resize_callback(int width, int height);
+	glm::ivec2 get_window_size() const { return window_size; };
 
 	void set_cursor_pos(glm::vec2 pos) { cursor_pos = pos; };
 	glm::vec2 get_cursor_pos() const { return cursor_pos; };
@@ -56,8 +55,7 @@ private:
 	std::unique_ptr<Map> map;
 	std::unique_ptr<Player> player;
 	GLFWwindow* window;
-	float window_width = 600.0f;
-	float window_height = 500.0f;
+	glm::ivec2 window_size = glm::ivec2(600, 500);
 };
 
 #endif // PANZERTOY_GAME_HPP

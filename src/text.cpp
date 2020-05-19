@@ -53,7 +53,7 @@ void Text::init_settings(TextSettings& settings) {
 	settings.uninitialized = false;
 }
 
-void Text::window_size(TextSettings& settings, float width, float height) {
+void Text::window_size(TextSettings& settings, int width, int height) {
 	FT_Set_Char_Size(settings.face, 0, 16*64, 0, height);
 
 	for (FT_ULong c = 32; c <= 125; ++c) {
@@ -106,7 +106,7 @@ void Text::draw(const TextSettings& settings) {
 	glBindVertexArray(0);
 }
 
-void Text::set_pos(const glm::vec2& pos) {
+void Text::set_pos(const glm::ivec2& pos) {
 	this->pos = pos;
 	dirty = true;
 }
