@@ -4,11 +4,16 @@
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
 
+/**
+ * @class Shader
+ *
+ * @brief Represents a shader program
+ */
 class Shader {
 public:
 	Shader() = default;
-	Shader(const char* vtx_path, const char* frag_path) { load(vtx_path, frag_path); };
-	void load(const char* vtx_path, const char* frag_path);
+	Shader(const char* vtx_path, const char* frag_path);
+	bool load(const char* vtx_path, const char* frag_path);
 	void use() const;
 	GLint get_uniform_location(const char* name) const;
 	void set_MVP(const glm::mat4& MVP) const;

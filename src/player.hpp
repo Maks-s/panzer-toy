@@ -8,6 +8,11 @@
 class Game;
 class GLFWwindow;
 
+/**
+ * @class Player
+ *
+ * @brief Tank controlled by the player
+ */
 class Player : public Tank {
 public:
 	using Tank::Tank;

@@ -9,40 +9,43 @@
 
 #include "shader.hpp"
 
-// @TODO: Use a texture atlas to draw text
+/**
+ * @brief Glyph with the texture loaded on the GPU
+ *
+ * @todo Use a texture atlas to draw text
+ */
 struct GlyphTexture {
 	GLuint id = 0;
 	float vertices[4][4] = {};
 	FT_Pos advance = 0;
 };
 
-struct TextSettings {
+struct TextRenderInfos {
 	FT_Library lib;
 	FT_Face face;
 	Shader shader;
 	glm::mat4 projection;
-	bool uninitialized = true;
 	std::unordered_map<char, GlyphTexture> glyph_list;
 	GLuint VAO, VBO, EBO;
 };
 
+/**
+ * @class Text
+ *
+ * @brief Represents a live 2D text on the screen
+ */
 class Text {
 public:
 	Text() = default;
-	Text(TextSettings& settings);
-	Text(TextSettings& settings, const std::string& text) : Text(settings) { set_text(text); };
+	Text(const std::string& text) { set_text(text); };
 
-	static void init_settings(TextSettings& settings);
-	static void window_size(TextSettings& settings, int width, int height);
+	static void init(TextRenderInfos& settings);
+	static void window_size(TextRenderInfos& settings, unsigned int width, unsigned int height);
 
-	void draw(const TextSettings& settings);
+	void draw(const TextRenderInfos& settings);
 
 	void set_text(const std::string& text) { this->text = text; };
-	std::string get_text() const { return text; };
-
 	void set_pos(const glm::ivec2& pos);
-	glm::ivec2 get_pos() const { return pos; };
-
 	void set_scale(float scale);
 	void set_color(const glm::vec3& color) { this->color = color; };
 
@@ -52,7 +55,7 @@ private:
 	float scale = 1.0f;
 	glm::ivec2 pos = glm::ivec2(0.0f);
 	glm::vec3 color = glm::vec3(1.0f);
-	glm::mat4 transform;
+	glm::mat4 transform; // Transformation matrix to apply to the text's vertices
 };
 
 #endif // PANZERTOY_TEXT_HPP

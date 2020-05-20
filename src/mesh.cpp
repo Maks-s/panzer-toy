@@ -42,7 +42,8 @@ void Mesh::draw(const Shader& shader) const {
 	int diffuse = 0;
 	int specular = 0;
 
-	for (int i = textures.size() - 1; i >= 0; --i) {
+	int textures_size = textures.size();
+	for (int i = 0; i < textures_size; ++i) {
 		std::string name = "texture";
 
 		switch (textures[i].type) {
@@ -58,7 +59,7 @@ void Mesh::draw(const Shader& shader) const {
 
 		glActiveTexture(GL_TEXTURE0 + i);
 
-		shader.set_uniform(shader.get_uniform_location(name.c_str()), i);
+		Shader::set_uniform(shader.get_uniform_location(name.c_str()), i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 
@@ -69,6 +70,7 @@ void Mesh::draw(const Shader& shader) const {
 	glActiveTexture(GL_TEXTURE0);
 }
 
+/** @brief Delete bound VAO, VBO and EBO */
 void Mesh::clear_gl() const {
 	glDeleteBuffers(1, &EBO);
 	glDeleteBuffers(1, &VBO);

@@ -3,6 +3,11 @@
 
 #include <glm/glm.hpp>
 
+/**
+ * @class Camera
+ *
+ * @brief Represent the player's point of view
+ */
 class Camera {
 public:
 	Camera() = default;
@@ -27,11 +32,9 @@ private:
 	glm::mat4 projection = glm::mat4(0.0f);
 	glm::vec3 pos = glm::vec3(0.0f);
 	glm::vec2 angle = glm::vec2(0.0f); // yaw, pitch
-	glm::mat4 VP = glm::mat4(0.0f); // projection * view, view isn't saved. See calculate_VP
+	glm::mat4 VP; /**< @see Camera::get_VP() */
 
 	bool dirty = true;
-
-	void calculate_VP();
 };
 
 #endif // PANZERTOY_CAMERA_HPP

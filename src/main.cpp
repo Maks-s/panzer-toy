@@ -10,8 +10,13 @@
 
 #include "game.hpp"
 
+/**
+ * @brief The almighty main
+ *
+ * cd to the executable directory, or keep the current one if we can't.
+ * This prevent issues with relative paths.
+ */
 int main() {
-	// cd to the executable directory
 	std::filesystem::path executable_path;
 
 	#ifdef _WIN32
@@ -31,7 +36,6 @@ int main() {
 		executable_path = std::filesystem::read_symlink("/proc/self/exe", code);
 
 		if (code.value() != 0) {
-			// Oh shit we don't know our path. Better keep the current one then
 			executable_path.clear();
 		}
 	#endif

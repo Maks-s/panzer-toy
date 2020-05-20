@@ -28,6 +28,7 @@ public:
 
 private:
 	GLuint VAO, VBO, EBO;
+	// @TODO: See if we can delete those
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 	std::vector<Texture> textures;

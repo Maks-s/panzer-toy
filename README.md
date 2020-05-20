@@ -19,6 +19,11 @@ You can find the binaries in panzertoy/build/bin
 
 Contributions are more than welcome :D
 
+## Contributing
+
+To contribute, your code needs to be compliant with the [C++ Core Guidelines](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md)
+(it doesn't need to follow it EXACTLY)
+
 ## Font used
 
 We're using the font [SquareFont](https://www.dafont.com/fr/squarefont.font) by [Bou Fonts](https://www.dafont.com/fr/agustin-bou.d1728) at the moment.

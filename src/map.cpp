@@ -14,56 +14,60 @@
 #include "enemy.hpp"
 
 /**
- * Map values :
- * 0 -> nothing (air)
- * 1 -> strong wall (unbreakable)
- * 2 -> weak wall (breakable)
- * 3 -> hole (diggy diggy hole)
- * 4 -> player
- * 5 -> enemy lvl 1
- * 5+i -> enemy lvl 1+i
- *
  * WARNING:
  * The map array is accessed with map[y][x], NOT map[x][y]
-**/
+ *
+ * TODO:
+ * Can't we change that ?
+ */
 
 namespace {
 	Model strong_wall;
 	Model map_mdl;
 }
 
-Map::Map() {
-	if (strong_wall.is_empty()) {
-		strong_wall.load("models/strong_wall.dae");
-	}
+void Map::init() {
+	strong_wall.load("models/strong_wall.dae");
 
-	if (map_mdl.is_empty()) {
-		map_mdl.load("models/map.dae");
-		map_mdl.set_pos(glm::vec3(7.55f, -0.0f, 10.5f));
+	map_mdl.load("models/map.dae");
+	map_mdl.set_pos(glm::vec3(7.55f, -0.0f, 10.5f));
+}
+
+Map::Map(int map_id) {
+	if (!load(map_id)) {
+		throw std::runtime_error("Error constructing Map");
 	}
 }
 
 void Map::process_object(int x, int y, MapObject type) {
 	if (static_cast<int>(type) >= 5) {
-		EnemyManager::create(glm::vec3(x, 0, y), static_cast<EnemyType>(type));
+		EnemyManager::create(glm::vec3(x, 0.0f, y), static_cast<EnemyType>(type));
 	}
 }
 
-// @TODO: Throwing should load menu
-void Map::load(int map_id, float time) {
+/**
+ * @brief Load a map file
+ *
+ * The map file is located in assets/map_<map_id>.txt
+ *
+ * @todo Throwing should load menu
+ */
+bool Map::load(int map_id) {
 	std::string filename = "assets/map_" + std::to_string(map_id) + ".txt";
 
 	std::ifstream file(filename);
 
 	if (!file.is_open()) {
-		throw std::fstream::failure("Could not open map file: " + filename);
+		Log::error("Could not open map file: ", filename);
+		return false;
 	}
 
 	bool required_ply_spawn = false;
 
 	for (int i=0; i < 16; ++i) {
 		if (file.eof()) {
-			throw std::runtime_error("Invalid map (not enough row): " + filename);
+			Log::error("Invalid map (not enough row): ", filename);
+			return false;
 		}
 
 		std::string line;
@@ -76,7 +80,8 @@ void Map::load(int map_id, float time) {
 		);
 
 		if (data.size() != 22) {
-			throw std::runtime_error("Invalid map (column number mismatch): " + filename);
+			Log::error("Invalid map (column number mismatch): ", filename);
+			return false;
 		}
 
 		for (int j=0; j < 22; ++j) {
@@ -87,7 +92,8 @@ void Map::load(int map_id, float time) {
 
 			if (stocked == MapObject::player) {
 				if (required_ply_spawn) {
-					throw std::runtime_error("Invalid map (more than one player spawn): " + filename);
+					Log::error("Invalid map (more than one player spawn): ", filename);
+					return false;
 				}
 
 				required_ply_spawn = true;
@@ -96,25 +102,27 @@ void Map::load(int map_id, float time) {
 	}
 
 	if (!required_ply_spawn) {
-		throw std::runtime_error("Invalid map (no player spawn): " + filename);
+		Log::error("Invalid map (no player spawn): ", filename);
+		return false;
 	}
 
 	if (EnemyManager::empty()) {
-		throw std::runtime_error("Invalid map (no enemy): " + filename);
+		Log::error("Invalid map (no enemy): ", filename);
+		return false;
 	}
 
-	EnemyManager::set_global_last_shoot_time(time);
 	this->map_id = map_id;
+
+	return true;
 }
 
-void Map::reset(float time) {
+/** @brief Restart the currently loaded map */
+void Map::restart() {
 	for (int i=0; i < 16; ++i) {
 		for (int j=0; j < 22; ++j) {
 			process_object(i, j, datamap[i][j]);
 		}
 	}
-
-	EnemyManager::set_global_last_shoot_time(time);
 }
 
 // @TODO: Use instancing
@@ -150,17 +158,23 @@ glm::vec3 Map::get_player_starting_pos() const {
 	return glm::vec3(0.0f);
 }
 
-// In "screen coordinates", x is y and z is x
+/**
+ * @brief Check if there was a collision
+ *
+ * @return MapCollision what bounding box's point collisionned with the map, or none
+ *
+ * @todo Make it dynamic
+ * @note In "screen coordinates", x is y and z is x
+ */
 MapCollision Map::collision_check(const glm::vec3& pos) const {
-	// Normal map bounds
+	// Outer map bounds
 	if (pos.x > 15.0f || pos.x < -0.25f) {
 		return MapCollision::up_or_down;
 	} else if (pos.z > 21.2f || pos.z < -0.1f) {
 		return MapCollision::right_or_left;
 	}
 
-	// Check if each point of the bounding box square is in a wall
-	// @TODO: Make it dynamic
+	// Check if each point of the bounding box is in a wall
 	int x = round(pos.z - 0.35f);
 	int y = round(pos.x - 0.35f);
 

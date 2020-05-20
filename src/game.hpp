@@ -13,6 +13,11 @@
 #include "sprite.hpp"
 #include "text.hpp"
 
+/**
+ * @class Game
+ *
+ * @brief I want to play a game.
+ */
 class Game {
 public:
 	Game();
@@ -20,13 +25,13 @@ public:
 	void run();
 	void close();
 	void finish_level();
-	void reset_level();
+	void restart_level();
 	void player_shoot() const;
 	bool player_bullet_collision(const glm::vec3& bullet_pos) {
 		return player->bullet_collision(*this, bullet_pos);
 	};
 
-	void window_resize_callback(int width, int height);
+	void window_resize_callback(unsigned int width, unsigned int height);
 	glm::ivec2 get_window_size() const { return window_size; };
 
 	void set_cursor_pos(glm::vec2 pos) { cursor_pos = pos; };
@@ -43,19 +48,23 @@ private:
 	float calculate_cursor_angle(const glm::mat4& VP) const;
 	void frame();
 
+	GLFWwindow* window;
+	glm::ivec2 window_size = glm::ivec2(600, 500);
+
 	Camera cam;
 	Shader base_shader;
 	Text text;
 	Sprite sprite;
-	TextSettings text_settings;
-	SpriteRenderInfo sprite_infos;
+
+	TextRenderInfos text_settings;
+	SpriteRenderInfos sprite_infos;
+
 	float current_time;
 	glm::vec2 cursor_pos;
+
 	// Instancing directly will segfault because OpenGL isn't initialised
 	std::unique_ptr<Map> map;
 	std::unique_ptr<Player> player;
-	GLFWwindow* window;
-	glm::ivec2 window_size = glm::ivec2(600, 500);
 };
 
 #endif // PANZERTOY_GAME_HPP

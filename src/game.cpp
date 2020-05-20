@@ -17,37 +17,33 @@
 #include "shader.hpp"
 #include "version.hpp"
 
-// @TODO: Make everything compliant with C++ Core Guidelines
-// @TODO: Document everything
-
-static void cursor_pos_callback(GLFWwindow* window, double x, double y) {
-	Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
-	game->set_cursor_pos(glm::vec2(x, y));
-}
-
-static void mouse_btn_callback(GLFWwindow* window, int btn, int action, int) {
-	Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
-
-	if (btn != GLFW_MOUSE_BUTTON_LEFT || action != GLFW_PRESS) {
-		return;
+namespace {
+	void cursor_pos_callback(GLFWwindow* window, double x, double y) {
+		Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
+		game->set_cursor_pos(glm::vec2(x, y));
 	}
 
-	game->player_shoot();
+	void mouse_btn_callback(GLFWwindow* window, int btn, int action, int) {
+		Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
+
+		if (btn != GLFW_MOUSE_BUTTON_LEFT || action != GLFW_PRESS) {
+			return;
+		}
+
+		game->player_shoot();
+	}
+
+	// @TODO: Add restrictions to resizing, to prevent the void
+	void resize_window_callback(GLFWwindow* window, int width, int height) {
+		Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
+
+		game->window_resize_callback(width, height);
+
+		glViewport(0, 0, width, height);
+	}
 }
 
-// @TODO: Add restrictions to resizing, to prevent the void
-static void resize_window_callback(GLFWwindow* window, int width, int height) {
-	Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
-
-	game->window_resize_callback(width, height);
-
-	glViewport(0, 0, width, height);
-}
-
-void Game::window_resize_callback(int width, int height) {
-	width = (width == 0) ? window_size.x : width;
-	height = (height == 0) ? window_size.y : height;
-
+void Game::window_resize_callback(unsigned int width, unsigned int height) {
 	float f_width = static_cast<float>(width);
 	float f_height = static_cast<float>(height);
 
@@ -62,9 +58,16 @@ void Game::window_resize_callback(int width, int height) {
 	Text::window_size(text_settings, width, height);
 }
 
+/**
+ * @brief Initialize everything that needs to be initialized
+ *
+ * Call all initializers of classes or namespaces
+ *
+ * @exception system_error::EINTR Error while initializing required components
+ */
 Game::Game() {
 	if (!glfwInit()) {
-		throw std::system_error(EINTR, std::generic_category(), "Error initialising GLFW");
+		throw std::system_error(EINTR, std::generic_category(), "Error initializing GLFW");
 	}
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -81,7 +84,7 @@ Game::Game() {
 	glfwSetCursorPosCallback(window, cursor_pos_callback);
 	glfwSetMouseButtonCallback(window, mouse_btn_callback);
 	glfwSetWindowSizeCallback(window, resize_window_callback);
-	glfwSwapInterval(1); // @TODO: Use delta time instead of this cheap trick
+	glfwSwapInterval(1); // @TODO: Use delta time and FPS counter instead of this cheap trick
 
 	if (gl3wInit()) {
 		glfwTerminate();
@@ -101,13 +104,16 @@ Game::Game() {
 
 	base_shader.load("vertex.glsl", "fragment.glsl");
 
+	EnemyManager::init();
+	Map::init();
 	Sprite::init(sprite_infos);
-	Text::init_settings(text_settings);
+	Tank::init();
+	Text::init(text_settings);
 
 	text.set_text("You're beautiful");
 	sprite.load("assets/sprite.png");
 
-	window_resize_callback(0, 0);
+	window_resize_callback(window_size.x, window_size.y);
 
 	// Set up the camera to be aligned with the map
 	cam.set_pos(glm::vec3(11.0f, 10.0f, 10.5f));
@@ -115,20 +121,27 @@ Game::Game() {
 
 	map = std::make_unique<Map>(0);
 	player = std::make_unique<Player>(map->get_player_starting_pos());
-
-	EnemyManager::init();
 }
 
+/** @brief Start main game loop */
 void Game::run() {
 	while (!glfwWindowShouldClose(window)) {
 		frame();
 	}
 }
 
+/** @brief Make the player shoot a bullet */
 void Game::player_shoot() const {
 	player->shoot(*this);
 }
 
+/**
+ * @brief Calculate cursor angle relative to player's position
+ *
+ * @param VP Camera's VP to calculate player's screen position
+ *
+ * @return Angle of the cursor relative to the player's position on the screen
+ */
 float Game::calculate_cursor_angle(const glm::mat4& VP) const {
 	// World coordinates to screen coordinates
 	glm::vec4 world_pos = VP * glm::vec4(player->get_pos(), 1.0f);
@@ -167,30 +180,40 @@ void Game::frame() {
 	glfwPollEvents();
 }
 
+/** @brief Finish level and switch to the next one */
 void Game::finish_level() {
 	BulletManager::clear();
 
-	try {
-		map->load(map->get_map_id() + 1, current_time);
-	} catch (const std::ios_base::failure) {
+	if (map->load(map->get_map_id() + 1)) {
+		EnemyManager::set_global_last_shoot_time(current_time);
+	} else {
 		Log::info("You finished the game, congratulations :D");
-		close();
-	} catch (const std::exception& e) {
-		Log::error(e.what());
 		close();
 	}
 
 	player->set_pos(map->get_player_starting_pos());
 }
 
-// @TODO: Lives and a nice Game Over screen
-void Game::reset_level() {
+/**
+ * @brief Restart the current level
+ *
+ * @todo Lives and a nice Game Over screen
+ */
+void Game::restart_level() {
+	const int map_id = map->get_map_id();
+
+	if (map_id == -1) {
+		Log::error("Trying to restart not loaded level");
+		return;
+	}
+
 	BulletManager::clear();
 	EnemyManager::clear();
-	map->reset(current_time);
+	map->restart();
 	player->set_pos(map->get_player_starting_pos());
 	player->set_base_angle(0.0f);
 	player->set_last_shoot_time(current_time);
+	EnemyManager::set_global_last_shoot_time(current_time);
 }
 
 void Game::close() {

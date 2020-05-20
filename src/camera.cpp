@@ -3,6 +3,11 @@
 
 #include "camera.hpp"
 
+/**
+ * @brief Set the ratio of the Camera
+ *
+ * Make the arena always centered and fully visible, regardless of the window's size
+ */
 void Camera::set_ratio(float ratio) {
 	dirty = true;
 
@@ -18,6 +23,13 @@ void Camera::set_ratio(float ratio) {
 	projection = glm::ortho(-width, width, -11.0f, 11.0f, 0.1f, 100.0f);
 }
 
+/**
+ * @brief Get the VP matrix, used in MVP calculation
+ *
+ * Recalculate it if it's dirty
+ *
+ * @return Matrix of Perspective * View
+ */
 glm::mat4 Camera::get_VP() {
 	if (dirty) {
 		dirty = false;

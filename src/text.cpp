@@ -7,15 +7,16 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "log.hpp"
 #include "text.hpp"
 #include "shader.hpp"
 
 namespace {
-	inline bool process_character(TextSettings& settings, char c);
+	inline bool process_character(TextRenderInfos& settings, char c);
 	const GLuint indices[6] = {0, 1, 2, 0, 2, 3};
 }
 
-void Text::init_settings(TextSettings& settings) {
+void Text::init(TextRenderInfos& settings) {
 	FT_Error error = FT_Init_FreeType(&settings.lib);
 
 	if (error) {
@@ -48,12 +49,17 @@ void Text::init_settings(TextSettings& settings) {
 
 	settings.shader.load("vertex_2d.glsl", "frag_greyscale.glsl");
 	settings.shader.use();
-	settings.shader.set_uniform(settings.shader.get_uniform_location("textureText"), (int)0);
-
-	settings.uninitialized = false;
+	Shader::set_uniform(settings.shader.get_uniform_location("textureText"), (int)0);
 }
 
-void Text::window_size(TextSettings& settings, int width, int height) {
+/**
+ * @brief Called when the window is resized
+ *
+ * @param[in,out] settings Settings to generate the glyphs to
+ * @param[in] width Window's width
+ * @param[in] height Window's height
+ */
+void Text::window_size(TextRenderInfos& settings, unsigned int width, unsigned int height) {
 	FT_Set_Char_Size(settings.face, 0, 16*64, 0, height);
 
 	for (FT_ULong c = 32; c <= 125; ++c) {
@@ -63,24 +69,14 @@ void Text::window_size(TextSettings& settings, int width, int height) {
 	}
 }
 
-Text::Text(TextSettings& settings) {
-	if (settings.uninitialized) {
-		init_settings(settings);
-	}
-}
-
-void Text::draw(const TextSettings& settings) {
-	if (settings.uninitialized) {
-		return;
-	}
-
+void Text::draw(const TextRenderInfos& settings) {
 	if (dirty) {
 		transform = glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, 0.0f));
 		transform = glm::scale(transform, glm::vec3(scale, scale, 1.0f));
 	}
 
 	settings.shader.use();
-	settings.shader.set_uniform(settings.shader.get_uniform_location("color"), color.r, color.g, color.b);
+	Shader::set_uniform(settings.shader.get_uniform_location("color"), color.r, color.g, color.b);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(settings.VAO);
@@ -117,7 +113,15 @@ void Text::set_scale(float scale) {
 }
 
 namespace {
-	inline bool process_character(TextSettings& settings, char c) {
+	/**
+	 * @brief Load the glyph corresponding to c into settings
+	 *
+	 * @param[in,out] settings TextRenderInfos to load the glyph from and to put the generated bitmap
+	 * @param[in] c The character to generate
+	 *
+	 * @return True if there was no error, false otherwise
+	 */
+	inline bool process_character(TextRenderInfos& settings, char c) {
 		FT_Error error = FT_Load_Char(settings.face, c, FT_LOAD_RENDER);
 
 		if (error) {
@@ -130,6 +134,7 @@ namespace {
 
 		GLuint texture_id;
 
+		// Use the existing texture id for this character if it exists, else generate a new one
 		auto result = settings.glyph_list.find(c);
 		if (result == settings.glyph_list.end()) {
 			glGenTextures(1, &texture_id);
@@ -155,7 +160,7 @@ namespace {
 		glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // Restaure unpack to default value
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // Restore unpack to default value
 
 		const float scale = 0.01f; // Letters are BIG, so we scale them down
 

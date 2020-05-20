@@ -4,6 +4,11 @@
 #include <iostream>
 #include <string>
 
+/**
+ * @namespace Log
+ *
+ * @brief Log text directly to console
+ */
 namespace Log {
 	template<typename T>
 	void error(T msg) {
@@ -29,7 +34,8 @@ namespace Log {
 
 	template<typename T>
 	void debug(T msg) {
-		std::clog << msg << std::endl; // Debug flush output buffer
+		// Flushes the output stream buffer, so we can see the debug message faster
+		std::clog << msg << std::endl;
 	}
 
 	template<typename T, typename... Args>

@@ -8,7 +8,11 @@
 #include "map.hpp"
 #include "player.hpp"
 
-// @TODO: Support controllers
+/**
+ * @brief Process input in relation to the player's movement
+ *
+ * @todo Support controllers
+ */
 void Player::handle_movement(const Game& game, GLFWwindow* window) {
 	bool w_pressed = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
 	bool a_pressed = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
@@ -19,13 +23,14 @@ void Player::handle_movement(const Game& game, GLFWwindow* window) {
 	const float half_pi = glm::half_pi<float>();
 	const float quarter_pi = glm::quarter_pi<float>();
 
+	// If no key is pressed or if opposites are
 	if (
 		(w_pressed && s_pressed)
 		|| (d_pressed && a_pressed)
 		|| !(w_pressed || a_pressed || s_pressed || d_pressed)
 		) {
 
-		tick();
+		tick_base_rotation();
 		return;
 	}
 
@@ -51,22 +56,28 @@ void Player::handle_movement(const Game& game, GLFWwindow* window) {
 		set_direction(pi);
 	}
 
-	if (get_remaining_steps() <= 0) {
+	if (get_rotation_steps_left() == 0) {
 		const float angle = get_base_angle();
 		const float speed = 0.03f;
 
-		glm::vec3 offset = glm::vec3(glm::sin(angle) * speed, 0.0f, glm::cos(angle) * speed);
+		const glm::vec3 offset = glm::vec3(glm::sin(angle) * speed, 0.0f, glm::cos(angle) * speed);
 		if (game.collision_check(get_pos() + offset) == MapCollision::none) {
 			move(offset);
 		}
 	}
 
-	tick();
+	tick_base_rotation();
 }
 
+/**
+ * @brief Check if a bullet hit the player
+ *
+ * @return True if it hit, false otherwise
+ */
 bool Player::bullet_collision(Game& game, const glm::vec3& bullet_pos) {
+	// Distance without sqrt, so it's faster but squared
 	if (glm::distance2(bullet_pos, get_pos()) < 0.16f) {
-		game.reset_level();
+		game.restart_level();
 		return true;
 	}
 

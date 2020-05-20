@@ -4,6 +4,7 @@
 
 #include "bullet.hpp"
 #include "map.hpp"
+#include "model.hpp"
 #include "shader.hpp"
 #include "tank.hpp"
 
@@ -13,30 +14,41 @@ namespace {
 	Model tank_base_mdl;
 }
 
-Tank::Tank() {
-	if (tank_top_mdl.is_empty()) {
-		tank_top_mdl.load("models/tank_top.dae");
-	}
-
-	if (tank_base_mdl.is_empty()) {
-		tank_base_mdl.load("models/tank_base.dae");
-	}
+void Tank::init() {
+	tank_top_mdl.load("models/tank_top.dae");
+	tank_base_mdl.load("models/tank_base.dae");
 }
 
+/** @brief Make the tank fire a bullet */
 void Tank::shoot(const Game& game) {
 	const float time = game.get_current_time();
-	if (time - last_shoot_time < 2.0f)
+	if (time - last_shoot_time < 2.0f) {
 		return;
+	}
 
 	const float offset = 0.8f;
-	glm::vec3 position(glm::sin(angle_top) * offset + pos.x, 0.0f, glm::cos(angle_top) * offset + pos.z);
+	glm::vec3 position(
+		glm::sin(angle_top) * offset + pos.x,
+		0.0f,
+		glm::cos(angle_top) * offset + pos.z
+	);
 
 	if (BulletManager::create(position, angle_top, game)) {
 		last_shoot_time = time;
 	}
 }
 
-int Tank::smooth_turn_angle(float from, float to, float speed, bool& clockwise_out) {
+/**
+ * @brief Calculate number of steps needed to rotate with the given speed
+ *
+ * @param[in] from Starting angle
+ * @param[in] to Final angle
+ * @param[in] speed Speed of the rotation, in rad/s
+ * @param[out] clockwise_out True if the rotation is clockwise, false otherwise
+ *
+ * @return Number of steps, with 1 step = 1/60 of a second
+ */
+int Tank::calculate_rotation_steps(float from, float to, float speed, bool& clockwise_out) {
 	from = glm::mod(from, 2*pi);
 	float distance = glm::abs(from - to);
 
@@ -59,8 +71,9 @@ int Tank::smooth_turn_angle(float from, float to, float speed, bool& clockwise_o
 	return glm::round(distance / speed);
 }
 
+/** @brief Set wanted direction */
 void Tank::set_direction(float direction) {
-	steps = smooth_turn_angle(angle_base, direction, speed, clockwise);
+	steps = calculate_rotation_steps(angle_base, direction, speed, clockwise);
 }
 
 void Tank::draw(const Shader& shader, const glm::mat4& VP) const {
@@ -75,7 +88,8 @@ void Tank::draw(const Shader& shader, const glm::mat4& VP) const {
 	tank_base_mdl.draw(shader, VP);
 }
 
-void Tank::tick() {
+/** @brief Make progress toward the wanted direction each tick */
+void Tank::tick_base_rotation() {
 	if (steps > 0) {
 		steps--;
 

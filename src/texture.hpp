@@ -5,14 +5,19 @@
 #include <GL/gl3w.h>
 #include <assimp/material.h>
 
+/** @brief Represents a Texture loaded on the GPU */
 struct Texture {
 	GLuint id = 0;
-	std::string path;
 	aiTextureType type = aiTextureType_NONE;
 	int height = 0;
 	int width = 0;
 };
 
+/**
+ * @brief Manage textures
+ *
+ * Makes sure to not load multiple times a texture already on the GPU
+ */
 namespace TextureManager {
 	Texture load_texture(
 		const std::string& filename,

@@ -3,19 +3,24 @@
 
 #include <glm/glm.hpp>
 
-#include "model.hpp"
-
 class Game;
 class Shader;
 
+/**
+ * @class Tank
+ *
+ * @brief Represent a tank on the map, be it the player's or an enemy
+ */
 class Tank {
 public:
-	Tank();
-	Tank(const glm::vec3& pos) : Tank() { this->pos = pos; };
+	Tank() = default;
+	Tank(const glm::vec3& _pos) : pos(_pos) {};
 	virtual ~Tank() = default;
 
+	static void init();
+
 	void shoot(const Game& game);
-	void tick();
+	void tick_base_rotation();
 	void draw(const Shader& shader, const glm::mat4& VP) const;
 
 	float get_last_shoot_time() const { return last_shoot_time; };
@@ -33,9 +38,11 @@ public:
 
 	// Indicate where the tank wants to turn
 	void set_direction(float new_direction);
-	int get_remaining_steps() const { return steps; };
+	int get_rotation_steps_left() const { return steps; };
 
-	static int smooth_turn_angle(float from, float to, float speed, bool& clockwise_out);
+	static int calculate_rotation_steps(float from, float to, float speed, bool& clockwise_out);
+
+protected:
 
 private:
 	glm::vec3 pos = glm::vec3(0.0f);

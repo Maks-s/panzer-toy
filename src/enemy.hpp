@@ -7,19 +7,45 @@
 class Game;
 class Shader;
 
+/**
+ * @enum EnemyType
+ *
+ * @brief Define identifiers for enemy types
+ *
+ * Identifiers are used in maps to spawn enemies.
+ * It must start at 5, because 0 to 4 are reserved by map objects
+ */
 enum class EnemyType : int {
 	basic = 5,
 	crazy = 6
 };
 
+/**
+ * @class Enemy
+ *
+ * @brief Abstract class for enemies
+ */
 class Enemy : public Tank {
 public:
 	using Tank::Tank;
 	virtual ~Enemy() = default;
 
+	/**
+	 * @brief AI Behavior
+	 *
+	 * This function is ran each frame to calculate what the enemy will do:
+	 * Turn, shoot, move...
+	 */
 	virtual void behavior(const Game&, const glm::vec3&) = 0;
 };
 
+/**
+ * @namespace EnemyManager
+ *
+ * @brief Manage enemies and enemies' AI
+ *
+ * Also manage collisions between enemies and bullets
+ */
 namespace EnemyManager {
 	void init();
 	void create(const glm::vec3& pos, EnemyType type);

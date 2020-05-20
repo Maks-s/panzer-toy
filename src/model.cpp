@@ -23,12 +23,9 @@ namespace {
 	std::unordered_map<std::string, std::weak_ptr<std::vector<Mesh>>> loaded_models;
 }
 
-static Mesh process_mesh(
-	aiMesh* mesh,
-	const aiScene* scene,
-	const aiMatrix4x4& transform,
-	const std::string& path
-);
+namespace {
+	Mesh process_mesh(aiMesh* mesh, const aiScene* scene, const std::string& path);
+}
 
 Model::Model(const std::string& path) {
 	if (!load(path)) {
@@ -46,7 +43,9 @@ Model::~Model() {
 	}
 }
 
-bool Model::load(std::string path) {
+/** @brief Load a COLLADA model file */
+bool Model::load(const std::string& path) {
+	// Use cached meshes if there's any for this file
 	const auto& iter = loaded_models.find(path);
 	if (iter != loaded_models.end()) {
 		meshes = iter->second.lock();
@@ -68,20 +67,15 @@ bool Model::load(std::string path) {
 	}
 
 	meshes = std::make_shared<std::vector<Mesh>>();
-	const auto& res = loaded_models.emplace(path, meshes);
 
-	this->path = path;
-
-	path = path.substr(0, path.find_last_of('/') + 1);
+	std::string path_dir = path.substr(0, path.find_last_of('/') + 1);
 
 	for (int i = scene->mNumMeshes - 1; i >= 0; --i) {
-		meshes->push_back(process_mesh(
-			scene->mMeshes[i],
-			scene,
-			scene->mRootNode->mTransformation,
-			path
-		));
+		meshes->push_back(process_mesh(scene->mMeshes[i], scene, path_dir));
 	}
+
+	loaded_models.emplace(path, meshes); // Cache meshes
+	this->path = path;
 
 	return true;
 }
@@ -129,66 +123,84 @@ void Model::rotate(float angle) {
 	dirty = true;
 }
 
-static void load_textures(
-		std::vector<Texture>& textures,
-		const std::string& path,
-		aiMaterial* mat,
-		aiTextureType type
-	) {
+namespace {
+	/**
+	 * @brief Load textures in a textures vector
+	 *
+	 * @param[out] textures The vector to put textures into
+	 * @param[in] path Directory path to where the textures are located
+	 * @param[in] mat The aiMaterial to get textures from
+	 * @param[in] type Type of textures wanted
+	 */
+	inline void load_textures(
+			std::vector<Texture>& textures,
+			const std::string& path,
+			aiMaterial* mat,
+			aiTextureType type
+		) {
 
-	for (int i = mat->GetTextureCount(type) - 1; i >= 0; --i) {
-		aiString str;
-		mat->GetTexture(type, i, &str);
+		for (int i = mat->GetTextureCount(type) - 1; i >= 0; --i) {
+			aiString str;
+			mat->GetTexture(type, i, &str);
 
-		textures.push_back(TextureManager::load_texture(path + str.C_Str(), type));
-	}
-}
-
-static Mesh process_mesh(
-		aiMesh* mesh,
-		const aiScene* scene,
-		const aiMatrix4x4& transform,
-		const std::string& path
-	) {
-
-	std::vector<Vertex> vertices;
-	std::vector<GLuint> indices;
-	std::vector<Texture> textures;
-
-	for (int i = mesh->mNumVertices - 1; i >= 0; --i) {
-		Vertex vtx;
-
-		aiVector3D pos = transform * mesh->mVertices[i];
-		aiVector3D normal = transform * mesh->mNormals[i];
-
-		vtx.pos = glm::vec3(pos.x, pos.y, pos.z);
-		vtx.normal = glm::vec3(normal.x, normal.y, normal.z);
-
-		if (mesh->mTextureCoords[0]) {
-			aiVector3D vec = mesh->mTextureCoords[0][i];
-			vtx.texCoords = glm::vec2(vec.x, vec.y);
-		} else {
-			vtx.texCoords = glm::vec2(0.0f, 0.0f);
-		}
-
-		vertices.push_back(vtx);
-	}
-
-	for (int i = mesh->mNumFaces - 1; i >= 0; --i) {
-		aiFace face = mesh->mFaces[i];
-
-		for (int j = face.mNumIndices - 1; j >= 0; --j) {
-			indices.push_back(face.mIndices[j]);
+			textures.push_back(TextureManager::load_texture(path + str.C_Str(), type));
 		}
 	}
 
-	aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
-	load_textures(textures, path, mat, aiTextureType_DIFFUSE);
-	load_textures(textures, path, mat, aiTextureType_SPECULAR);
+	/**
+	 * @brief Load a mesh and its components
+	 *
+	 * Components can include indices, vertices, normals...
+	 *
+	 * @param mesh The mesh to process
+	 * @param scene The scene where the mesh is located
+	 * @param path Path to the model file's directory
+	 *
+	 * @return Fully initialized Mesh object for the provided mesh
+	 */
+	Mesh process_mesh(aiMesh* mesh, const aiScene* scene, const std::string& path) {
+		std::vector<Vertex> vertices;
+		std::vector<GLuint> indices;
+		std::vector<Texture> textures;
 
-	if (textures.empty()) {
-		textures.push_back(TextureManager::load_texture("assets/missing_texture.png", aiTextureType_DIFFUSE));
+		for (int i = mesh->mNumVertices - 1; i >= 0; --i) {
+			Vertex vtx;
+
+			aiVector3D pos = scene->mRootNode->mTransformation * mesh->mVertices[i];
+			// @TODO: Remove normals
+			aiVector3D normal = scene->mRootNode->mTransformation * mesh->mNormals[i];
+
+			vtx.pos = glm::vec3(pos.x, pos.y, pos.z);
+			vtx.normal = glm::vec3(normal.x, normal.y, normal.z);
+
+			if (mesh->mTextureCoords[0]) { // if the mesh has textures
+				aiVector3D vec = mesh->mTextureCoords[0][i];
+				vtx.texCoords = glm::vec2(vec.x, vec.y);
+			} else {
+				vtx.texCoords = glm::vec2(0.0f, 0.0f);
+			}
+
+			vertices.push_back(vtx);
+		}
+
+		for (int i = mesh->mNumFaces - 1; i >= 0; --i) {
+			aiFace face = mesh->mFaces[i];
+
+			for (int j = face.mNumIndices - 1; j >= 0; --j) {
+				indices.push_back(face.mIndices[j]);
+			}
+		}
+
+		aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
+		load_textures(textures, path, mat, aiTextureType_DIFFUSE);
+		load_textures(textures, path, mat, aiTextureType_SPECULAR);
+
+		if (textures.empty()) {
+			textures.push_back(
+				TextureManager::load_texture("assets/missing_texture.png", aiTextureType_DIFFUSE)
+			);
+		}
+
+		return Mesh(vertices, indices, textures);
 	}
-
-	return Mesh(vertices, indices, textures);
 }

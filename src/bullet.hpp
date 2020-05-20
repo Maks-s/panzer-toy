@@ -14,6 +14,11 @@ struct Bullet {
 	int remaining_hit;
 };
 
+/**
+ * @namespace BulletManager
+ *
+ * @brief Manage bullets and bullets collision
+ */
 namespace BulletManager {
 	bool create(const glm::vec3& pos, float angle, const Game& game);
 	void frame(Game& game, const Shader& shader, const glm::mat4& VP);

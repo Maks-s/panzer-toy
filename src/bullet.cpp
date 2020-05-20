@@ -27,63 +27,70 @@ bool BulletManager::create(const glm::vec3& pos, float angle, const Game& game) 
 	}
 
 	const float speed = 0.2f;
-	Bullet bullet = {
-		.velocity = glm::vec3(glm::sin(angle) * speed, 0.0f, glm::cos(angle) * speed),
-		.position = pos,
-		.angle = angle,
-		.remaining_hit = 3,
-	};
+	Bullet bullet = {};
+	bullet.velocity = glm::vec3(glm::sin(angle) * speed, 0.0f, glm::cos(angle) * speed);
+	bullet.position = pos;
+	bullet.angle = angle;
+	bullet.remaining_hit = 3;
 
 	bullets.push_back(bullet);
 
 	return true;
 }
 
-// Return collision angle with the wall at its origin
-static float get_collision_angle(
-		const Game& game,
-		const glm::vec3& new_pos,
-		const glm::vec3& old_pos
-	) {
+namespace {
+	/**
+	 * @brief Get bullet angle relative to wall's origin
+	 *
+	 * @return Angle at which the bullet is, relative to the center of the wall
+	 * @retval -100.0f If there's no collision
+	 */
+	float get_collision_angle(
+			const Game& game,
+			const glm::vec3& new_pos,
+			const glm::vec3& old_pos
+		) {
 
-	MapCollision collision = game.collision_check(new_pos);
+		MapCollision collision = game.collision_check(new_pos);
 
-	if (collision == MapCollision::none) {
-		return -100.0f;
+		if (collision == MapCollision::none) {
+			return -100.0f;
+		}
+
+		if (collision == MapCollision::right_or_left) {
+			return 0.0f;
+		} else if (collision == MapCollision::up_or_down) {
+			return glm::pi<float>();
+		}
+
+		float x, y;
+
+		if (collision == MapCollision::upper_left || collision == MapCollision::bottom_left) {
+			x = round(new_pos.z - 0.35f);
+		} else {
+			x = round(new_pos.z + 0.35f);
+		}
+
+		if (collision == MapCollision::upper_left || collision == MapCollision::upper_right) {
+			y = round(new_pos.x - 0.35f);
+		} else {
+			y = round(new_pos.x + 0.35f);
+		}
+
+		x = old_pos.z - x;
+		y = old_pos.x - y;
+
+		return glm::atan(y, x);
 	}
 
-	if (collision == MapCollision::right_or_left) {
-		return 0.0f;
-	} else if (collision == MapCollision::up_or_down) {
-		return glm::pi<float>();
+	void draw(const Bullet& bullet, const Shader& shader, const glm::mat4& VP) {
+		bullet_mdl.set_angle(bullet.angle);
+		bullet_mdl.set_pos(bullet.position);
+		bullet_mdl.draw(shader, VP);
 	}
-
-	float x, y;
-
-	if (collision == MapCollision::upper_left || collision == MapCollision::bottom_left) {
-		x = round(new_pos.z - 0.35f);
-	} else {
-		x = round(new_pos.z + 0.35f);
-	}
-
-	if (collision == MapCollision::upper_left || collision == MapCollision::upper_right) {
-		y = round(new_pos.x - 0.35f);
-	} else {
-		y = round(new_pos.x + 0.35f);
-	}
-
-	x = old_pos.z - x;
-	y = old_pos.x - y;
-
-	return glm::atan(y, x);
 }
 
-static void draw(const Bullet& bullet, const Shader& shader, const glm::mat4& VP) {
-	bullet_mdl.set_angle(bullet.angle);
-	bullet_mdl.set_pos(bullet.position);
-	bullet_mdl.draw(shader, VP);
-}
-
+/** @brief Function called each frame */
 void BulletManager::frame(Game& game, const Shader& shader, const glm::mat4& VP) {
 	for (auto bullet = bullets.begin(); bullet != bullets.end(); ++bullet) {
 		glm::vec3 new_pos = bullet->position + bullet->velocity;
@@ -113,7 +120,7 @@ void BulletManager::frame(Game& game, const Shader& shader, const glm::mat4& VP)
 			continue;
 		}
 
-		// Check if the bullet hit the wall from right or left
+		// Check if the bullet hit the wall right/left or up/down
 		const float pi = glm::pi<float>();
 		const float pi_4 = glm::quarter_pi<float>();
 		if (
@@ -122,9 +129,9 @@ void BulletManager::frame(Game& game, const Shader& shader, const glm::mat4& VP)
 			|| (angle > pi-pi_4 && angle < pi)
 			) {
 
-			bullet->velocity.z *= -1.0f;
+			bullet->velocity.z *= -1.0f; // right/left
 		} else {
-			bullet->velocity.x *= -1.0f;
+			bullet->velocity.x *= -1.0f; // up/down
 		}
 
 		bullet->angle = glm::atan(bullet->velocity.x, bullet->velocity.z);

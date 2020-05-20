@@ -6,10 +6,10 @@
 #include "sprite.hpp"
 
 namespace {
-	const GLuint indices[6] = {0, 1, 2, 0, 2, 3};
+	const GLuint indices[6] = {0, 1, 2, 0, 2, 3}; // Indices used to draw a rectangle
 }
 
-void Sprite::init(SpriteRenderInfo& infos) {
+void Sprite::init(SpriteRenderInfos& infos) {
 	glGenVertexArrays(1, &infos.VAO);
 	glBindVertexArray(infos.VAO);
 
@@ -28,21 +28,18 @@ void Sprite::init(SpriteRenderInfo& infos) {
 
 	infos.shader.load("vertex_2d.glsl", "fragment.glsl");
 	infos.shader.use();
-	infos.shader.set_uniform(infos.shader.get_uniform_location("textureDiffuse0"), (int)0);
 
-	infos.uninitialized = false;
+	// It's a sprite, so we only have one texture: GL_TEXTURE0
+	Shader::set_uniform(infos.shader.get_uniform_location("textureDiffuse0"), (int)0);
 }
 
+/** @brief Load a sprite */
 void Sprite::load(const std::string& filename) {
 	texture = TextureManager::load_texture(filename);
 	size = glm::ivec2(texture.width, texture.height);
 }
 
-bool Sprite::draw(SpriteRenderInfo& infos) {
-	if (infos.uninitialized) {
-		return false;
-	}
-
+bool Sprite::draw(SpriteRenderInfos& infos) {
 	if (dirty) {
 		calculate_vertices();
 		dirty = false;
@@ -67,12 +64,17 @@ void Sprite::set_pos(const glm::ivec2& pos) {
 	dirty = true;
 }
 
+/**
+ * @brief Set size
+ *
+ * @param size If a value is 0 or less, it will keep the current one
+ */
 void Sprite::set_size(glm::ivec2 size) {
-	if (size.x == 0) {
+	if (size.x <= 0) {
 		size.x = this->size.x;
 	}
 
-	if (size.y == 0) {
+	if (size.y <= 0) {
 		size.y = this->size.y;
 	}
 

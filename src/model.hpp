@@ -12,14 +12,19 @@
 
 class Shader;
 
+/**
+ * @class Model
+ *
+ * @brief Represents a drawable and textured Model
+ */
 class Model {
 public:
 	Model() = default;
 	Model(const std::string& path);
-	virtual ~Model();
+	~Model();
 
-	virtual bool load(std::string path);
-	virtual void draw(const Shader& shader, const glm::mat4& VP);
+	bool load(const std::string& path);
+	void draw(const Shader& shader, const glm::mat4& VP);
 
 	glm::vec3 get_pos() const { return pos; };
 	void set_pos(const glm::vec3& pos);
@@ -34,10 +39,10 @@ public:
 private:
 	std::string path;
 	std::shared_ptr<std::vector<Mesh>> meshes;
-	glm::mat4 model_mat = glm::mat4(0.0f);
+	glm::mat4 model_mat;
 	glm::vec3 pos = glm::vec3(0.0f);
 	float angle = 0.0f;
-	bool dirty = false;
+	bool dirty = true;
 };
 
 #endif // PANZERTOY_MODEL_HPP

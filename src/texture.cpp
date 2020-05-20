@@ -1,5 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <stb_image.h>
 #include <GL/gl3w.h>
@@ -9,20 +10,16 @@
 #include "texture.hpp"
 
 namespace {
-	std::vector<Texture> loaded_textures;
+	std::unordered_map<std::string, Texture> loaded_textures;
 }
 
 Texture TextureManager::load_texture(const std::string& filename, aiTextureType type, bool flip) {
-	for (const auto& texture : loaded_textures) {
-		if (texture.path == filename) {
-			return texture;
-		}
+	Texture texture = get_texture(filename);
+	if (texture.id != 0) {
+		return texture;
 	}
 
-	Texture texture = {
-		.path = filename,
-		.type = type,
-	};
+	texture.type = type;
 
 	stbi_set_flip_vertically_on_load(flip);
 
@@ -64,27 +61,16 @@ Texture TextureManager::load_texture(const std::string& filename, aiTextureType 
 	texture.id = id;
 	texture.width = width;
 	texture.height = height;
-	loaded_textures.push_back(texture);
+	loaded_textures.emplace(filename, texture);
 
 	return texture;
 }
 
 Texture TextureManager::get_texture(const std::string& filename) {
-	for (const auto& texture : loaded_textures) {
-		if (texture.path == filename) {
-			return texture;
-		}
+	auto result = loaded_textures.find(filename);
+	if (result != loaded_textures.end()) {
+		return result->second;
 	}
 
-	return Texture(); // Invalid texture
-}
-
-Texture TextureManager::get_texture(GLuint id) {
-	for (const auto& texture : loaded_textures) {
-		if (texture.id == id) {
-			return texture;
-		}
-	}
-
-	return Texture();
+	return Texture{}; // Invalid texture
 }

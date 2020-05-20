@@ -9,9 +9,23 @@
 #include "shader.hpp"
 #include "log.hpp"
 
-static std::string readfile(const std::string& filename);
+namespace {
+	std::string readfile(const std::string& filename);
+}
 
-void Shader::load(const char* vtx_path, const char* frag_path) {
+Shader::Shader(const char* vtx_path, const char* frag_path) {
+	if (!load(vtx_path, frag_path)) {
+		throw std::runtime_error("Error constructing Shader");
+	}
+}
+
+/**
+ * @brief Initialize a shader program with the provided shader files
+ *
+ * @param vtx_path Path to the vertex shader
+ * @param frag_path Path to the fragment shader
+ */
+bool Shader::load(const char* vtx_path, const char* frag_path) {
 	GLuint vtx_shader = glCreateShader(GL_VERTEX_SHADER);
 	GLuint frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -33,13 +47,15 @@ void Shader::load(const char* vtx_path, const char* frag_path) {
 	if (!vtx_success) {
 		char info[512];
 		glGetShaderInfoLog(vtx_shader, 512, nullptr, info);
-		throw std::runtime_error((std::string)"Error compiling vertex shader: \n" + info);
+		Log::error("Error compiling vertex shader: \n", info);
+		return false;
 	}
 
 	if (!frag_success) {
 		char info[512];
 		glGetShaderInfoLog(frag_shader, 512, nullptr, info);
-		throw std::runtime_error((std::string)"Error compiling fragment shader: \n" + info);
+		Log::error("Error compiling fragment shader: \n", info);
+		return false;
 	}
 
 	glProgram = glCreateProgram();
@@ -52,7 +68,8 @@ void Shader::load(const char* vtx_path, const char* frag_path) {
 	if (!prog_success) {
 		char info[512];
 		glGetProgramInfoLog(glProgram, 512, nullptr, info);
-		throw std::runtime_error((std::string)"Error linking shaders: \n" + info);
+		Log::error("Error linking shaders: \n", info);
+		return false;
 	}
 
 	glDeleteShader(vtx_shader);
@@ -60,8 +77,11 @@ void Shader::load(const char* vtx_path, const char* frag_path) {
 
 	uniform_MVP = glGetUniformLocation(glProgram, "MVP");
 	if (uniform_MVP == -1) {
-		throw std::runtime_error((std::string)"No MVP uniform in shader: " + vtx_path);
+		Log::error("No MVP uniform in shader: ", vtx_path);
+		return false;
 	}
+
+	return true;
 }
 
 void Shader::use() const {
@@ -77,23 +97,25 @@ void Shader::set_MVP(const glm::mat4& MVP) const {
 	set_uniform(uniform_MVP, MVP);
 }
 
-static std::string readfile(const std::string& filename) {
-	std::ifstream shaderfile("shaders/" + filename, std::ios::ate);
+namespace {
+	std::string readfile(const std::string& filename) {
+		std::ifstream shaderfile("shaders/" + filename, std::ios::ate);
 
-	if (!shaderfile.is_open()) {
-		Log::error("Error opening file: ", filename);
-		return "";
+		if (!shaderfile.is_open()) {
+			Log::error("Error opening file: ", filename);
+			return "";
+		}
+
+		size_t size = shaderfile.tellg();
+		shaderfile.seekg(0, std::ios::beg);
+
+		std::string content(size, '\0');
+		shaderfile.read(&content[0], size);
+
+		shaderfile.close();
+
+		return content;
 	}
-
-	size_t size = shaderfile.tellg();
-	shaderfile.seekg(0, std::ios::beg);
-
-	std::string content(size, '\0');
-	shaderfile.read(&content[0], size);
-
-	shaderfile.close();
-
-	return content;
 }
 
 void Shader::set_uniform(GLint location, float f) {
