@@ -57,6 +57,21 @@ target_link_libraries(PanzerToy assimp freetype gl3w glfw glm)
 target_include_directories(PanzerToy PUBLIC ${PROJECT_BINARY_DIR}/src)
 target_include_directories(PanzerToy PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
+target_compile_options(PanzerToy PUBLIC
+	$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+		-Wall>
+	$<$<CXX_COMPILER_ID:MSVC>:
+		/W4>
+)
+
+# Treat warnings as errors only in Release mode
+target_compile_options(PanzerToy PUBLIC
+	$<$<AND:$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>,$<STREQUAL:CMAKE_BUILD_TYPE,Release>>:
+		-Werror>
+	$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<STREQUAL:CMAKE_BUILD_TYPE,Release>>:
+		/WX>
+)
+
 install(TARGETS PanzerToy RUNTIME DESTINATION ${PROJECT_BINARY_DIR}/bin)
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/assets DESTINATION ${PROJECT_BINARY_DIR}/bin)
