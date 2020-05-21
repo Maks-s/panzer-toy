@@ -167,11 +167,8 @@ namespace {
 			Vertex vtx;
 
 			aiVector3D pos = scene->mRootNode->mTransformation * mesh->mVertices[i];
-			// @TODO: Remove normals
-			aiVector3D normal = scene->mRootNode->mTransformation * mesh->mNormals[i];
 
 			vtx.pos = glm::vec3(pos.x, pos.y, pos.z);
-			vtx.normal = glm::vec3(normal.x, normal.y, normal.z);
 
 			if (mesh->mTextureCoords[0]) { // if the mesh has textures
 				aiVector3D vec = mesh->mTextureCoords[0][i];

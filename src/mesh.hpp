@@ -11,7 +11,6 @@ class Shader;
 
 struct Vertex {
 	glm::vec3 pos;
-	glm::vec3 normal;
 	glm::vec2 texCoords;
 };
 
@@ -28,9 +27,7 @@ public:
 
 private:
 	GLuint VAO, VBO, EBO;
-	// @TODO: See if we can delete those
-	std::vector<Vertex> vertices;
-	std::vector<GLuint> indices;
+	size_t indice_count;
 	std::vector<Texture> textures;
 };
 
