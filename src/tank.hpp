@@ -20,7 +20,7 @@ public:
 	static void init();
 
 	void shoot(const Game& game);
-	void tick_base_rotation();
+	void tick_base_rotation(float delta_time);
 	void draw(const Shader& shader, const glm::mat4& VP) const;
 
 	float get_last_shoot_time() const { return last_shoot_time; };
@@ -38,20 +38,17 @@ public:
 
 	// Indicate where the tank wants to turn
 	void set_direction(float new_direction);
-	int get_rotation_steps_left() const { return steps; };
+	float get_remaining_angle() const { return remaining_angle; };
 
-	static int calculate_rotation_steps(float from, float to, float speed, bool& clockwise_out);
-
-protected:
+	static float calculate_turn_angle(float from, float to);
 
 private:
 	glm::vec3 pos = glm::vec3(0.0f);
 	float angle_base = 0.0f;
 	float angle_top = 0.0f;
 	float last_shoot_time = 0.0f;
-	float speed = 0.06f; // How much radians to turn in 1/60s
-	int steps = 0; // Steps before finishing turning
-	bool clockwise = false;
+	const float speed = 3.6f; // How much radians to turn in 1s
+	float remaining_angle = 0.0f; // Remaining angle to turn
 };
 
 #endif // PANZERTOY_TANK_HPP

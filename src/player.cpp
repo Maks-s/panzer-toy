@@ -23,6 +23,8 @@ void Player::handle_movement(const Game& game, GLFWwindow* window) {
 	const float half_pi = glm::half_pi<float>();
 	const float quarter_pi = glm::quarter_pi<float>();
 
+	tick_base_rotation(game.get_delta_time());
+
 	// If no key is pressed or if opposites are
 	if (
 		(w_pressed && s_pressed)
@@ -30,7 +32,6 @@ void Player::handle_movement(const Game& game, GLFWwindow* window) {
 		|| !(w_pressed || a_pressed || s_pressed || d_pressed)
 		) {
 
-		tick_base_rotation();
 		return;
 	}
 
@@ -56,17 +57,15 @@ void Player::handle_movement(const Game& game, GLFWwindow* window) {
 		set_direction(pi);
 	}
 
-	if (get_rotation_steps_left() == 0) {
+	if (get_remaining_angle() == 0.0f) {
 		const float angle = get_base_angle();
-		const float speed = 0.03f;
+		const float speed = 1.8f * game.get_delta_time(); // 1.8 is player's movement speed
 
 		const glm::vec3 offset = glm::vec3(glm::sin(angle) * speed, 0.0f, glm::cos(angle) * speed);
 		if (game.collision_check(get_pos() + offset) == MapCollision::none) {
 			move(offset);
 		}
 	}
-
-	tick_base_rotation();
 }
 
 /**

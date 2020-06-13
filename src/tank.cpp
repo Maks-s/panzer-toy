@@ -3,6 +3,7 @@
 #include <glm/gtc/constants.hpp>
 
 #include "bullet.hpp"
+#include "log.hpp"
 #include "map.hpp"
 #include "model.hpp"
 #include "shader.hpp"
@@ -39,41 +40,35 @@ void Tank::shoot(const Game& game) {
 }
 
 /**
- * @brief Calculate number of steps needed to rotate with the given speed
+ * @brief Calculate angle to turn to go from "from" to "to" (africa)
  *
- * @param[in] from Starting angle
- * @param[in] to Final angle
- * @param[in] speed Speed of the rotation, in rad/s
- * @param[out] clockwise_out True if the rotation is clockwise, false otherwise
+ * @param from Starting angle
+ * @param to Final angle
  *
- * @return Number of steps, with 1 step = 1/60 of a second
+ * @return Rotation angle
  */
-int Tank::calculate_rotation_steps(float from, float to, float speed, bool& clockwise_out) {
+float Tank::calculate_turn_angle(float from, float to) {
 	from = glm::mod(from, 2*pi);
 	float distance = glm::abs(from - to);
 
 	if (to > from) {
 		if (distance > pi) {
-			clockwise_out = true;
-			distance = from + 2 * pi - to;
-		} else {
-			clockwise_out = false;
+			distance = -(2 * pi + from - to);
 		}
 	} else {
 		if (distance > pi) {
-			clockwise_out = false;
-			distance = to + 2 * pi - from;
+			distance = (2 * pi + to - from);
 		} else {
-			clockwise_out = true;
+			distance = -distance;
 		}
 	}
 
-	return glm::round(distance / speed);
+	return distance;
 }
 
 /** @brief Set wanted direction */
 void Tank::set_direction(float direction) {
-	steps = calculate_rotation_steps(angle_base, direction, speed, clockwise);
+	remaining_angle = calculate_turn_angle(angle_base, direction);
 }
 
 void Tank::draw(const Shader& shader, const glm::mat4& VP) const {
@@ -89,14 +84,20 @@ void Tank::draw(const Shader& shader, const glm::mat4& VP) const {
 }
 
 /** @brief Make progress toward the wanted direction each tick */
-void Tank::tick_base_rotation() {
-	if (steps > 0) {
-		steps--;
+void Tank::tick_base_rotation(float delta_time) {
+	if (remaining_angle != 0.0f) {
+		const float sign = glm::sign(remaining_angle);
+		float offset = sign * speed * delta_time;
 
-		if (clockwise) {
-			angle_base -= speed;
-		} else {
-			angle_base += speed;
+		remaining_angle -= offset;
+
+		// Prevent exceeding target angle
+		if ((sign == 1.0f && remaining_angle < 0.0f) || (sign == -1.0f && remaining_angle > 0.0f)) {
+			offset += remaining_angle;
+			remaining_angle = 0.0f;
 		}
+
+		angle_base += offset;
+		angle_base = glm::mod(angle_base, 2*pi);
 	}
 }

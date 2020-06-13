@@ -26,7 +26,7 @@ bool BulletManager::create(const glm::vec3& pos, float angle, const Game& game) 
 		return false;
 	}
 
-	const float speed = 0.2f;
+	const float speed = 12.0f;
 	Bullet bullet = {};
 	bullet.velocity = glm::vec3(glm::sin(angle) * speed, 0.0f, glm::cos(angle) * speed);
 	bullet.position = pos;
@@ -93,7 +93,7 @@ namespace {
 /** @brief Function called each frame */
 void BulletManager::frame(Game& game, const Shader& shader, const glm::mat4& VP) {
 	for (auto bullet = bullets.begin(); bullet != bullets.end(); ++bullet) {
-		glm::vec3 new_pos = bullet->position + bullet->velocity;
+		glm::vec3 new_pos = bullet->position + bullet->velocity * game.get_delta_time();
 
 		if (game.player_bullet_collision(new_pos)) {
 			return; // Game has been reset, return
@@ -115,7 +115,7 @@ void BulletManager::frame(Game& game, const Shader& shader, const glm::mat4& VP)
 			continue;
 		}
 
-		if (!bullet->remaining_hit--) {
+		if (bullet->remaining_hit-- <= 0) {
 			bullet = bullets.erase(bullet) - 1;
 			continue;
 		}

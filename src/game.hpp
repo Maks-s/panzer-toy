@@ -31,6 +31,8 @@ public:
 		return player->bullet_collision(*this, bullet_pos);
 	};
 
+	float get_delta_time() const { return delta_time; };
+
 	void window_resize_callback(unsigned int width, unsigned int height);
 	glm::ivec2 get_window_size() const { return window_size; };
 
@@ -59,6 +61,9 @@ private:
 	TextRenderInfos text_settings;
 	SpriteRenderInfos sprite_infos;
 
+	float delta_time = 0.0f;
+	float last_render_time = 0.0f;
+	float last_fps_update = 0.0f;
 	float current_time;
 	glm::vec2 cursor_pos;
 

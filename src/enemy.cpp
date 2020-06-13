@@ -6,6 +6,7 @@
 
 #include "enemy.hpp"
 #include "game.hpp"
+#include "log.hpp"
 #include "shader.hpp"
 
 namespace {
@@ -48,27 +49,37 @@ public:
 	using Enemy::Enemy;
 
 	void behavior(const Game& game, const glm::vec3&) {
-		if (--steps <= 0) {
-			steps = calculate_rotation_steps(get_top_angle(), rdm() % 6, speed, clockwise);
+		if (remaining_angle == 0.0f) {
+			remaining_angle = calculate_turn_angle(
+				get_top_angle(),
+				static_cast<int>(rdm()) % 6 - 3 // [-3; 3]
+			);
 		} else {
-			float new_angle;
-			if (clockwise) {
-				new_angle = get_top_angle() + speed;
-			} else {
-				new_angle = get_top_angle() - speed;
+			const float sign = glm::sign(remaining_angle);
+			float offset = sign * speed * game.get_delta_time();
+
+			remaining_angle -= offset;
+
+			// Prevent exceeding target angle
+			if (
+				(sign == 1.0f && remaining_angle < 0.0f)
+				|| (sign == -1.0f && remaining_angle > 0.0f)
+				) {
+				offset += remaining_angle;
+				remaining_angle = 0.0f;
 			}
+
+			const float new_angle = get_top_angle() + offset;
 
 			set_top_angle(new_angle);
 		}
 
 		shoot(game);
-		tick_base_rotation();
 	}
 
 private:
-	int steps = 0;
-	bool clockwise = false; // Turn clockwise or counterclockwise
-	const float speed = 0.1f;
+	float remaining_angle = 0.0f; /**< @see Tank::remaining_angle */
+	const float speed = 5.0f;
 };
 
 void EnemyManager::init() {

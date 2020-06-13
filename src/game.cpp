@@ -1,6 +1,7 @@
 #include <ios>
-#include <system_error>
 #include <memory>
+#include <string>
+#include <system_error>
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -84,7 +85,7 @@ Game::Game() {
 	glfwSetCursorPosCallback(window, cursor_pos_callback);
 	glfwSetMouseButtonCallback(window, mouse_btn_callback);
 	glfwSetWindowSizeCallback(window, resize_window_callback);
-	glfwSwapInterval(1); // @TODO: Use delta time and FPS counter instead of this cheap trick
+	glfwSwapInterval(0); // Disable VSync for accurate FPS
 
 	if (gl3wInit()) {
 		glfwTerminate();
@@ -111,6 +112,7 @@ Game::Game() {
 	Text::init(text_settings);
 
 	text.set_text("You're beautiful");
+	text.set_scale(0.5f);
 	sprite.load("assets/sprite.png");
 
 	window_resize_callback(window_size.x, window_size.y);
@@ -162,6 +164,13 @@ void Game::frame() {
 	current_time = glfwGetTime();
 	base_shader.use();
 
+	delta_time = current_time - last_render_time;
+	if (delta_time > 0.0833333f) {
+		// We limit delta_time to 1/12 of a second, otherwise bullets could go
+		// through walls, and I'm too lazy to implement Continuous Collision Detection
+		delta_time = 0.0833333f;
+	}
+
 	// WASD / ZQSD controls
 	player->handle_movement(*this, window);
 
@@ -173,8 +182,16 @@ void Game::frame() {
 	player->draw(base_shader, VP);
 	map->draw(base_shader, VP);
 
+	if (current_time - last_fps_update > 1.0f) {
+		float fps = 1.0f / (current_time - last_render_time);
+		text.set_text("FPS: " + std::to_string(fps));
+		last_fps_update = current_time;
+	}
+
 	text.draw(text_settings);
 	sprite.draw(sprite_infos);
+
+	last_render_time = current_time;
 
 	glfwSwapBuffers(window);
 	glfwPollEvents();
