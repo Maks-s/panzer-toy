@@ -16,9 +16,6 @@
 /**
  * WARNING:
  * The map array is accessed with map[y][x], NOT map[x][y]
- *
- * TODO:
- * Can't we change that ?
  */
 
 namespace {
@@ -125,7 +122,6 @@ void Map::restart() {
 	}
 }
 
-// @TODO: Use instancing
 void Map::draw(const Shader& shader, const glm::mat4& VP) const {
 	map_mdl.draw(shader, VP);
 
