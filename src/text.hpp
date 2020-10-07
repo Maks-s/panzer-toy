@@ -30,6 +30,15 @@ struct TextRenderInfos {
 };
 
 /**
+ * @brief Text flags to control the behavior of the Text object
+ *
+ * @property TextFlags::CENTER_TEXT Center the text relative to its x pos
+ */
+enum TextFlags : short {
+	CENTER_TEXT = 0b01
+};
+
+/**
  * @class Text
  *
  * @brief Represents a live 2D text on the screen
@@ -37,24 +46,36 @@ struct TextRenderInfos {
 class Text {
 public:
 	Text() = default;
+	Text(TextRenderInfos* infos) { set_text_render(infos); };
 	Text(const std::string& text) { set_text(text); };
 
 	static void init(TextRenderInfos& settings);
 	static void window_size(TextRenderInfos& settings, unsigned int width, unsigned int height);
 
-	void draw(const TextRenderInfos& settings);
+	void draw();
 
-	void set_text(const std::string& text) { this->text = text; };
+	int get_width() const { return width; };
+	glm::vec2 get_pos() const { return pos; };
 	void set_pos(const glm::ivec2& pos);
+
+	void set_text_render(TextRenderInfos* infos) { settings = infos; };
+	void set_text(const std::string& text);
 	void set_scale(float scale);
 	void set_color(const glm::vec3& color) { this->color = color; };
+	void set_flags(short flags) { this->flags = flags; };
 
 private:
+	void calculate_width();
+
 	bool dirty = true;
 	std::string text;
 	float scale = 1.0f;
-	glm::ivec2 pos = glm::ivec2(0.0f);
+	short flags = 0b00;
+	FT_Pos width = 0;
+	FT_Pos last_glyph_width = 0;
+	TextRenderInfos* settings = nullptr;
 	glm::vec3 color = glm::vec3(1.0f);
+	glm::ivec2 pos = glm::ivec2(0); // @TODO: Indicate what is the pos point
 	glm::mat4 transform; // Transformation matrix to apply to the text's vertices
 };
 

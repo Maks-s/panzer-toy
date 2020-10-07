@@ -39,7 +39,7 @@ void Sprite::load(const std::string& filename) {
 	size = glm::ivec2(texture.width, texture.height);
 }
 
-bool Sprite::draw(SpriteRenderInfos& infos) {
+void Sprite::draw(SpriteRenderInfos& infos) {
 	if (dirty) {
 		calculate_vertices();
 		dirty = false;
@@ -55,8 +55,6 @@ bool Sprite::draw(SpriteRenderInfos& infos) {
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-	return true;
 }
 
 void Sprite::set_pos(const glm::ivec2& pos) {

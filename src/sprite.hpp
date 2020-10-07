@@ -24,8 +24,9 @@ public:
 
 	static void init(SpriteRenderInfos& infos);
 
+	// @TODO: Make a pointer to SpriteRenderInfos
 	void load(const std::string& filename);
-	bool draw(SpriteRenderInfos& infos);
+	void draw(SpriteRenderInfos& infos);
 
 	void set_pos(const glm::ivec2& pos);
 	void set_size(glm::ivec2 size);

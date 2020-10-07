@@ -24,8 +24,9 @@ public:
 	~Game();
 	void run();
 	void close();
-	void finish_level();
+	void load_level(int id);
 	void restart_level();
+	void finish_level();
 	void player_shoot() const;
 	bool player_bullet_collision(const glm::vec3& bullet_pos) {
 		return player->bullet_collision(*this, bullet_pos);
@@ -51,15 +52,14 @@ private:
 	void frame();
 
 	GLFWwindow* window;
-	glm::ivec2 window_size = glm::ivec2(600, 500);
+	glm::uvec2 window_size = glm::uvec2(600, 500);
 
 	Camera cam;
 	Shader base_shader;
-	Text text;
-	Sprite sprite;
+	Text fps_counter;
 
-	TextRenderInfos text_settings;
-	SpriteRenderInfos sprite_infos;
+	TextRenderInfos text_render;
+	SpriteRenderInfos sprite_render;
 
 	float delta_time = 0.0f;
 	float last_render_time = 0.0f;

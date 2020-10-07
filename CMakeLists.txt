@@ -48,13 +48,14 @@ set(SRC_FILES
 	src/tank.cpp
 	src/text.cpp
 	src/texture.cpp
+	# src/menu/button.cpp
 )
 
 add_executable(PanzerToy ${SRC_FILES})
 
 target_link_libraries(PanzerToy assimp freetype gl3w glfw glm)
 
-target_include_directories(PanzerToy PUBLIC ${PROJECT_BINARY_DIR}/src)
+target_include_directories(PanzerToy PUBLIC ${PROJECT_BINARY_DIR}/src) # Include version.hpp
 target_include_directories(PanzerToy PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 target_compile_options(PanzerToy PUBLIC
@@ -72,8 +73,48 @@ target_compile_options(PanzerToy PUBLIC
 		/WX>
 )
 
-install(TARGETS PanzerToy RUNTIME DESTINATION ${PROJECT_BINARY_DIR}/bin)
+# DEBUG INSTALL #
+install(
+	TARGETS PanzerToy
+	CONFIGURATIONS Debug
+	RUNTIME DESTINATION ${PROJECT_BINARY_DIR}/bin/Debug
+)
 
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/assets DESTINATION ${PROJECT_BINARY_DIR}/bin)
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/models DESTINATION ${PROJECT_BINARY_DIR}/bin)
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/shaders DESTINATION ${PROJECT_BINARY_DIR}/bin)
+install(
+	DIRECTORY ${PROJECT_SOURCE_DIR}/assets
+	CONFIGURATIONS Debug
+	DESTINATION ${PROJECT_BINARY_DIR}/bin/Debug
+)
+install(
+	DIRECTORY ${PROJECT_SOURCE_DIR}/models
+	CONFIGURATIONS Debug
+	DESTINATION ${PROJECT_BINARY_DIR}/bin/Debug
+)
+install(
+	DIRECTORY ${PROJECT_SOURCE_DIR}/shaders
+	CONFIGURATIONS Debug
+	DESTINATION ${PROJECT_BINARY_DIR}/bin/Debug
+)
+
+# RELEASE VERSION #
+install(
+	TARGETS PanzerToy
+	CONFIGURATIONS Release
+	RUNTIME DESTINATION ${PROJECT_BINARY_DIR}/bin/Release
+)
+
+install(
+	DIRECTORY ${PROJECT_SOURCE_DIR}/assets
+	CONFIGURATIONS Release
+	DESTINATION ${PROJECT_BINARY_DIR}/bin/Release
+)
+install(
+	DIRECTORY ${PROJECT_SOURCE_DIR}/models
+	CONFIGURATIONS Release
+	DESTINATION ${PROJECT_BINARY_DIR}/bin/Release
+)
+install(
+	DIRECTORY ${PROJECT_SOURCE_DIR}/shaders
+	CONFIGURATIONS Release
+	DESTINATION ${PROJECT_BINARY_DIR}/bin/Release
+)

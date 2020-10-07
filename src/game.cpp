@@ -48,15 +48,18 @@ void Game::window_resize_callback(unsigned int width, unsigned int height) {
 	float f_width = static_cast<float>(width);
 	float f_height = static_cast<float>(height);
 
+	window_size = glm::uvec2(width, height);
+
 	cam.set_ratio(f_width / f_height);
 
-	text.set_pos(glm::ivec2(0, height - 10));
+	fps_counter.set_pos(glm::ivec2(width / 2, height - 10));
 
+	// Projection is screen
 	glm::mat4 projection = glm::ortho(0.0f, f_width, f_height, 0.0f);
 
-	text_settings.projection = projection;
-	sprite_infos.shader.set_MVP(projection);
-	Text::window_size(text_settings, width, height);
+	text_render.projection = projection;
+	sprite_render.shader.set_MVP(projection);
+	Text::window_size(text_render, width, height);
 }
 
 /**
@@ -107,13 +110,9 @@ Game::Game() {
 
 	EnemyManager::init();
 	Map::init();
-	Sprite::init(sprite_infos);
+	Sprite::init(sprite_render);
 	Tank::init();
-	Text::init(text_settings);
-
-	text.set_text("You're beautiful");
-	text.set_scale(0.5f);
-	sprite.load("assets/sprite.png");
+	Text::init(text_render);
 
 	window_resize_callback(window_size.x, window_size.y);
 
@@ -121,8 +120,11 @@ Game::Game() {
 	cam.set_pos(glm::vec3(11.0f, 10.0f, 10.5f));
 	cam.set_angle(glm::vec2(0.0f, -1.9f));
 
-	map = std::make_unique<Map>(0);
-	player = std::make_unique<Player>(map->get_player_starting_pos());
+	fps_counter.set_text_render(&text_render);
+	fps_counter.set_flags(TextFlags::CENTER_TEXT);
+
+	map = std::make_unique<Map>();
+	player = std::make_unique<Player>();
 }
 
 /** @brief Start main game loop */
@@ -162,13 +164,18 @@ void Game::frame() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	current_time = glfwGetTime();
-	base_shader.use();
 
 	delta_time = current_time - last_render_time;
 	if (delta_time > 0.0833333f) {
 		// We limit delta_time to 1/12 of a second, otherwise bullets could go
 		// through walls, and I'm too lazy to implement Continuous Collision Detection
 		delta_time = 0.0833333f;
+	}
+
+	base_shader.use();
+
+	if (map->get_map_id() == -1) { // No map loaded but playing
+		load_level(0);
 	}
 
 	// WASD / ZQSD controls
@@ -184,17 +191,21 @@ void Game::frame() {
 
 	if (current_time - last_fps_update > 1.0f) {
 		float fps = 1.0f / (current_time - last_render_time);
-		text.set_text("FPS: " + std::to_string(fps));
+		fps_counter.set_text("FPS: " + std::to_string(fps));
 		last_fps_update = current_time;
 	}
 
-	text.draw(text_settings);
-	sprite.draw(sprite_infos);
+	fps_counter.draw();
 
 	last_render_time = current_time;
 
 	glfwSwapBuffers(window);
 	glfwPollEvents();
+}
+
+void Game::load_level(int id) {
+	map->load(id);
+	restart_level(); // Reset everything, just to be sure
 }
 
 /** @brief Finish level and switch to the next one */
@@ -220,7 +231,7 @@ void Game::restart_level() {
 	const int map_id = map->get_map_id();
 
 	if (map_id == -1) {
-		Log::error("Trying to restart not loaded level");
+		Log::error("Trying to restart level but there's no map");
 		return;
 	}
 

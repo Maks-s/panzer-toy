@@ -69,29 +69,68 @@ void Text::window_size(TextRenderInfos& settings, unsigned int width, unsigned i
 	}
 }
 
-void Text::draw(const TextRenderInfos& settings) {
+/**
+ * @brief Calculate width of the text
+ *
+ * This is used to center it
+ */
+void Text::calculate_width() {
+	if (text.empty()) {
+		width = 0;
+		return;
+	}
+
+	GlyphTexture glyph = settings->glyph_list.at(text[0]);
+	last_glyph_width = glyph.advance;
+	width = last_glyph_width;
+
+	for (auto character = text.begin() + 1; character != text.end(); ++character) {
+		GlyphTexture glyph = settings->glyph_list.at(*character);
+		width += glyph.advance;
+	}
+}
+
+void Text::draw() {
+	if (settings == nullptr) {
+		throw std::runtime_error("No render settings for text:\n" + text);
+	}
+
 	if (dirty) {
 		transform = glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, 0.0f));
 		transform = glm::scale(transform, glm::vec3(scale, scale, 1.0f));
+		dirty = false;
 	}
 
-	settings.shader.use();
-	Shader::set_uniform(settings.shader.get_uniform_location("color"), color.r, color.g, color.b);
+	if (text.empty()) {
+		return;
+	}
+
+	// Glyphs' size has been changed, this is triggered by resizing the window
+	if (settings->glyph_list.at(text[0]).advance != last_glyph_width) {
+		calculate_width();
+	}
+
+	settings->shader.use();
+	Shader::set_uniform(settings->shader.get_uniform_location("color"), color.r, color.g, color.b);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(settings.VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, settings.VBO);
+	glBindVertexArray(settings->VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, settings->VBO);
 
 	FT_Pos advance = 0;
 
+	if (flags & TextFlags::CENTER_TEXT) {
+		advance = -width / 2;
+	}
+
 	for (char character : text) {
-		GlyphTexture glyph = settings.glyph_list.at(character);
+		GlyphTexture glyph = settings->glyph_list.at(character);
 
 		glBindTexture(GL_TEXTURE_2D, glyph.id);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glyph.vertices), glyph.vertices);
 
-		settings.shader.set_MVP(
-			settings.projection * glm::translate(transform, glm::vec3(advance, 0.0f, 0.0f))
+		settings->shader.set_MVP(
+			settings->projection * glm::translate(transform, glm::vec3(advance, 0.0f, 0.0f))
 		);
 
 		advance += glyph.advance;
@@ -109,7 +148,13 @@ void Text::set_pos(const glm::ivec2& pos) {
 
 void Text::set_scale(float scale) {
 	this->scale = scale;
+	calculate_width();
 	dirty = true;
+}
+
+void Text::set_text(const std::string& text) {
+	this->text = text;
+	calculate_width();
 }
 
 namespace {
@@ -120,6 +165,8 @@ namespace {
 	 * @param[in] c The character to generate
 	 *
 	 * @return True if there was no error, false otherwise
+	 *
+	 * @note This function is inline because it's only called 1 time
 	 */
 	inline bool process_character(TextRenderInfos& settings, char c) {
 		FT_Error error = FT_Load_Char(settings.face, c, FT_LOAD_RENDER);

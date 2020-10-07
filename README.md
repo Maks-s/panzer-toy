@@ -7,7 +7,7 @@
 If you want to build Panzer Toy yourself, you will need CMake 3.10 or above
 
 ```bash
-$ git clone https://github.com/Maks-s/panzer-toy.git --recursive
+$ git clone https://github.com/Maks-s/panzer-toy.git --recursive --depth=1
 $ mkdir panzer-toy/build
 $ cd panzer-toy/build
 $ cmake ..
