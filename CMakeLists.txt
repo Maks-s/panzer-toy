@@ -48,7 +48,7 @@ set(SRC_FILES
 	src/tank.cpp
 	src/text.cpp
 	src/texture.cpp
-	# src/menu/button.cpp
+	src/menu/button.cpp
 )
 
 add_executable(PanzerToy ${SRC_FILES})
@@ -56,6 +56,7 @@ add_executable(PanzerToy ${SRC_FILES})
 target_link_libraries(PanzerToy assimp freetype gl3w glfw glm)
 
 target_include_directories(PanzerToy PUBLIC ${PROJECT_BINARY_DIR}/src) # Include version.hpp
+target_include_directories(PanzerToy PUBLIC ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(PanzerToy PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 target_compile_options(PanzerToy PUBLIC

@@ -13,10 +13,13 @@
 #include "enemy.hpp"
 #include "log.hpp"
 #include "map.hpp"
+#include "menu/button.hpp"
 #include "model.hpp"
 #include "player.hpp"
 #include "shader.hpp"
 #include "version.hpp"
+
+// @TODO: Make events
 
 namespace {
 	void cursor_pos_callback(GLFWwindow* window, double x, double y) {
@@ -32,6 +35,7 @@ namespace {
 		}
 
 		game->player_shoot();
+		game->process_click();
 	}
 
 	// @TODO: Add restrictions to resizing, to prevent the void
@@ -42,6 +46,10 @@ namespace {
 
 		glViewport(0, 0, width, height);
 	}
+
+	void callback_btn(Game& game) {
+		game.restart_level();
+	}
 }
 
 void Game::window_resize_callback(unsigned int width, unsigned int height) {
@@ -50,16 +58,18 @@ void Game::window_resize_callback(unsigned int width, unsigned int height) {
 
 	window_size = glm::uvec2(width, height);
 
-	cam.set_ratio(f_width / f_height);
-
-	fps_counter.set_pos(glm::ivec2(width / 2, height - 10));
-
 	// Projection is screen
 	glm::mat4 projection = glm::ortho(0.0f, f_width, f_height, 0.0f);
 
 	text_render.projection = projection;
 	sprite_render.shader.set_MVP(projection);
 	Text::window_size(text_render, width, height);
+
+	cam.set_ratio(f_width / f_height);
+
+	btn.calculate_metrics();
+	btn.set_pos(glm::ivec2(width / 2, 10 + btn.get_height()));
+	fps_counter.set_pos(glm::ivec2(width / 2, height - 10));
 }
 
 /**
@@ -114,7 +124,8 @@ Game::Game() {
 	Tank::init();
 	Text::init(text_render);
 
-	window_resize_callback(window_size.x, window_size.y);
+	cursor_normal = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+	cursor_clicker = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
 
 	// Set up the camera to be aligned with the map
 	cam.set_pos(glm::vec3(11.0f, 10.0f, 10.5f));
@@ -122,6 +133,13 @@ Game::Game() {
 
 	fps_counter.set_text_render(&text_render);
 	fps_counter.set_flags(TextFlags::CENTER_TEXT);
+
+	btn.set_text("Restart");
+	btn.set_flags(TextFlags::CENTER_TEXT);
+	btn.set_render(&text_render);
+	btn.set_callback(&callback_btn);
+
+	window_resize_callback(window_size.x, window_size.y);
 
 	map = std::make_unique<Map>();
 	player = std::make_unique<Player>();
@@ -137,6 +155,18 @@ void Game::run() {
 /** @brief Make the player shoot a bullet */
 void Game::player_shoot() const {
 	player->shoot(*this);
+}
+
+void Game::process_click() {
+	btn.process_click(*this);
+}
+
+void Game::set_cursor(bool is_clicker) {
+	if (is_clicker) {
+		glfwSetCursor(window, cursor_clicker);
+	} else {
+		glfwSetCursor(window, cursor_normal);
+	}
 }
 
 /**
@@ -196,6 +226,7 @@ void Game::frame() {
 	}
 
 	fps_counter.draw();
+	btn.draw(*this);
 
 	last_render_time = current_time;
 

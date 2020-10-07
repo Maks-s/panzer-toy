@@ -53,8 +53,11 @@ public:
 	static void window_size(TextRenderInfos& settings, unsigned int width, unsigned int height);
 
 	void draw();
+	void calculate_metrics();
 
+	short get_flags() const { return flags; };
 	int get_width() const { return width; };
+	int get_height() const { return height; };
 	glm::vec2 get_pos() const { return pos; };
 	void set_pos(const glm::ivec2& pos);
 
@@ -65,13 +68,13 @@ public:
 	void set_flags(short flags) { this->flags = flags; };
 
 private:
-	void calculate_width();
 
 	bool dirty = true;
 	std::string text;
 	float scale = 1.0f;
 	short flags = 0b00;
 	FT_Pos width = 0;
+	FT_Pos height = 0;
 	FT_Pos last_glyph_width = 0;
 	TextRenderInfos* settings = nullptr;
 	glm::vec3 color = glm::vec3(1.0f);

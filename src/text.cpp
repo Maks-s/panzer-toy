@@ -74,8 +74,8 @@ void Text::window_size(TextRenderInfos& settings, unsigned int width, unsigned i
  *
  * This is used to center it
  */
-void Text::calculate_width() {
-	if (text.empty()) {
+void Text::calculate_metrics() {
+	if (text.empty() || settings == nullptr) {
 		width = 0;
 		return;
 	}
@@ -88,6 +88,13 @@ void Text::calculate_width() {
 		GlyphTexture glyph = settings->glyph_list.at(*character);
 		width += glyph.advance;
 	}
+
+	/**
+	 * Also calculate height, because why not
+	 * With our font, height is always the same so it isn't difficult
+	 * @todo Make this universal
+	 */
+	height = settings->face->glyph->metrics.height * 0.01f;
 }
 
 void Text::draw() {
@@ -105,11 +112,6 @@ void Text::draw() {
 		return;
 	}
 
-	// Glyphs' size has been changed, this is triggered by resizing the window
-	if (settings->glyph_list.at(text[0]).advance != last_glyph_width) {
-		calculate_width();
-	}
-
 	settings->shader.use();
 	Shader::set_uniform(settings->shader.get_uniform_location("color"), color.r, color.g, color.b);
 
@@ -123,9 +125,15 @@ void Text::draw() {
 		advance = -width / 2;
 	}
 
-	for (char character : text) {
-		GlyphTexture glyph = settings->glyph_list.at(character);
+	auto character = text.begin();
+	GlyphTexture glyph = settings->glyph_list.at(*character);
 
+	// Glyphs' size has been changed, this is triggered by resizing the window
+	if (glyph.advance != last_glyph_width) {
+		calculate_metrics();
+	}
+
+	while (true) {
 		glBindTexture(GL_TEXTURE_2D, glyph.id);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glyph.vertices), glyph.vertices);
 
@@ -136,6 +144,12 @@ void Text::draw() {
 		advance += glyph.advance;
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+		if (++character == text.end()) {
+			break;
+		}
+
+		glyph = settings->glyph_list.at(*character);
 	}
 
 	glBindVertexArray(0);
@@ -148,13 +162,13 @@ void Text::set_pos(const glm::ivec2& pos) {
 
 void Text::set_scale(float scale) {
 	this->scale = scale;
-	calculate_width();
+	calculate_metrics();
 	dirty = true;
 }
 
 void Text::set_text(const std::string& text) {
 	this->text = text;
-	calculate_width();
+	calculate_metrics();
 }
 
 namespace {
@@ -175,7 +189,7 @@ namespace {
 			return false;
 		}
 
-		const FT_Glyph_Metrics_& metrics = settings.face->glyph->metrics;
+		const FT_Glyph_Metrics& metrics = settings.face->glyph->metrics;
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 

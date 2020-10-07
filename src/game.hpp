@@ -8,6 +8,7 @@
 
 #include "camera.hpp"
 #include "map.hpp"
+#include "menu/button.hpp"
 #include "player.hpp"
 #include "shader.hpp"
 #include "sprite.hpp"
@@ -47,6 +48,9 @@ public:
 	glm::vec3 get_player_pos() const { return player->get_pos(); };
 	float get_current_time() const { return current_time; };
 
+	void process_click();
+	void set_cursor(bool is_clicker);
+
 private:
 	float calculate_cursor_angle(const glm::mat4& VP) const;
 	void frame();
@@ -54,6 +58,7 @@ private:
 	GLFWwindow* window;
 	glm::uvec2 window_size = glm::uvec2(600, 500);
 
+	Button btn;
 	Camera cam;
 	Shader base_shader;
 	Text fps_counter;
@@ -65,7 +70,10 @@ private:
 	float last_render_time = 0.0f;
 	float last_fps_update = 0.0f;
 	float current_time;
+
 	glm::vec2 cursor_pos;
+	GLFWcursor* cursor_normal;
+	GLFWcursor* cursor_clicker;
 
 	// Instancing directly will segfault because OpenGL isn't initialised
 	std::unique_ptr<Map> map;

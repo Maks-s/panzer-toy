@@ -10,6 +10,8 @@
 
 #include "game.hpp"
 
+// @TODO: Append _ to member var
+
 /**
  * @brief The almighty main
  *
